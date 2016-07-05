@@ -13,7 +13,7 @@ import model.FilmList;
 import model.Reservation;
 import model.ReservationList;
 import model.Room;
-import model.RoomList;
+import model.RoomList; 
 import model.Show;
 import model.ShowList;
 
@@ -113,7 +113,7 @@ public class Controller {
 			return 2; //ungültiger Pfad
 		}
 		// Überprüft ob Film bereits existiert
-		if (filmList.doFilmExist(duration, title) == false) {
+		if (filmList.doFilmExist(title) == false) {
 			filmList.addFilm(filmList.getNewId(), duration, title, description, imagePath);
 			return 0; //alles ok
 		}else{

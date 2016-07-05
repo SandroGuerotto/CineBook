@@ -16,10 +16,30 @@ import model.ShowList;
 public class FileStream {
 
 	// ArrayList wird in File geschrieben
-	public void serializeList(List<?> list, String fileName) {
-
+	public void serializeFilmList(FilmList list, String fileName) {
+		
 		try {
-			FileOutputStream fos = new FileOutputStream("@../../data/" + fileName + ".ser");
+			FileOutputStream fos = new FileOutputStream("data/films.ser");
+			ObjectOutputStream oos = new ObjectOutputStream(fos);
+			oos.writeObject(list);
+			oos.close();
+			fos.close();
+			
+		}catch(FileNotFoundException e){
+			System.out.println("FileNotFound");
+			
+		} catch (IOException ioe) {
+			System.err.println("\nEs ist ein Fehler aufgetreten!\n");
+			ioe.printStackTrace();
+		}
+	}
+	
+	
+	// ArrayList wird in File geschrieben
+	public void serializeList(List list, String fileName) {
+		
+		try {
+			FileOutputStream fos = new FileOutputStream("data/" + fileName + ".ser");
 			ObjectOutputStream oos = new ObjectOutputStream(fos);
 			oos.writeObject(list);
 			oos.close();
@@ -38,7 +58,7 @@ public class FileStream {
 	public List<?> deserializeList(String fileName) {
 
 		try {
-			FileInputStream fis = new FileInputStream("@../../data/" + fileName + ".ser");
+			FileInputStream fis = new FileInputStream("data/" + fileName + ".ser");
 			ObjectInputStream ois = new ObjectInputStream(fis);
 			List<?> list = (List<?>) ois.readObject();
 			ois.close();

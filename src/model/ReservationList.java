@@ -1,5 +1,6 @@
 package model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -7,7 +8,7 @@ import javax.print.attribute.standard.DateTimeAtCompleted;
 
 import controller.FileStream;
 
-public class ReservationList extends ArrayList<Reservation> {
+public class ReservationList extends ArrayList<Reservation> implements Serializable{
 
 	Reservation reservation;
 	FileStream fileStream;

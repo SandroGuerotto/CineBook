@@ -5,20 +5,21 @@ import java.io.Serializable;
 
 public class Film implements Serializable {
 
-	int id;
-	int durationInMinutes;
-	String title;
-	String description;
-	String imagePath;
+	private static final long serialVersionUID = 8150636062096138356L;
+	transient int id;
+	transient int durationInMinutes;
+	transient String title;
+	transient String description;
+	transient String imagePath;
 
 	// Gibt eine neuen Film zurück
-	public Film newFilm(int id, int durationInMinutes, String title, String description, String imagePath) {
+	public Film(int id, int durationInMinutes, String title, String description, String imagePath) {
 		this.id = id;
 		this.durationInMinutes = durationInMinutes;
 		this.title = title;
 		this.description = description;
 		this.imagePath = imagePath;
-		return this;
+		
 	}
 
 	// Editiert den Film

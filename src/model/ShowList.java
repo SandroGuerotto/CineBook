@@ -1,5 +1,6 @@
 package model;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -7,7 +8,7 @@ import java.util.Date;
 
 import controller.FileStream;
 
-public class ShowList extends ArrayList<Show> {
+public class ShowList extends ArrayList<Show> implements Serializable{
 	Show show;
 	FileStream fileStream;
 	

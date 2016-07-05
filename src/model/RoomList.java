@@ -1,10 +1,11 @@
 package model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import controller.FileStream;
 
-public class RoomList extends ArrayList<Room> {
+public class RoomList extends ArrayList<Room> implements Serializable{
 	Room room;
 	FileStream fileStream;
 

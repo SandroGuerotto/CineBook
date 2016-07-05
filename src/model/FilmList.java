@@ -1,20 +1,21 @@
 package model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import controller.FileStream;
 
 
-public class FilmList extends ArrayList<Film> {
+public class FilmList extends ArrayList<Film> implements Serializable {
 
-	Film film;
-	FileStream fileStream;
+	private static final long serialVersionUID = -2667895239924164056L;
+	transient Film film;
+	transient FileStream fileStream;
 	
 	
 	
 	public FilmList() {
 		fileStream = new FileStream();
-		film = new Film();
 	}
 
 	// Neuen Film hinzufügen
@@ -26,7 +27,7 @@ public class FilmList extends ArrayList<Film> {
 	
 	// Neuen Film erstellen und hinzufügen
 	public void addFilm(int id, int durationInMinutes, String title, String description, String imagePath){
-		film = film.newFilm(id, durationInMinutes, title, description, imagePath);
+		film = new Film(id, durationInMinutes, title, description, imagePath);
 		this.add(film);
 		
 		save();
@@ -35,19 +36,15 @@ public class FilmList extends ArrayList<Film> {
 	// Film editieren (id muss natürlich die des alten Filmes sein)
 	public void editFilm(Film editedFilm){
 		film = getFilmById(editedFilm.id);
-		film.editFilm(editedFilm.durationInMinutes, editedFilm.title, editedFilm.description, editedFilm.imagePath);
+		film.durationInMinutes = editedFilm.durationInMinutes;
+		film.title = editedFilm.title;
+		film.description = editedFilm.description;
+		film.imagePath = editedFilm.imagePath;
+		
+		save();
+	}
+	
 
-		save();
-	}
-	
-	// Film bearbeiten mit einzelnen Parameter (id muss natürlich die des alten Filmes sein)
-	public void editFilm(int id, int newDurationInMinutes, String newTitle, String newDescription, String newImagePath){
-		film = getFilmById(id);
-		film.editFilm(newDurationInMinutes, newTitle, newDescription, newImagePath);
-			
-		save();
-	}
-	
 	// Film löschen mit Objekt (boolean gibt Wert zurück ob wirklich gelöscht wurde)
 	public boolean deleteReservation(Film film){
 		film = getFilmById(film.id);
@@ -61,11 +58,11 @@ public class FilmList extends ArrayList<Film> {
 	}
 	
 	// Prüfen ob ein Film schon existiert mit Variablen
-	public boolean doFilmExist(int duration, String title){
+	public boolean doFilmExist(String title){
 		
 		if(this.size() != 0){
 			for(Film film : this){
-				if(duration == film.durationInMinutes && title.equals(film.title)){
+				if(title.equals(film.title)){
 					return true;
 				}			
 			}
@@ -106,7 +103,7 @@ public class FilmList extends ArrayList<Film> {
 	
 	// Liste via FileStream in File schreiben
 	public void save() {
-		fileStream.serializeList(this, "films");
+		fileStream.serializeFilmList(this, "films");
 	}
 	
 
