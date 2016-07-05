@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="1040.0" prefWidth="1920.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="controller.EventHandlingController">
+  <!-- TODO Add Nodes -->
+  <children>
+    <GridPane fx:id="pane_main" prefHeight="-1.0" prefWidth="-1.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <children>
+        <HBox fillHeight="true" maxHeight="47.0" minHeight="44.999908447265625" prefHeight="44.999908447265625" prefWidth="960.0" GridPane.columnIndex="0" GridPane.columnSpan="1" GridPane.rowIndex="0">
+          <children>
+            <MenuBar maxHeight="250.0" maxWidth="-1.0" minHeight="48.0" minWidth="-1.0" prefHeight="250.0" prefWidth="960.0" HBox.hgrow="ALWAYS">
+              <menus>
+                <Menu disable="false" mnemonicParsing="false" text="Show" fx:id="btn_newshow">
+                  <items>
+                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Create new Show" fx:id="btn_createshow" />
+                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Edit existing Show" fx:id="btn_editshow" />
+                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Delete existing Show" fx:id="btn_deleteshow" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Room">
+                  <items>
+                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Create new Room" fx:id="btn_createroom" />
+                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Edit existing Room" fx:id="btn_editroom" />
+                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Delete existing Room" fx:id="btn_deleteroom" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Film" fx:id="btn_newfilm">
+                  <items>
+                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Create new Film" fx:id="btn_createfilm" />
+                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Edit existing Film" fx:id="btn_editfilm" />
+                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Delete existing Film" fx:id="btn_deletefilm" />
+                  </items>
+                </Menu>
+              </menus>
+            </MenuBar>
+          </children>
+        </HBox>
+        <HBox minHeight="-1.0" prefHeight="-1.0" prefWidth="960.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+          <children>
+            <HBox alignment="TOP_RIGHT" maxHeight="48.0" minHeight="48.0" prefHeight="48.0" prefWidth="458.0" styleClass="menu-bar" HBox.hgrow="ALWAYS" />
+            <MenuBar maxHeight="48.0" maxWidth="150.0" minHeight="48.0" minWidth="150.0" prefHeight="48.0" prefWidth="150.0" HBox.hgrow="ALWAYS">
+              <menus>
+                <Menu mnemonicParsing="false" text="Help" fx:id="btn_help" />
+                <Menu mnemonicParsing="false" text="" fx:id="btn_exit">
+                  <graphic>
+                    <ImageView blendMode="ADD" cache="false" disable="false" fitHeight="25.0" fitWidth="25.0" focusTraversable="false" mouseTransparent="true" pickOnBounds="true" preserveRatio="true">
+                      <image>
+                        <Image url="file:images/exit.png" />
+                      </image>
+                    </ImageView>
+                  </graphic>
+                  <items>
+                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Exit" fx:id="btn_exitprogramm" />
+                  </items>
+                </Menu>
+              </menus>
+              <HBox.margin>
+                <Insets />
+              </HBox.margin>
+            </MenuBar>
+          </children>
+        </HBox>
+        <Label fx:id="lbl_message" maxHeight="60.0" minHeight="60.0" minWidth="0.0" prefHeight="60.0" prefWidth="1829.0" text="" wrapText="false" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+          <font>
+            <Font size="25.0" fx:id="x1" />
+          </font>
+        </Label>
+        <GridPane fx:id="pane_film" disable="true" gridLinesVisible="false" prefHeight="944.0" visible="false" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="2" GridPane.rowSpan="2">
+          <children>
+            <VBox prefHeight="503.0" prefWidth="522.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+              <children>
+                <TextField fx:id="tf_filmtitle" alignment="CENTER_LEFT" disable="false" maxHeight="50.0" minHeight="25.0" prefHeight="50.0" prefWidth="490.0" promptText="Title">
+                  <VBox.margin>
+                    <Insets bottom="10.0" />
+                  </VBox.margin>
+                </TextField>
+                <TextArea fx:id="ta_filmdesc" maxHeight="250.0" prefHeight="250.0" prefWidth="200.0" promptText="Description" wrapText="true" />
+                <TextField fx:id="tf_filmduration" alignment="CENTER_LEFT" disable="false" maxHeight="50.0" minHeight="25.0" prefHeight="50.0" prefWidth="153.0" promptText="Duration in Minutes">
+                  <VBox.margin>
+                    <Insets top="10.0" />
+                  </VBox.margin>
+                </TextField>
+              </children>
+              <padding>
+                <Insets bottom="25.0" left="100.0" right="50.0" top="25.0" />
+              </padding>
+            </VBox>
+            <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+              <top>
+                <ImageView fx:id="iv_filmcover" fitHeight="459.2984924316406" fitWidth="302.33123195850453" onMouseClicked="#initialize" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
+                  <image>
+                    <Image url="File:images/standard-cover.png" />
+                  </image>
+                </ImageView>
+              </top>
+            </BorderPane>
+            <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="2">
+              <center>
+                <Button fx:id="btn_filmcreatesave" font="$x1" mnemonicParsing="false" onAction="#initialize" prefHeight="44.0" prefWidth="178.0" styleClass="btn" text="Save" />
+              </center>
+              <left>
+                <Hyperlink fx:id="btn_cancel" alignment="CENTER_LEFT" contentDisplay="LEFT" font="$x1" onAction="#initialize" prefHeight="45.0" prefWidth="90.0" text="Cancel" textAlignment="LEFT" underline="true" wrapText="false" BorderPane.alignment="CENTER" />
+              </left>
+            </BorderPane>
+            <Label fx:id="lbl_filmcreate" alignment="CENTER_LEFT" font="$x1" prefHeight="50.000099999997474" prefWidth="767.0" styleClass="title" text="Create new Film" textAlignment="LEFT" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER" />
+          </children>
+          <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="961.0" minWidth="10.0" prefWidth="961.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="921.0" minWidth="10.0" prefWidth="519.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="637.0" minWidth="10.0" prefWidth="440.0" />
+          </columnConstraints>
+          <rowConstraints>
+            <RowConstraints maxHeight="257.0" minHeight="10.0" prefHeight="144.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="714.0" minHeight="10.0" prefHeight="630.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="223.0" minHeight="50.0" prefHeight="109.0" vgrow="SOMETIMES" />
+          </rowConstraints>
+        </GridPane>
+      </children>
+      <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+      </columnConstraints>
+      <rowConstraints>
+        <RowConstraints maxHeight="231.0" minHeight="50.0" prefHeight="50.0" valignment="TOP" vgrow="NEVER" />
+        <RowConstraints maxHeight="467.0" minHeight="10.0" prefHeight="107.0" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="467.0" minHeight="10.0" prefHeight="278.0" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="605.0" minHeight="10.0" prefHeight="605.0" vgrow="SOMETIMES" />
+      </rowConstraints>
+    </GridPane>
+  </children>
+  <padding>
+    <Insets />
+  </padding>
+  <stylesheets>
+    <URL value="@application.css" />
+  </stylesheets>
+</AnchorPane>

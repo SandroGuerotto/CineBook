@@ -1,0 +1,94 @@
+/*
+ * Author		: Sandro Guerotto, Tim Meier
+ * Describtion	: CSS File with style properties for  all Gui Components
+ * Create on 	: 21.06.2016
+ * 
+ */
+/* Menubar */
+#btn_exit, #btn_exitprogramm{
+	-fx-padding: 0.333333em 2.3em 0.333333em 2.3em;
+	-fx-background-color: #990000;
+	-fx-height: 48px;
+}
+#btn_exit:hover, #btn_exitprogramm:hover,
+#btn_exit:focused, #btn_exitprogramm:focused  {
+	-fx-background-color: rgb(170,0,0);
+}
+.menu-bar{
+  -fx-background-color: rgb(72,72,72) ;
+  -fx-padding: 0em 0em 0em 0em;
+}
+
+.menu-bar .label {
+    -fx-font-size: 25 pt;
+}
+
+.menu:hover {
+    -fx-background-color: rgb(104,104,104);
+}
+
+.menu-item .label{
+	-fx-font-size: 25 pt;
+	-fx-label-line-length: 8;
+}
+.menu-item{
+	-fx-height: 50px;
+	-fx-background-color: rgb(72,72,72) ;
+}
+.menu-item:hover {
+    -fx-background-color: rgb(104,104,104);
+}
+.menu .label{  
+	-fx-text-fill: white;
+}
+.menu{
+	-fx-background-color: rgb(72,72,72) ;
+	-fx-border: none;
+	-fx-height: 48px;
+}
+
+/* Font Style */
+.title{
+	-fx-font-size: 30 pt;
+}
+
+/* Button */
+#btn_cancel{
+	-fx-text-fill: rgb(72,72,72) ;
+}
+#btn_cancel:hover ,#btn_cancel:focused {
+    -fx-text-fill: rgb(104,104,104);
+}
+.btn{
+	-fx-background-color: #990000;
+	-fx-text-fill: white;
+}
+.btn:hover, .btn:focused{
+	-fx-background-color: rgb(170,0,0);
+}
+/* Textinput */
+.text-input{
+	-fx-font-size: 25 pt;
+}
+
+
+/* Message */
+.msg_info, .msg_success, .msg_warning, .msg_error {
+	-fx-padding: 12px 12px 12px 12px;
+}
+.msg_info {
+    -fx-text-fill: #00529B;
+    -fx-background-color: #BDE5F8;
+}
+.msg_success {
+    -fx-text-fill: #4F8A10;
+    -fx-background-color: #DFF2BF;
+}
+.msg_warning {
+    -fx-text-fill: #9F6000;
+    -fx-background-color: #FEEFB3;
+}
+.msg_error {
+    -fx-text-fill: #D8000C;
+    -fx-background-color: #FFBABA;
+}
