@@ -1,6 +1,5 @@
 package model;
 
-import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -8,13 +7,11 @@ import java.util.Date;
 
 import controller.FileStream;
 
-public class ShowList extends ArrayList<Show> implements Serializable{
-	Show show;
-	FileStream fileStream;
+public class ShowList extends ArrayList<Show> {
+	transient Show show;
+	transient FileStream fileStream;
 	
 	public ShowList(){
-		fileStream = new FileStream();
-		show = new Show();
 	}
 
 	// Neue Show hinzufügen
@@ -26,7 +23,7 @@ public class ShowList extends ArrayList<Show> implements Serializable{
 
 	// Neue Show erstellen und hinzufügen
 	public void addShow(int id, Room room, Film film, Date startDateTime, Date endDateTime, int durationInMinutes) {
-		show = show.newShow(id, room, film, startDateTime, endDateTime, durationInMinutes);
+		show = new Show(id, room, film, startDateTime, endDateTime, durationInMinutes);
 		this.add(show);
 
 		save();
@@ -35,34 +32,27 @@ public class ShowList extends ArrayList<Show> implements Serializable{
 	// Show editieren (id muss natürlich die der alten Show sein)
 	public void editShow(Show editedShow) {
 		show = getShowById(editedShow.id);
-		show.editShow(editedShow.room, editedShow.film, editedShow.startDateTime, editedShow.endDateTime,
-				editedShow.durationInMinutes);
+		show.room = editedShow.room;
+		show.film = editedShow.film;
+		show.startDateTime = editedShow.startDateTime;
+		show.endDateTime = editedShow.endDateTime;
+		show.durationInMinutes = editedShow.durationInMinutes;
 
 		save();
 	}
 
-	// Show bearbeiten mit einzelnen Parameter (id muss natürlich die der alten
-	// Show sein)
-	public void editShow(int id, Room newRoom, Film newFilm, Date newStartDateTime, Date newEndDateTime,
-			int newDurationInMinutes) {
-		show = getShowById(id);
-		show.editShow(newRoom, newFilm, newStartDateTime, newEndDateTime, newDurationInMinutes);
 
-		save();
-	}
-
-	// Show löschen mit Objekt (boolean gibt Wert zurück ob wirklich gelöscht
-	// wurde)
+	// Show löschen mit Objekt (boolean gibt Wert zurück ob wirklich gelöscht wurde)
 	public boolean deleteShow(Show show) {
 		show = getShowById(show.id);
-		return this.remove(show);
+		
+		boolean hasRemoved = this.remove(show);
+		save();
+		
+		return hasRemoved;
 	}
 
-	// Show löschen mit id (boolean gibt Wert zurück ob wirklich gelöscht wurde)
-	public boolean deleteShow(int id) {
-		show = getShowById(id);
-		return this.remove(show);
-	}
+
 
 	// Sucht Show per Id, wenn keine gefunden dann wird null zurückgegeben
 	public Show getShowById(int id) {
@@ -76,6 +66,35 @@ public class ShowList extends ArrayList<Show> implements Serializable{
 		}
 		return null;
 	}
+	
+	
+	// Überprüfen ob es in Zukunft eine Show mit diesem Film gibt
+	public boolean isShowDepending(Film film){
+		Date date = new Date();
+		
+		for(Show show : this){
+			if(show.film == film && show.startDateTime.after(date)){
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	
+	// Überprüfen ob es in Zukunft eine Show mit diesem Room gibt
+	public boolean isShowDepending(Room room){
+		Date date = new Date();
+		
+		for(Show show : this){
+			if(show.room == room && show.startDateTime.after(date)){
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
 	
 	// Gibt alle Shows zurück die an einem bestimmten Tag stattfinden
 	public ShowList getShowsByDate(String mainDate){
@@ -169,8 +188,11 @@ public class ShowList extends ArrayList<Show> implements Serializable{
 
 	// Liste via FileStream in File schreiben
 	public void save() {
-		fileStream.serializeList(this, "shows");
+		fileStream.serializeShowList(this);
 
 	}
 
+	public void setFileStream(FileStream fileStream) {
+		this.fileStream = fileStream;
+	}
 }

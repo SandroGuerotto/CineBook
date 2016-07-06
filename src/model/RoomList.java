@@ -1,17 +1,15 @@
 package model;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 import controller.FileStream;
 
-public class RoomList extends ArrayList<Room> implements Serializable{
-	Room room;
-	FileStream fileStream;
+public class RoomList extends ArrayList<Room> {
+	transient Room room;
+	transient FileStream fileStream;
 
 	public RoomList(){
-		fileStream = new FileStream();
-		room = new Room();
+
 	}
 	
 	// Neuen Room hinzufügen
@@ -23,7 +21,7 @@ public class RoomList extends ArrayList<Room> implements Serializable{
 
 	// Neuen Room erstellen und hinzufügen
 	public void addRoom(String name) {
-		room = room.newRoom(name);
+		room = new Room(name);
 		this.add(room);
 
 		save();
@@ -32,34 +30,24 @@ public class RoomList extends ArrayList<Room> implements Serializable{
 	// Room editieren (name muss natürlich die des alten Filmes sein)
 	public void editRoom(String oldName, Room editedRoom) {
 		room = getRoomByName(oldName);
-		room.editRoom(editedRoom.name, editedRoom.seatArrangement);
+		room.name = editedRoom.name;
 
 		save();
 	}
 
-	// Room bearbeiten mit einzelnen Parameter (id muss natürlich die des alten Filmes sein)
-	public void editRoom(String oldName, String newName, String[][] newSeatArrangement) {
-		room = getRoomByName(oldName);
-		room.editRoom(newName, newSeatArrangement);
-
-		save();
-	}
 
 	// Room löschen mit Objekt (boolean gibt Wert zurück ob wirklich gelöscht wurde)
 	public boolean deleteRoom(Room room) {
+		
 		room = getRoomByName(room.name);
-		return this.remove(room);
+		
+		boolean hasRemoved = this.remove(room);
+		save();
+		
+		return hasRemoved;
 	}
 
-	// Room löschen mit id (boolean gibt Wert zurück ob wirklich gelöscht wurde)
-	public boolean deleteRoom(String name) {
-		room = getRoomByName(name);
-		return this.remove(room);
-	}
 
-	public void addSeat() {
-
-	}
 
 	// Sucht Room per Name, wenn keine gefunden dann wird null zurückgegeben
 	public Room getRoomByName(String name) {
@@ -89,8 +77,11 @@ public class RoomList extends ArrayList<Room> implements Serializable{
 
 	// Liste via FileStream in File schreiben
 	public void save() {
-		fileStream.serializeList(this, "rooms");
+		fileStream.serializeRoomList(this);
 
 	}
 
+	public void setFileStream(FileStream fileStream) {
+		this.fileStream = fileStream;
+	}
 }

@@ -110,7 +110,7 @@
                 <Hyperlink fx:id="btn_cancel" alignment="CENTER_LEFT" contentDisplay="LEFT" font="$x1" onAction="#initialize" prefHeight="45.0" prefWidth="90.0" text="Cancel" textAlignment="LEFT" underline="true" wrapText="false" BorderPane.alignment="CENTER" />
               </left>
             </BorderPane>
-            <Label fx:id="lbl_filmcreate" alignment="CENTER_LEFT" font="$x1" prefHeight="50.000099999997474" prefWidth="767.0" styleClass="title" text="Create new Film" textAlignment="LEFT" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER" />
+            <Label fx:id="lbl_film" alignment="CENTER_LEFT" font="$x1" prefHeight="50.000099999997474" prefWidth="767.0" styleClass="title" text="Create new Film" textAlignment="LEFT" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER" />
           </children>
           <columnConstraints>
             <ColumnConstraints hgrow="SOMETIMES" maxWidth="961.0" minWidth="10.0" prefWidth="961.0" />

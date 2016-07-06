@@ -1,21 +1,17 @@
 package model;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 import controller.FileStream;
 
 
-public class FilmList extends ArrayList<Film> implements Serializable {
+public class FilmList extends ArrayList<Film> {
 
-	private static final long serialVersionUID = -2667895239924164056L;
+
 	transient Film film;
 	transient FileStream fileStream;
 	
-	
-	
 	public FilmList() {
-		fileStream = new FileStream();
 	}
 
 	// Neuen Film hinzufügen
@@ -36,26 +32,27 @@ public class FilmList extends ArrayList<Film> implements Serializable {
 	// Film editieren (id muss natürlich die des alten Filmes sein)
 	public void editFilm(Film editedFilm){
 		film = getFilmById(editedFilm.id);
+		
 		film.durationInMinutes = editedFilm.durationInMinutes;
 		film.title = editedFilm.title;
 		film.description = editedFilm.description;
 		film.imagePath = editedFilm.imagePath;
-		
+
 		save();
 	}
 	
-
+	
 	// Film löschen mit Objekt (boolean gibt Wert zurück ob wirklich gelöscht wurde)
-	public boolean deleteReservation(Film film){
+	public boolean deleteFilm(Film film){
 		film = getFilmById(film.id);
-		return this.remove(film);
+		
+		boolean hasRemoved = this.remove(film);
+		save();
+		
+		return hasRemoved;
 	}
 	
-	// Film löschen mit id (boolean gibt Wert zurück ob wirklich gelöscht wurde)
-	public boolean deleteFilm(int id){
-		film = getFilmById(id);
-		return this.remove(film);
-	}
+
 	
 	// Prüfen ob ein Film schon existiert mit Variablen
 	public boolean doFilmExist(String title){
@@ -87,9 +84,9 @@ public class FilmList extends ArrayList<Film> implements Serializable {
 	// Gibt grösste bis jetzt vorhandene ID zurück +1
 	public int getNewId(){
 		if(this.size() == 0){
+			System.out.println("Liste ist leer");
 			return 1;
 		}
-		
 		int id = 0;
 			
 		for(Film film : this){
@@ -97,14 +94,30 @@ public class FilmList extends ArrayList<Film> implements Serializable {
 				id = film.id;
 			}
 		}
-			
-		return id++;
+		return id+1;
 	}
+	
+	// Überprüft ob Cover sonst noch gebraucht wird, damit man Unnötige löschen kann
+	public boolean isCoverUsedByOtherFilm(Film film){
+		for(Film tmpFilm : this){
+			if(film.imagePath.equals(tmpFilm.imagePath)){
+				return true;
+			}
+		}
+		
+		
+		return false;
+	}
+	
 	
 	// Liste via FileStream in File schreiben
 	public void save() {
-		fileStream.serializeFilmList(this, "films");
+		fileStream.serializeFilmList(this);
 	}
 	
+	
+	public void setFileStream(FileStream fileStream) {
+		this.fileStream = fileStream;
+	}
 
 }

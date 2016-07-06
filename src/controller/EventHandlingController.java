@@ -163,7 +163,7 @@ public class EventHandlingController {
 				tf_filmduration.setText(Integer.toString(film.getDurationInMinutes()));
 				tf_filmtitle.setText(film.getTitle());
 				ta_filmdesc.setText(film.getDescription());
-				Image pic = new Image(coverpath);
+				Image pic = new Image("File:"+film.getImagePath());
 				iv_filmcover.setImage(pic);
 				lbl_film.setText("Edit film");
 			} else {

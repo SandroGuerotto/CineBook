@@ -10,25 +10,16 @@ public class Reservation implements Serializable{
 	String seatNumber;
 	String phoneNumber;
 	Date dateTime;
-	 
 	
 	// Gibt eine neue Reservation zurück
-	public Reservation newReservation(int id, Show show, String seatNumber, String phoneNumber, Date dateTime){
+	public Reservation(int id, Show show, String seatNumber, String phoneNumber, Date dateTime){
 		this.id = id;
 		this.show = show;
 		this.seatNumber = seatNumber;
 		this.phoneNumber = phoneNumber;
 		this.dateTime = dateTime;
-		return this;
 	}
-	
-	// Editiert die Reservation
-	public void editReservation(Show show, String seatNumber, String phoneNumber, Date dateTime){
-		this.show = show;
-		this.seatNumber = seatNumber;
-		this.phoneNumber = phoneNumber;
-		this.dateTime = dateTime;
-	}
+
 
 	public Date getDateTime() {
 		return dateTime;
@@ -37,6 +28,11 @@ public class Reservation implements Serializable{
 	public String getSeatNumber() {
 		return seatNumber;
 	}
+
+	public Show getShow() {
+		return show;
+	}
+
 	
 	
 }

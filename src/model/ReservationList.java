@@ -1,6 +1,5 @@
 package model;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -8,15 +7,12 @@ import javax.print.attribute.standard.DateTimeAtCompleted;
 
 import controller.FileStream;
 
-public class ReservationList extends ArrayList<Reservation> implements Serializable{
+public class ReservationList extends ArrayList<Reservation> {
 
-	Reservation reservation;
-	FileStream fileStream;
+	transient Reservation reservation;
+	transient FileStream fileStream;
 
 	public ReservationList() {
-		fileStream = new FileStream();
-		reservation = new Reservation();
-//		addReservation(1, null, "A1", "0765679867", new Date(300000));
 
 	}
 
@@ -29,7 +25,7 @@ public class ReservationList extends ArrayList<Reservation> implements Serializa
 	
 	// Neue Reservation erstellen und hinzufügen
 	public void addReservation(int id, Show show, String seatNumber, String phoneNumber, Date dateTime) {
-		reservation = reservation.newReservation(id, show, seatNumber, phoneNumber, dateTime);
+		reservation = new Reservation(id, show, seatNumber, phoneNumber, dateTime);
 		this.add(reservation);
 
 		save();
@@ -38,30 +34,38 @@ public class ReservationList extends ArrayList<Reservation> implements Serializa
 	// Reservation editieren (id muss natürlich die der alten Reservierung sein)
 	public void editReservation(Reservation editedReservation) {
 		reservation = getReservationById(editedReservation.id);
-		reservation.editReservation(editedReservation.show, editedReservation.seatNumber,
-				editedReservation.phoneNumber, editedReservation.dateTime);
+		reservation.show = editedReservation.show;
+		reservation.seatNumber = editedReservation.seatNumber;
+		reservation.phoneNumber = editedReservation.phoneNumber;
+		reservation.dateTime = editedReservation.dateTime;
 
 		save();
 	}
 
-	// Reservation bearbeiten mit einzelnen Parameter (id muss natürlich die der alten Reservierung sein)
-	public void editReservation(int id, Show newShow, String newSeatNumber, String newPhoneNumber, Date newDateTime) {
-		reservation = getReservationById(id);
-		reservation.editReservation(newShow, newSeatNumber, newPhoneNumber, newDateTime);
-
-		save();
-	}
 
 	// Reservation löschen mit Objekt (boolean gibt Wert zurück ob wirklich gelöscht wurde)
 	public boolean deleteReservation(Reservation reservation) {
 		reservation = getReservationById(reservation.id);
-		return this.remove(reservation);
+		
+		boolean hasRemoved = this.remove(reservation);
+		save();
+		
+		return hasRemoved;
+
 	}
 
-	// Reservation löschen mit id (boolean gibt Wert zurück ob wirklich gelöscht wurde)
-	public boolean deleteReservation(int id) {
-		reservation = getReservationById(id);
-		return this.remove(reservation);
+
+	
+	// Gibt eine Reservation anhand eines Sitzplatzes zurück
+	public Reservation getReservationBySeatNumber(Show show, String seatNumber){
+		
+		for(Reservation reservation : this){
+			if(reservation.show == show && reservation.seatNumber.equals(seatNumber)){
+				return reservation;
+			}
+		}
+		
+		return null;
 	}
 
 	// Sucht Reservation per Id, wenn keine gefunden dann wird null zurückgegeben
@@ -83,7 +87,7 @@ public class ReservationList extends ArrayList<Reservation> implements Serializa
 		
 		if(this.size() != 0){
 			for (Reservation item : this) {
-				if (reservation.show == item.show && reservation.seatNumber == item.seatNumber) {
+				if (reservation.getShow() == item.getShow() && reservation.seatNumber == item.seatNumber) {
 					return true;
 				}
 			}
@@ -96,7 +100,7 @@ public class ReservationList extends ArrayList<Reservation> implements Serializa
 		
 		if(this.size() != 0){
 			for (Reservation reservation : this) {
-				if (show == reservation.show && seatNumber == reservation.seatNumber) {
+				if (show == reservation.getShow() && seatNumber == reservation.seatNumber) {
 					return true;
 				}
 			}
@@ -124,13 +128,27 @@ public class ReservationList extends ArrayList<Reservation> implements Serializa
 	}
 	
 	
+	
+	// Gibt eine Liste mit den bereits reservierten Plätzen zurück
+	public ArrayList<String> getReservedSeats(Show show){
+		ArrayList<String> tmpList = new ArrayList<>();
+		
+		for(Reservation reservation : this){
+			if(reservation.getShow() == show){
+				tmpList.add(reservation.seatNumber);
+			}
+		}
+		
+		return tmpList;
+	}
+	
 	// Gibt alle Reservationen die zur gleichen Show gehören zurück
 	public ReservationList getReservationsByShow(Show show){
 		ReservationList showReservationList = new ReservationList();
 		
 		if(this.size() != 0){
 			for(Reservation reservation : this){
-				if(reservation.show == show){
+				if(reservation.getShow() == show){
 					showReservationList.add(reservation);
 				}
 			}
@@ -152,13 +170,25 @@ public class ReservationList extends ArrayList<Reservation> implements Serializa
 			}
 		}
 
-		return id++;
+		return id+1;
 	}
 
+	
+	
+	
+	
 	// Liste via FileStream in File schreiben
 	public void save() {
-		fileStream.serializeList(this, "reservations");
+		fileStream.serializeReservationList(this);
 
 	}
 
+	public void setFileStream(FileStream fileStream) {
+		this.fileStream = fileStream;
+	}
+
+	
+	
+	
 }
+
