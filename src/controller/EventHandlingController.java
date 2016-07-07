@@ -46,8 +46,10 @@ public class EventHandlingController {
 	private ExtensionFilter extFilter;
 	private Stage stage;
 	private File cover;
+	private String defaultpath = "File:images/standard-cover.png";
 	private String coverpath = "";
 	private Controller controller;
+	private Film film = null;
 
 	@FXML
 	private MenuItem btn_createfilm, btn_exitprogramm, btn_editfilm, btn_deletefilm;
@@ -76,6 +78,8 @@ public class EventHandlingController {
 	@FXML
 	private ImageView iv_filmcover;
 
+
+
 	public EventHandlingController() {
 		mediaChooser = new FileChooser();
 		extFilter = new ExtensionFilter("ImageFormat", "*.png", "*.jpg", "*.jpeg");
@@ -98,7 +102,12 @@ public class EventHandlingController {
 		btn_createfilm.setOnAction((event) -> {
 			pane_film.setVisible(true);
 			pane_film.setDisable(false);
-			lbl_film.setText("Create new Film");
+			// Init all inputfields
+			iv_filmcover.setImage(new Image(defaultpath));
+			tf_filmduration.setText("");
+			tf_filmtitle.setText("");
+			ta_filmdesc.setText("");
+			lbl_film.setText("Create new film");
 		});
 		btn_exitprogramm.setOnAction((event) -> {
 			System.exit(0);
@@ -117,54 +126,70 @@ public class EventHandlingController {
 				coverpath = cover.toURI().toString();
 				Image pic = new Image(coverpath);
 				iv_filmcover.setImage(pic);
+
 			}
 		});
 
 		btn_filmcreatesave.setOnAction((event) -> {
-			if (!tf_filmduration.getText().isEmpty() && !tf_filmtitle.getText().isEmpty() && !coverpath.isEmpty()
-					&& !ta_filmdesc.getText().isEmpty()) {
-				int returncode = controller.createNewFilm(tf_filmduration.getText(), tf_filmtitle.getText(),
-						ta_filmdesc.getText(), coverpath);
-				switch (returncode) {
-				// Errorhandling
-				case 0:
-					tf_filmduration.setText("");
-					tf_filmtitle.setText("");
-					ta_filmdesc.setText("");
-					lbl_message.getStyleClass().add("msg_success");
-					lbl_message.setText("Film successfully saved");
-					removeMsg();
-					backToMenu();
-					break;
-				case 1:
-					lbl_message.getStyleClass().add("msg_error");
-					lbl_message.setText("Duration is not a number!");
-					removeMsg();
-					break;
-				case 2:
-					lbl_message.getStyleClass().add("msg_error");
-					lbl_message.setText("Could not load image. Invalid path or file!");
-					removeMsg();
-					break;
-				case 3:
-					lbl_message.getStyleClass().add("msg_error");
-					lbl_message.setText("Film already exists!");
-					removeMsg();
-					break;
+			if (lbl_film.getText().equals("Create new film")) {
+				if (!tf_filmduration.getText().isEmpty() && !tf_filmtitle.getText().isEmpty() && !coverpath.isEmpty()
+						&& !ta_filmdesc.getText().isEmpty()) {
+					int returncode = controller.createNewFilm(tf_filmduration.getText(), tf_filmtitle.getText(),
+							ta_filmdesc.getText(), coverpath);
+					switch (returncode) {
+					// Errorhandling
+					case 0:
+//						tf_filmduration.setText("");
+//						tf_filmtitle.setText("");
+//						ta_filmdesc.setText("");
+						lbl_message.getStyleClass().add("msg_success");
+						lbl_message.setText("Film successfully saved");
+						removeMsg();
+						backToMenu();
+						break;
+					case 1:
+						lbl_message.getStyleClass().add("msg_error");
+						lbl_message.setText("Duration is not a number!");
+						removeMsg();
+						break;
+					case 2:
+						lbl_message.getStyleClass().add("msg_error");
+						lbl_message.setText("Could not load image. Invalid path or file!");
+						removeMsg();
+						break;
+					case 3:
+						lbl_message.getStyleClass().add("msg_error");
+						lbl_message.setText("Film already exists!");
+						removeMsg();
+						break;
+					}
 				}
+			} else if (lbl_film.getText().equals("Edit film")) {
+				
+				film.setDescription(ta_filmdesc.getText());
+				film.setDurationInMinutes(Integer.parseInt(tf_filmduration.getText()));
+				film.setTitle(tf_filmtitle.getText());
+				film.setImagePath(coverpath);
+				controller.editFilm(film);
+				lbl_message.getStyleClass().add("msg_success");
+				lbl_message.setText("Film successfully saved");
+				removeMsg();
+				backToMenu();
 			}
+
 		});
 
 		btn_editfilm.setOnAction((event) -> {
 			if (loadFilmList() != null) {
-				Film film = choosePopupFilm(loadFilmList(), "Edit");
+				film = choosePopupFilm(loadFilmList(), "Edit");
 				pane_film.setVisible(true);
 				pane_film.setDisable(false);
 				tf_filmduration.setText(Integer.toString(film.getDurationInMinutes()));
 				tf_filmtitle.setText(film.getTitle());
 				ta_filmdesc.setText(film.getDescription());
-				Image pic = new Image("File:"+film.getImagePath());
+				Image pic = new Image("File:" + film.getImagePath());
 				iv_filmcover.setImage(pic);
+				coverpath = film.getImagePath();
 				lbl_film.setText("Edit film");
 			} else {
 				backToMenu();
@@ -247,22 +272,22 @@ public class EventHandlingController {
 
 	// to-do 1 ## ArrayList richtig befüllen
 	private Film choosePopupFilm(FilmList filmlist, String modus) {
-		ArrayList choices = new ArrayList();
-		for(Film film : filmlist){
-			choices.add(film.getTitle());
+		ArrayList<String> choices = new ArrayList<String>();
+		for (Film current : filmlist) {
+			choices.add(current.getTitle());
 		}
 		// choices.add("please choose");
-		ChoiceDialog dialog = new ChoiceDialog<>("please choose", choices);
+		ChoiceDialog<String> dialog = new ChoiceDialog<>("please choose", choices);
 		dialog.setTitle(modus + " an existing film");
 		dialog.setContentText("Choose a film:");
 		dialog.setHeaderText(modus + " an existing film");
 		// Traditional way to get the response value.
 		Optional<String> result = dialog.showAndWait();
 		if (result.isPresent()) {
-			//get film by name
-			for(Film film : filmlist){
-				if(result.get().equals(film.getTitle())){
-					return film;
+			// get film by name
+			for (Film current : filmlist) {
+				if (result.get().equals(current.getTitle())) {
+					return current;
 				}
 			}
 		}
@@ -279,7 +304,7 @@ public class EventHandlingController {
 		// Traditional way to get the response value.
 		Optional<String> result = dialog.showAndWait();
 		if (result.isPresent()) {
-//			controller.deleteRoom();
+			// controller.deleteRoom();
 			System.out.println("Your choice: " + result.get());
 
 		}

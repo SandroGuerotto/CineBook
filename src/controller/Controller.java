@@ -242,8 +242,9 @@ public class Controller {
 	
 //	Film bearbeiten ----------------------------------------------------------------------------------------------------
 	public void editFilm(Film film){
-		if(filmList.doFilmExist(film.getTitle()) == false)
+		if(filmList.doFilmExist(film.getTitle())){
 			filmList.editFilm(film);
+		}
 	}
 	
 //	Room löschen -------------------------------------------------------------------------------------------------------

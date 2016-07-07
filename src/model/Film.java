@@ -2,7 +2,6 @@ package model;
 
 import java.io.Serializable;
 
-
 public class Film implements Serializable {
 
 	int id;
@@ -20,8 +19,6 @@ public class Film implements Serializable {
 		this.imagePath = imagePath;
 	}
 
-	
-	
 	public int getId() {
 		return id;
 	}
@@ -33,12 +30,33 @@ public class Film implements Serializable {
 	public String getTitle() {
 		return title;
 	}
-	
-	public int getDurationInMinutes(){
+
+	public int getDurationInMinutes() {
 		return durationInMinutes;
 	}
 
 	public String getDescription() {
 		return this.description;
 	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public void setDurationInMinutes(int durationInMinutes) {
+		this.durationInMinutes = durationInMinutes;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public void setImagePath(String imagePath) {
+		this.imagePath = imagePath;
+	}
+
 }
