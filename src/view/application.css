@@ -57,7 +57,11 @@
 	-fx-text-fill: rgb(72,72,72) ;
 }
 #btn_cancel:hover ,#btn_cancel:focused {
-    -fx-text-fill: rgb(104,104,104);
+  
+    -fx-underline: true;
+}
+.handcursor{
+	-fx-cursor: hand;
 }
 .btn{
 	-fx-background-color: #990000;

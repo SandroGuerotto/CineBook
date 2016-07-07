@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import javafx.application.Platform;
@@ -26,9 +27,13 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Pair;
 import model.Film;
 import model.FilmList;
+import model.Room;
 import model.RoomList;
+import view.EditRoomDialog;
+import view.Message;
 
 /**
  * 
@@ -50,6 +55,8 @@ public class EventHandlingController {
 	private String coverpath = "";
 	private Controller controller;
 	private Film film = null;
+	private String returncode;
+	private Message message;
 
 	@FXML
 	private MenuItem btn_createfilm, btn_exitprogramm, btn_editfilm, btn_deletefilm;
@@ -62,7 +69,7 @@ public class EventHandlingController {
 	private GridPane pane_film, pane_main, pane_show;
 
 	@FXML
-	private Button btn_filmcreatesave;
+	private Button btn_filmsave;
 
 	@FXML
 	private Hyperlink btn_cancel;
@@ -78,18 +85,18 @@ public class EventHandlingController {
 	@FXML
 	private ImageView iv_filmcover;
 
-
-
 	public EventHandlingController() {
 		mediaChooser = new FileChooser();
 		extFilter = new ExtensionFilter("ImageFormat", "*.png", "*.jpg", "*.jpeg");
 		controller = new Controller();
+		
 	}
 
 	@FXML
 	private void initialize() {
 
 		if (firstrun) {
+			message = new Message(lbl_message); //
 			pane_main.setVisible(true);
 			pane_main.setDisable(false);
 			pane_film.setVisible(false);
@@ -130,51 +137,53 @@ public class EventHandlingController {
 			}
 		});
 
-		btn_filmcreatesave.setOnAction((event) -> {
-			if (lbl_film.getText().equals("Create new film")) {
-				if (!tf_filmduration.getText().isEmpty() && !tf_filmtitle.getText().isEmpty() && !coverpath.isEmpty()
-						&& !ta_filmdesc.getText().isEmpty()) {
-					int returncode = controller.createNewFilm(tf_filmduration.getText(), tf_filmtitle.getText(),
+		btn_filmsave.setOnAction((event) -> {
+			// check the label in what function is needed
+			if (!tf_filmduration.getText().isEmpty() && !tf_filmtitle.getText().isEmpty() && !coverpath.isEmpty()
+					&& !ta_filmdesc.getText().isEmpty()) {
+				if (lbl_film.getText().equals("Create new film")) {
+
+					returncode = controller.createNewFilm(tf_filmduration.getText(), tf_filmtitle.getText(),
 							ta_filmdesc.getText(), coverpath);
-					switch (returncode) {
-					// Errorhandling
-					case 0:
-//						tf_filmduration.setText("");
-//						tf_filmtitle.setText("");
-//						ta_filmdesc.setText("");
-						lbl_message.getStyleClass().add("msg_success");
-						lbl_message.setText("Film successfully saved");
-						removeMsg();
-						backToMenu();
-						break;
-					case 1:
-						lbl_message.getStyleClass().add("msg_error");
-						lbl_message.setText("Duration is not a number!");
-						removeMsg();
-						break;
-					case 2:
-						lbl_message.getStyleClass().add("msg_error");
-						lbl_message.setText("Could not load image. Invalid path or file!");
-						removeMsg();
-						break;
-					case 3:
-						lbl_message.getStyleClass().add("msg_error");
-						lbl_message.setText("Film already exists!");
-						removeMsg();
-						break;
+
+				} else if (lbl_film.getText().equals("Edit film")) {
+					film.setDescription(ta_filmdesc.getText());
+					// Überprüft ob Filmlänge eine Zahl ist
+					try {
+						film.setDurationInMinutes(Integer.parseInt(tf_filmduration.getText()));
+						film.setTitle(tf_filmtitle.getText());
+						film.setImagePath(coverpath);
+						returncode = controller.editFilm(film);
+
+					} catch (Exception e) {
+						returncode = "e5";
 					}
+
 				}
-			} else if (lbl_film.getText().equals("Edit film")) {
+				if(message.showMsg(returncode)){
+					backToMenu();
+				}
+	
+				// Errorhandling
+//				case 0:
+//					showMsg("msg_success", "Film successfully saved");
+//					backToMenu();
+//					break;
+//				case 1:
+//					showMsg("msg_error", "Duration is not a number!");
+//					break;
+//				case 2:
+//					showMsg("msg_error", "Could not load image. Invalid path or file!");
+//					break;
+//				case 3:
+//					showMsg("msg_info", "Film already exists!");
+//					break;
+//				case 4 :
+//					showMsg("msg_error", "An error occurred while deleting the filmcover!");
+//					break;
 				
-				film.setDescription(ta_filmdesc.getText());
-				film.setDurationInMinutes(Integer.parseInt(tf_filmduration.getText()));
-				film.setTitle(tf_filmtitle.getText());
-				film.setImagePath(coverpath);
-				controller.editFilm(film);
-				lbl_message.getStyleClass().add("msg_success");
-				lbl_message.setText("Film successfully saved");
-				removeMsg();
-				backToMenu();
+			} else {
+				message.showMsg("i9");
 			}
 
 		});
@@ -182,24 +191,55 @@ public class EventHandlingController {
 		btn_editfilm.setOnAction((event) -> {
 			if (loadFilmList() != null) {
 				film = choosePopupFilm(loadFilmList(), "Edit");
-				pane_film.setVisible(true);
-				pane_film.setDisable(false);
-				tf_filmduration.setText(Integer.toString(film.getDurationInMinutes()));
-				tf_filmtitle.setText(film.getTitle());
-				ta_filmdesc.setText(film.getDescription());
-				Image pic = new Image("File:" + film.getImagePath());
-				iv_filmcover.setImage(pic);
-				coverpath = film.getImagePath();
-				lbl_film.setText("Edit film");
+				if (film != null) {
+					pane_film.setVisible(true);
+					pane_film.setDisable(false);
+					tf_filmduration.setText(Integer.toString(film.getDurationInMinutes()));
+					tf_filmtitle.setText(film.getTitle());
+					ta_filmdesc.setText(film.getDescription());
+					Image pic = new Image("File:" + film.getImagePath());
+					iv_filmcover.setImage(pic);
+					coverpath = film.getImagePath();
+					lbl_film.setText("Edit film");
+				}
 			} else {
+				message.showMsg("i17");
 				backToMenu();
 			}
 
 		});
 		btn_deletefilm.setOnAction((event) -> {
 			if (loadFilmList() != null) {
-				choosePopupFilm(loadFilmList(), "Delete");
+				film = choosePopupFilm(loadFilmList(), "Delete");
+				if (film != null) {
+					returncode = controller.deleteFilm(film);
+					message.showMsg(returncode);
+//					switch (returncode) {
+//					case 0:
+//						showMsg("msg_success", "Film successfully deleted");
+//
+						backToMenu();
+//						break;
+//					case 1:
+//						showMsg("msg_warning", "Can't delete film. Film is in use!");
+//
+//						backToMenu();
+//						break;
+//					case 2:
+//						showMsg("msg_warning", "Can't delete filmcover. Cover is in use!");
+//
+//						backToMenu();
+//						break;
+//					case 3:
+//						showMsg("msg_error", "An error occurred while deleting the film!");
+//
+//						backToMenu();
+//						break;
+//
+//					}
+				}
 			} else {
+				message.showMsg("i17");
 				backToMenu();
 			}
 
@@ -207,7 +247,7 @@ public class EventHandlingController {
 
 		// Film controlling end------------
 
-		// Room controlling start-------
+		// Room controlling start--------------------
 
 		btn_createroom.setOnAction((event) -> {
 			TextInputDialog dialog = new TextInputDialog();
@@ -217,28 +257,51 @@ public class EventHandlingController {
 			if (result.isPresent()) {
 				String name = result.get();
 				if (controller.createNewRoom(name)) {
-					lbl_message.getStyleClass().add("msg_success");
-					lbl_message.setText("Room successfully created");
-					removeMsg();
+					message.showMsg("s10");
 					backToMenu();
 				} else {
-					lbl_message.getStyleClass().add("msg_error");
-					lbl_message.setText("Room already exists!");
-					removeMsg();
+					message.showMsg("e11");
 				}
 			}
 		});
 		btn_editroom.setOnAction((event) -> {
 			if (loadRoomList() != null) {
+				EditRoomDialog dialog = new EditRoomDialog();
+				Pair<String, String> eingabe = dialog.show(loadRoomList());
+				if (eingabe != null) {
+					Room editedRoom = new Room(eingabe.getValue().toString());
+					controller.editRoom(eingabe.getKey().toString(), editedRoom);
+					message.showMsg("s12");
+				}
 
-			} else {
-				backToMenu();
+			}else{
+				message.showMsg("i16");
 			}
+			backToMenu();
+
 		});
 		btn_deleteroom.setOnAction((event) -> {
 			if (loadRoomList() != null) {
-				deleteRoom(loadRoomList());
+				Room delroom = deleteRoom(loadRoomList());
+				if (delroom != null) {
+					returncode = controller.deleteRoom(delroom);
+					message.showMsg(returncode);
+//					switch (returncode) {
+//					case 0:
+//						showMsg("msg_success", "Room successfully deleted");
+//
+//						backToMenu();
+//						break;
+//
+//					case 1:
+//						showMsg("msg_warning", "Can't delete Room. Room is in use!");
+//
+//						backToMenu();
+//						break;
+//					}
+				}
 			} else {
+				message.showMsg("i16");
 				backToMenu();
 			}
 		});
@@ -250,9 +313,6 @@ public class EventHandlingController {
 		FilmList filmlist = new FilmList();
 		filmlist = controller.getAllFilms();
 		if (filmlist.size() <= 0) {
-			lbl_message.getStyleClass().add("msg_info");
-			lbl_message.setText("No films are existing! Please create one!");
-			removeMsg();
 			return null;
 		}
 		return filmlist;
@@ -262,9 +322,6 @@ public class EventHandlingController {
 		RoomList roomlist = new RoomList();
 		roomlist = controller.getAllRooms();
 		if (roomlist.size() <= 0) {
-			lbl_message.getStyleClass().add("msg_info");
-			lbl_message.setText("No Rooms are existing! Please create one!");
-			removeMsg();
 			return null;
 		}
 		return roomlist;
@@ -276,7 +333,6 @@ public class EventHandlingController {
 		for (Film current : filmlist) {
 			choices.add(current.getTitle());
 		}
-		// choices.add("please choose");
 		ChoiceDialog<String> dialog = new ChoiceDialog<>("please choose", choices);
 		dialog.setTitle(modus + " an existing film");
 		dialog.setContentText("Choose a film:");
@@ -295,33 +351,41 @@ public class EventHandlingController {
 	}
 
 	// to-do 2 ## Arraylist richtig abfüllen (Name, id)
-	private void deleteRoom(RoomList roomlist) {
-		ArrayList choices = new ArrayList();
-		// choices.add("please choose");
+	private Room deleteRoom(RoomList roomlist) {
+		ArrayList<String> choices = new ArrayList<String>();
+		for (Room current : roomlist) {
+			choices.add(current.getName());
+		}
 		ChoiceDialog<String> dialog = new ChoiceDialog<>("please choose", choices);
 		dialog.setTitle("Delete an existing room");
 		dialog.setContentText("Choose a room:");
 		// Traditional way to get the response value.
 		Optional<String> result = dialog.showAndWait();
 		if (result.isPresent()) {
-			// controller.deleteRoom();
-			System.out.println("Your choice: " + result.get());
-
+			for (Room current : roomlist) {
+				if (result.get().equals(current.getName())) {
+					return current;
+				}
+			}
 		}
+		return null;
 	}
 
 	// general methods
 	public void setStage(Stage stage) {
-		// TODO Auto-generated method stub
 		this.stage = stage;
 	}
 
-	private void deleteStyle(Label object, String name) {
+	private void deleteStyleMsg(Label object, String name) {
 		ObservableList<String> list = object.getStyleClass();
 		try {
 			for (String cssclass : list) {
 				if (cssclass.matches(name)) {
 					list.remove(cssclass);
+					lbl_message.setText("");
+					lbl_message.setVisible(false);
+					lbl_message.setDisable(true);
+					return;
 				}
 			}
 		} catch (Exception e) {
@@ -332,14 +396,22 @@ public class EventHandlingController {
 
 	private void removeMsg() {
 		// Label & Button nach bestimmter zeit not Visible
-		ScheduledExecutorService s = Executors.newSingleThreadScheduledExecutor();
-		s.schedule(() -> {
+		ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+		service.schedule(() -> {
 			Platform.runLater(() -> {
-				lbl_message.setText("");
-				deleteStyle(lbl_message, "msg_.*");
+				//deleteStyleMsg(lbl_message, "msg_.*");
 			});
 
 		}, 5, TimeUnit.SECONDS);
+
+	}
+
+	private void showMsg(String cssclass, String msg) {
+		lbl_message.getStyleClass().add(cssclass);
+		lbl_message.setText(msg);
+		lbl_message.setVisible(true);
+		lbl_message.setDisable(false);
+		//removeMsg();
 	}
 
 	private void backToMenu() {

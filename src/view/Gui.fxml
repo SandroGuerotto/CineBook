@@ -20,23 +20,23 @@
               <menus>
                 <Menu disable="false" mnemonicParsing="false" text="Show" fx:id="btn_newshow">
                   <items>
-                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Create new Show" fx:id="btn_createshow" />
-                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Edit existing Show" fx:id="btn_editshow" />
-                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Delete existing Show" fx:id="btn_deleteshow" />
+                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Create new Show" fx:id="btn_createshow" styleClass="handcursor"/>
+                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Edit existing Show" fx:id="btn_editshow" styleClass="handcursor"/>
+                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Delete existing Show" fx:id="btn_deleteshow" styleClass="handcursor"/>
                   </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Room">
                   <items>
-                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Create new Room" fx:id="btn_createroom" />
-                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Edit existing Room" fx:id="btn_editroom" />
-                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Delete existing Room" fx:id="btn_deleteroom" />
+                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Create new Room" fx:id="btn_createroom" styleClass="handcursor"/>
+                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Edit existing Room" fx:id="btn_editroom" styleClass="handcursor"/>
+                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Delete existing Room" fx:id="btn_deleteroom" styleClass="handcursor"/>
                   </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Film" fx:id="btn_newfilm">
                   <items>
-                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Create new Film" fx:id="btn_createfilm" />
-                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Edit existing Film" fx:id="btn_editfilm" />
-                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Delete existing Film" fx:id="btn_deletefilm" />
+                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Create new Film" fx:id="btn_createfilm" styleClass="handcursor"/>
+                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Edit existing Film" fx:id="btn_editfilm" styleClass="handcursor"/>
+                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Delete existing Film" fx:id="btn_deletefilm" styleClass="handcursor"/>
                   </items>
                 </Menu>
               </menus>
@@ -48,7 +48,11 @@
             <HBox alignment="TOP_RIGHT" maxHeight="48.0" minHeight="48.0" prefHeight="48.0" prefWidth="458.0" styleClass="menu-bar" HBox.hgrow="ALWAYS" />
             <MenuBar maxHeight="48.0" maxWidth="150.0" minHeight="48.0" minWidth="150.0" prefHeight="48.0" prefWidth="150.0" HBox.hgrow="ALWAYS">
               <menus>
-                <Menu mnemonicParsing="false" text="Help" fx:id="btn_help" />
+                <Menu mnemonicParsing="false" text="Help" fx:id="btn_help">
+                <items>
+                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Help me" fx:id="btn_helpme" styleClass="handcursor"/>
+                  </items>
+                </Menu>
                 <Menu mnemonicParsing="false" text="" fx:id="btn_exit">
                   <graphic>
                     <ImageView blendMode="ADD" cache="false" disable="false" fitHeight="25.0" fitWidth="25.0" focusTraversable="false" mouseTransparent="true" pickOnBounds="true" preserveRatio="true">
@@ -58,7 +62,7 @@
                     </ImageView>
                   </graphic>
                   <items>
-                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Exit" fx:id="btn_exitprogramm" />
+                    <MenuItem mnemonicParsing="false" onAction="#initialize" text="Exit" fx:id="btn_exitprogramm" styleClass="handcursor"/>
                   </items>
                 </Menu>
               </menus>
@@ -95,7 +99,7 @@
             </VBox>
             <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
               <top>
-                <ImageView fx:id="iv_filmcover" fitHeight="459.2984924316406" fitWidth="302.33123195850453" onMouseClicked="#initialize" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
+                <ImageView fx:id="iv_filmcover" fitHeight="459.2984924316406" fitWidth="302.33123195850453" onMouseClicked="#initialize" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" styleClass="handcursor">
                   <image>
                     <Image url="File:images/standard-cover.png" />
                   </image>
@@ -104,10 +108,10 @@
             </BorderPane>
             <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="2">
               <center>
-                <Button fx:id="btn_filmcreatesave" font="$x1" mnemonicParsing="false" onAction="#initialize" prefHeight="44.0" prefWidth="178.0" styleClass="btn" text="Save" />
+                <Button fx:id="btn_filmsave" font="$x1" mnemonicParsing="false" onAction="#initialize" prefHeight="44.0" prefWidth="178.0" styleClass="btn, handcursor" text="Save" />
               </center>
               <left>
-                <Hyperlink fx:id="btn_cancel" alignment="CENTER_LEFT" contentDisplay="LEFT" font="$x1" onAction="#initialize" prefHeight="45.0" prefWidth="90.0" text="Cancel" textAlignment="LEFT" underline="true" wrapText="false" BorderPane.alignment="CENTER" />
+                <Hyperlink fx:id="btn_cancel" alignment="CENTER_LEFT" contentDisplay="LEFT" font="$x1" onAction="#initialize" prefHeight="45.0" prefWidth="90.0" text="Cancel" textAlignment="LEFT" underline="false" wrapText="false" BorderPane.alignment="CENTER" />
               </left>
             </BorderPane>
             <Label fx:id="lbl_film" alignment="CENTER_LEFT" font="$x1" prefHeight="50.000099999997474" prefWidth="767.0" styleClass="title" text="Create new Film" textAlignment="LEFT" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER" />
