@@ -1,13 +1,10 @@
 package controller;
 
 import java.io.File;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Optional;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -58,9 +55,9 @@ public class EventHandlingController {
 	private String coverpath = "";
 	private Controller controller;
 	private Film film = null;
+	private Room room = null;
 	private String returncode;
 	private Message message;
-	private String lv_film_item, lv_room_item;
 
 	@FXML
 	private MenuItem btn_createfilm, btn_exitprogramm, btn_editfilm, btn_deletefilm;
@@ -73,7 +70,7 @@ public class EventHandlingController {
 	private GridPane pane_film, pane_main, pane_show;
 
 	@FXML
-	private Button btn_filmsave;
+	private Button btn_filmsave, btn_showsave;
 
 	@FXML
 	private Hyperlink btn_cancel, btn_cancelshow;
@@ -138,6 +135,8 @@ public class EventHandlingController {
 			backToMenu();
 		});
 		btn_cancelshow.setOnAction((event) -> {
+			lv_film.getSelectionModel().clearSelection();
+			lv_room.getSelectionModel().clearSelection();
 			backToMenu();
 		});
 		iv_filmcover.setOnMouseClicked((event) -> {
@@ -277,33 +276,41 @@ public class EventHandlingController {
 			pane_show.setDisable(false);
 			// Init all inputfields
 			tf_starttime.setText("");
+			lbl_filmduration.setText("");
+			lbl_filmtitle.setText("");
+			iv_filmcovershow.setImage(null);
 			lv_film.setItems(loadLVFilm());
 			lv_room.setItems(loadLVRoom());
 			lbl_show.setText("Create new Show");
 		});
 
+		btn_showsave.setOnAction((event) -> {
+			String filmname = lv_film.getSelectionModel().getSelectedItem();
+			String roomname = lv_room.getSelectionModel().getSelectedItem();
+			LocalDate startDate = dp_startdate.getValue();
+			String startTime = tf_starttime.getText();
+			controller.createNewShow(controller.getRoomByName(roomname), controller.getFilmByName(filmname), startDate, startTime);
+		});
 		// Show controlling end -------------
 
 		// ListView controlling start ----------------
 		lv_film.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				// System.out.println("ListView selection changed from oldValue
-				// = "
-				// + oldValue + " to newValue = " + newValue);
-				Film film = controller.getFilmByName(newValue);
-				lbl_filmduration.setText(Integer.toString(film.getDurationInMinutes()) + " min");
-				lbl_filmtitle.setText(film.getTitle());
-				iv_filmcovershow.setImage(new Image("File:" + film.getImagePath()));
+				if (newValue != null) {
+					film = controller.getFilmByName(newValue);
+					lbl_filmduration.setText(Integer.toString(film.getDurationInMinutes()) + " min");
+					lbl_filmtitle.setText(film.getTitle());
+					iv_filmcovershow.setImage(new Image("File:" + film.getImagePath()));
+				}
 			}
 		});
 		lv_room.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				// System.out.println("ListView selection changed from oldValue
-				// = "
-				// + oldValue + " to newValue = " + newValue);
-				lv_room_item = newValue;
+				if (newValue != null) {
+					room = controller.getRoomByName(newValue);
+				}
 			}
 		});
 	}

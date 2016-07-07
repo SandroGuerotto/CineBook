@@ -368,6 +368,7 @@ public class Controller {
 		}
 		return this.filmList;
 	}
+	// Gibt den gesuchten Film zurück
 	public Film getFilmByName(String name){
 		filmList = getAllFilms();
 		for(Film film : filmList){
@@ -385,5 +386,13 @@ public class Controller {
 		}
 		return this.roomList;
 	}
-
+	// Gibt den gesuchten Raum zuürck
+	public Room getRoomByName(String name){
+		roomList = getAllRooms();
+		for(Room room : roomList){
+		if(room.getName().equals(name))
+				return room;
+		}
+		return null;
+	}
 }

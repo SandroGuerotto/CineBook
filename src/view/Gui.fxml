@@ -31,7 +31,7 @@
       <children>
         <HBox fillHeight="true" maxHeight="47.0" minHeight="44.999908447265625" prefHeight="44.999908447265625" prefWidth="960.0" GridPane.columnIndex="0" GridPane.columnSpan="1" GridPane.rowIndex="0">
           <children>
-            <MenuBar maxHeight="250.0" maxWidth="-1.0" minHeight="48.0" minWidth="-1.0" prefHeight="250.0" prefWidth="960.0" HBox.hgrow="ALWAYS">
+            <MenuBar maxHeight="44.0" maxWidth="-1.0" minHeight="44.0" minWidth="-1.0" prefHeight="44.0" prefWidth="960.0" HBox.hgrow="ALWAYS">
               <menus>
                 <Menu fx:id="btn_newshow" disable="false" mnemonicParsing="false" text="Show">
                   <items>
@@ -60,8 +60,8 @@
         </HBox>
         <HBox minHeight="-1.0" prefHeight="-1.0" prefWidth="960.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
           <children>
-            <HBox alignment="TOP_RIGHT" maxHeight="48.0" minHeight="48.0" prefHeight="48.0" prefWidth="458.0" styleClass="menu-bar" HBox.hgrow="ALWAYS" />
-            <MenuBar maxHeight="48.0" maxWidth="150.0" minHeight="48.0" minWidth="150.0" prefHeight="48.0" prefWidth="150.0" HBox.hgrow="ALWAYS">
+            <HBox alignment="TOP_RIGHT" maxHeight="44.0" minHeight="44.0" prefHeight="44.0" prefWidth="458.0" styleClass="menu-bar" HBox.hgrow="ALWAYS" />
+            <MenuBar maxHeight="44.0" maxWidth="150.0" minHeight="44.0" minWidth="150.0" prefHeight="44.0" prefWidth="150.0" HBox.hgrow="ALWAYS">
               <menus>
                 <Menu fx:id="btn_help" mnemonicParsing="false" text="Help">
                 <items>
@@ -249,7 +249,7 @@
         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
       </columnConstraints>
       <rowConstraints>
-        <RowConstraints maxHeight="231.0" minHeight="50.0" prefHeight="50.0" valignment="TOP" vgrow="NEVER" />
+        <RowConstraints maxHeight="44.0" minHeight="44.0" prefHeight="44.0" valignment="TOP" vgrow="NEVER" />
         <RowConstraints maxHeight="467.0" minHeight="10.0" prefHeight="107.0" vgrow="SOMETIMES" />
         <RowConstraints maxHeight="467.0" minHeight="10.0" prefHeight="278.0" vgrow="SOMETIMES" />
         <RowConstraints maxHeight="605.0" minHeight="10.0" prefHeight="605.0" vgrow="SOMETIMES" />
