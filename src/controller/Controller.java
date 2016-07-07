@@ -1,19 +1,19 @@
 package controller;
 
-import java.io.File;
+import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
+import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.Files;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
-import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 import model.Film;
 import model.FilmList;
@@ -296,6 +296,7 @@ public class Controller {
 			String name = copy_from_1.getName(copy_from_1.getNameCount() - 1).toString();
 
 			Path copy_to_1 = Paths.get("@../../covers/" + name);
+			System.out.println(copy_to_1);
 			try {
 				Files.copy(copy_from_1, copy_to_1, REPLACE_EXISTING, COPY_ATTRIBUTES, NOFOLLOW_LINKS);
 				newfilm.setImagePath("@../../covers/" + name);
@@ -304,7 +305,7 @@ public class Controller {
 			}
 		}				
 		// Wenn der Filmtitel geändert wurde
-		if (newfilm.getTitle().equals(oldFilm.getTitle())) {
+		if (!newfilm.getTitle().equals(oldFilm.getTitle())) {
 			if (filmList.doFilmExist(newfilm.getTitle()) == false) {
 				filmList.editFilm(newfilm);
 				return "s4"; // successful
@@ -367,7 +368,14 @@ public class Controller {
 		}
 		return this.filmList;
 	}
-
+	public Film getFilmByName(String name){
+		filmList = getAllFilms();
+		for(Film film : filmList){
+			if(film.getTitle().equals(name))
+				return film;
+		}
+		return null;
+	}
 	// Gibt alle Rooms zurück
 	// ---------------------------------------------------------------------------------------------
 	public RoomList getAllRooms() {

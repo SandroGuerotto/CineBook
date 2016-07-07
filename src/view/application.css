@@ -53,11 +53,11 @@
 }
 
 /* Button */
-#btn_cancel{
+#btn_cancel, #btn_cancelshow{
 	-fx-text-fill: rgb(72,72,72) ;
 }
-#btn_cancel:hover ,#btn_cancel:focused {
-  
+#btn_cancel:hover ,#btn_cancel:focused,
+#btn_cancelshow:hover ,#btn_cancelshow:focused {
     -fx-underline: true;
 }
 .handcursor{

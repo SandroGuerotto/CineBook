@@ -10,6 +10,9 @@ public class Film implements Serializable {
 	String description;
 	String imagePath;
 
+	public Film(){
+		
+	}
 	// Gibt eine neuen Film zurück
 	public Film(int id, int durationInMinutes, String title, String description, String imagePath) {
 		this.id = id;
