@@ -12,7 +12,7 @@ import javafx.scene.control.Label;
 public class Message {
 
 	private Label lbl_message;
-	private boolean backToMenu = true;
+	private boolean backToMenu = false;
 	private String type;
 
 	public Message(Label obj) {
@@ -20,6 +20,7 @@ public class Message {
 	}
 
 	public boolean showMsg(String msgCode) {
+		backToMenu = false;
 		char msgType = msgCode.charAt(0);
 		msgCode = msgCode.substring(1);
 		switch (msgType) {
@@ -40,7 +41,7 @@ public class Message {
 
 		switch (msgCode) {
 		case "0":
-			setProperties(type, "Film successfully deleted");
+			setProperties(type, "Film successfully deleted!");
 			break;
 		case "1":
 			setProperties(type, "Can't delete film. Film is in use!");
@@ -70,19 +71,19 @@ public class Message {
 			setProperties(type, "Please fill everything out!");
 			break;
 		case "10":
-			setProperties(type, "Room successfully created");
+			setProperties(type, "Room successfully created!");
 			break;
 		case "11":
 			setProperties(type, "Room already exists!");
 			break;
 		case "12":
-			setProperties(type, "Room successfully saved");
+			setProperties(type, "Room successfully saved!");
 			break;
 		case "13":
-			setProperties(type, "Room successfully deleted");
+			setProperties(type, "Room successfully deleted!");
 			break;
 		case "14":
-			setProperties(type, "Room successfully created");
+			setProperties(type, "Room successfully created!");
 			break;
 		case "15":
 			setProperties(type, "Can't delete Room. Room is in use!");
@@ -95,6 +96,24 @@ public class Message {
 			break;
 		case "18":
 			setProperties(type, "Film successfully created!");
+			break;
+		case "19":
+			setProperties(type, "Date or time invalid!");
+			break;
+		case "20":
+			setProperties(type, "No film or room selected!");
+			break;
+		case "21":
+			setProperties(type, "Show successfully created!");
+			break;
+		case "22":
+			setProperties(type, "This room is already occupied!");
+			break;
+		case "23":
+			setProperties(type, "No Date given. Please choose a start date!");
+			break;
+		case "24":
+			setProperties(type, "");
 			break;
 		}
 		removeMsg();

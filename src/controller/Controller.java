@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -85,30 +86,34 @@ public class Controller {
 
 	// Eine neue Show erstellen
 	// -------------------------------------------------------------------------------------------
-	public boolean createNewShow(Room room, Film film, String startDate, String startTime) {
+	public String createNewShow(Room room, Film film, LocalDate startDate, String startTime) {
 
 		Date date;
-		DateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+		DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		String startDateTime = startDate + " " + startTime;
 
+		//Überpüft ob Datum angegeben wurde
+		if(startDate == null)
+			return "e23";
 		// Überprüft ob Datum valid ist
 		try {
 			date = format.parse(startDateTime);
 		} catch (ParseException e) {
-			return false;
+			return "e19"; //Fehler beim Konvertieren des Datums
 		}
 
 		// Überprüft ob room & film null sind
 		if (room == null || film == null)
-			return false;
+			return "e20"; // Raum und Film auswählen
 
 		// Überprüft ob zu dieser Zeit kein anderer Film läuft
 		if (showList.isAvailable(date, film) == true) {
 			showList.addShow(showList.getNewId(), room, film, date, showList.getEndTime(date, film),
 					film.getDurationInMinutes());
-			return true;
+			return "s21"; // Vorstellung erfolgreich gespeichert
+		}else{
+			return "i22"; //Zu dieser Zeit läuft ein Film bereits
 		}
-		return false;
 	}
 
 	// Einen neuen Film erstellen

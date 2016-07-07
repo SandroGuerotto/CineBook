@@ -46,7 +46,9 @@
 	-fx-border: none;
 	-fx-height: 48px;
 }
-
+.context-menu {
+    -fx-padding: 0 0 0 0; /* 4 1 8 1 */
+}
 /* Font Style */
 .title{
 	-fx-font-size: 30 pt;

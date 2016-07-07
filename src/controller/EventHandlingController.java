@@ -4,6 +4,8 @@ import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -44,9 +46,11 @@ import view.Message;
  */
 
 public class EventHandlingController {
-
-	private boolean firstrun = true;
+	private static final Pattern INPUT_PATTERN = Pattern.compile("([01]?[0-9]|2[0-3]):[0-5][0-9]"); // regex
+																									// für
+																									// Zeit
 	private static final String PIC_DIR = "../";
+	private boolean firstrun = true;
 	private FileChooser mediaChooser;
 	private ExtensionFilter extFilter;
 	private Stage stage;
@@ -289,7 +293,13 @@ public class EventHandlingController {
 			String roomname = lv_room.getSelectionModel().getSelectedItem();
 			LocalDate startDate = dp_startdate.getValue();
 			String startTime = tf_starttime.getText();
-			controller.createNewShow(controller.getRoomByName(roomname), controller.getFilmByName(filmname), startDate, startTime);
+			if (filmname != null && roomname != null && startDate != null && !startTime.isEmpty()) {
+				returncode = controller.createNewShow(controller.getRoomByName(roomname),
+						controller.getFilmByName(filmname), startDate, startTime);
+				System.out.println(returncode);
+				if (message.showMsg(returncode))
+					backToMenu();
+			}
 		});
 		// Show controlling end -------------
 
@@ -313,6 +323,20 @@ public class EventHandlingController {
 				}
 			}
 		});
+
+		tf_starttime.textProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				Matcher matcher = INPUT_PATTERN.matcher(newValue);
+				System.out.println(newValue + "  --   " + oldValue);
+				if (!matcher.matches()) {
+					tf_starttime.setText("");
+				}else{
+					tf_starttime.setText(newValue);
+				}
+			}
+		});
+
 	}
 
 	private ObservableList<String> loadLVFilm() {
