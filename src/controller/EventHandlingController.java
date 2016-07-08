@@ -1,12 +1,8 @@
 package controller;
 
 import java.io.File;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,6 +13,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.DatePicker;
@@ -24,6 +21,7 @@ import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -33,6 +31,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -41,8 +42,11 @@ import model.Film;
 import model.FilmList;
 import model.Room;
 import model.RoomList;
+import model.Show;
+import model.ShowList;
 import view.EditRoomDialog;
 import view.Message;
+import view.ShowItem;
 
 /**
  * 
@@ -84,6 +88,8 @@ public class EventHandlingController {
 	private GridPane pane_film, pane_main, pane_show;
 
 	@FXML
+	private VBox pane_overview;
+	@FXML
 	private Button btn_filmsave, btn_showsave;
 
 	@FXML
@@ -109,6 +115,13 @@ public class EventHandlingController {
 	@FXML
 	private DatePicker dp_startdate;
 
+	@FXML
+	private ImageView iv_test;
+	@FXML
+	private ScrollPane sp_show;
+	@FXML
+	private HBox vb_wrapper_show;
+
 	public EventHandlingController() {
 		mediaChooser = new FileChooser();
 		extFilter = new ExtensionFilter("ImageFormat", "*.png", "*.jpg", "*.jpeg");
@@ -123,17 +136,13 @@ public class EventHandlingController {
 			message = new Message(lbl_message);
 			lv_film.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 			lv_room.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-			pane_main.setVisible(true);
-			pane_main.setDisable(false);
-			pane_film.setVisible(false);
-			pane_film.setDisable(true);
-			pane_show.setVisible(false);
-			pane_show.setDisable(true);
+			backToMenu(true);
 			firstrun = false;
+			
 		}
 		// Film controlling start-----
 		btn_createfilm.setOnAction((event) -> {
-			backToMenu();
+			backToMenu(false);
 			pane_film.setVisible(true);
 			pane_film.setDisable(false);
 			// Init all inputfields
@@ -148,12 +157,12 @@ public class EventHandlingController {
 			System.exit(0);
 		});
 		btn_cancel.setOnAction((event) -> {
-			backToMenu();
+			backToMenu(true);
 		});
 		btn_cancelshow.setOnAction((event) -> {
 			lv_film.getSelectionModel().clearSelection();
 			lv_room.getSelectionModel().clearSelection();
-			backToMenu();
+			backToMenu(true);
 		});
 		iv_filmcover.setOnMouseClicked((event) -> {
 			mediaChooser.setTitle("choose Cover");
@@ -195,7 +204,7 @@ public class EventHandlingController {
 
 				}
 				if (message.showMsg(returncode)) {
-					backToMenu();
+					backToMenu(true);
 				}
 			} else {
 				message.showMsg("i9");
@@ -207,6 +216,7 @@ public class EventHandlingController {
 			if (loadFilmList() != null) {
 				film = choosePopupFilm(loadFilmList(), "Edit");
 				if (film != null) {
+					backToMenu(false);
 					pane_film.setVisible(true);
 					pane_film.setDisable(false);
 					tf_filmduration.setText(Integer.toString(film.getDurationInMinutes()));
@@ -219,7 +229,7 @@ public class EventHandlingController {
 				}
 			} else {
 				message.showMsg("i17");
-				backToMenu();
+				backToMenu(true);
 			}
 
 		});
@@ -232,7 +242,7 @@ public class EventHandlingController {
 				}
 			} else {
 				message.showMsg("i17");
-				backToMenu();
+				backToMenu(true);
 			}
 
 		});
@@ -242,7 +252,7 @@ public class EventHandlingController {
 		// Room controlling start--------------------
 
 		btn_createroom.setOnAction((event) -> {
-			backToMenu();
+			backToMenu(false);
 			TextInputDialog dialog = new TextInputDialog();
 			dialog.setTitle("Create new Room");
 			dialog.setHeaderText("Create new Room");
@@ -251,7 +261,7 @@ public class EventHandlingController {
 				String name = result.get();
 				if (controller.createNewRoom(name)) {
 					message.showMsg("s10");
-					backToMenu();
+					backToMenu(true);
 				} else {
 					message.showMsg("e11");
 				}
@@ -270,7 +280,7 @@ public class EventHandlingController {
 			} else {
 				message.showMsg("i16");
 			}
-			backToMenu();
+			backToMenu(true);
 
 		});
 		btn_deleteroom.setOnAction((event) -> {
@@ -282,14 +292,14 @@ public class EventHandlingController {
 				}
 			} else {
 				message.showMsg("i16");
-				backToMenu();
+				backToMenu(true);
 			}
 		});
 		// Room controlling end ------
 		// Show controlling start -------
 
 		btn_createshow.setOnAction((event) -> {
-			backToMenu();
+			backToMenu(false);
 			pane_show.setVisible(true);
 			pane_show.setDisable(false);
 			// Init all inputfields
@@ -313,18 +323,19 @@ public class EventHandlingController {
 						controller.getFilmByName(filmname), startDate, startTime);
 				System.out.println(returncode);
 				if (message.showMsg(returncode))
-					backToMenu();
+					backToMenu(true);
 			}
-//			controller.edit
+			// controller.edit
 		});
-		
+
 		// Eventhandling for editing shows
 		btn_editshow.setOnAction((event) -> {
-			//popup choose show -> same as film
+			// popup choose show -> same as film
 			// load data to screen
 		});
-		
-		// check if entered value is valid to time 24 hours. otherwise reset field
+
+		// check if entered value is valid to time 24 hours. otherwise reset
+		// field
 		tf_starttime.setOnKeyPressed(new EventHandler<KeyEvent>() {
 			@Override
 			public void handle(KeyEvent ke) {
@@ -372,6 +383,25 @@ public class EventHandlingController {
 
 	}
 
+	private void loadShowsToOverview() {
+		
+
+		if (loadShowList() != null) {
+			vb_wrapper_show.getChildren().clear();
+			ShowList showlist = loadShowList();
+			for (Show show : showlist) {
+				ShowItem showitem = new ShowItem();
+				// showitem.createShowItem(film);
+				Pane pane = showitem.createShowItem(show);
+				vb_wrapper_show.getChildren().add(pane);
+				vb_wrapper_show.setMargin(pane, new Insets(0, 0, 0, 20));
+
+			}
+			sp_show.setContent(vb_wrapper_show);
+		}
+
+	}
+
 	private ObservableList<String> loadLVFilm() {
 		FilmList filmlist = controller.getAllFilms();
 		ObservableList<String> content = FXCollections.observableArrayList();
@@ -382,6 +412,7 @@ public class EventHandlingController {
 		return content;
 	}
 	// Mehtode to load lv_room with all available rooms.
+
 	private ObservableList<String> loadLVRoom(RoomList roomlist) {
 		ObservableList<String> content = FXCollections.observableArrayList();
 		for (Room room : roomlist) {
@@ -390,6 +421,7 @@ public class EventHandlingController {
 
 		return content;
 	}
+
 	private ObservableList<String> loadLVRoom() {
 		RoomList roomlist = controller.getAllRooms();
 		ObservableList<String> content = FXCollections.observableArrayList();
@@ -400,6 +432,7 @@ public class EventHandlingController {
 		return content;
 	}
 
+	// Listen holen und zurückgeben
 	private FilmList loadFilmList() {
 		FilmList filmlist = new FilmList();
 		filmlist = controller.getAllFilms();
@@ -418,7 +451,16 @@ public class EventHandlingController {
 		return roomlist;
 	}
 
-	// to-do 1 ## ArrayList richtig befüllen
+	private ShowList loadShowList() {
+		ShowList showlist = new ShowList();
+		showlist = controller.getAllShows();
+		if (showlist.size() <= 0) {
+			return null;
+		}
+		return showlist;
+	}
+
+	// Popoup zur Auswahl von Film und Raum
 	private Film choosePopupFilm(FilmList filmlist, String modus) {
 		ArrayList<String> choices = new ArrayList<String>();
 		for (Film current : filmlist) {
@@ -441,7 +483,6 @@ public class EventHandlingController {
 		return null;
 	}
 
-	// to-do 2 ## Arraylist richtig abfüllen (Name, id)
 	private Room deleteRoom(RoomList roomlist) {
 		ArrayList<String> choices = new ArrayList<String>();
 		for (Room current : roomlist) {
@@ -467,15 +508,21 @@ public class EventHandlingController {
 		this.stage = stage;
 	}
 
-	private void backToMenu() {
-
+	private void backToMenu(Boolean hide) {
 		pane_main.setVisible(true);
 		pane_main.setDisable(false);
 		pane_film.setVisible(false);
 		pane_film.setDisable(true);
 		pane_show.setVisible(false);
 		pane_show.setDisable(true);
+		pane_overview.setVisible(false);
+		pane_overview.setDisable(true);
+
+		if (hide) {
+			pane_overview.setVisible(true);
+			pane_overview.setDisable(false);
+			loadShowsToOverview();
+		}
 
 	}
-
 }
