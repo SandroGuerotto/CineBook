@@ -11,6 +11,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceDialog;
@@ -25,6 +26,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -46,9 +49,12 @@ import view.Message;
  */
 
 public class EventHandlingController {
-	private static final Pattern INPUT_PATTERN = Pattern.compile("([01]?[0-9]|2[0-3]):[0-5][0-9]"); // regex
-																									// für
-																									// Zeit
+	private static final String TIMEREGEX = "([01]?[0-9]|2[0-3]):[0-5][0-9]"; // regex
+																				// für
+																				// Zeit
+	private static final String NUMBERREGEX = "[0-9]{4}"; // regex für Zahlen
+	private static final Pattern TIME24HOURS_PATTERN = Pattern.compile(TIMEREGEX);
+	private static final Pattern NUMBERPATTERN = Pattern.compile(NUMBERREGEX);
 	private static final String PIC_DIR = "../";
 	private boolean firstrun = true;
 	private FileChooser mediaChooser;
@@ -301,6 +307,28 @@ public class EventHandlingController {
 					backToMenu();
 			}
 		});
+		// check if entered value is valid to time 24 hours. otherwise reset field
+		tf_starttime.setOnKeyPressed(new EventHandler<KeyEvent>() {
+			@Override
+			public void handle(KeyEvent ke) {
+				if (ke.getCode().equals(KeyCode.ENTER)) {
+					Matcher timeMatcher = TIME24HOURS_PATTERN.matcher(tf_starttime.getText());
+					Matcher numMatcher = NUMBERPATTERN.matcher(tf_starttime.getText());
+					if (numMatcher.matches()) {
+						tf_starttime.setText(
+								tf_starttime.getText().substring(0, 2) + ":" + tf_starttime.getText().substring(2, 4));
+						System.out.println(tf_starttime.getText());
+					} else {
+						if (!timeMatcher.matches()) {
+							tf_starttime.setText("");
+						}
+					}
+					System.out.println(tf_starttime.getText());
+
+				}
+			}
+		});
+
 		// Show controlling end -------------
 
 		// ListView controlling start ----------------
@@ -320,19 +348,6 @@ public class EventHandlingController {
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 				if (newValue != null) {
 					room = controller.getRoomByName(newValue);
-				}
-			}
-		});
-
-		tf_starttime.textProperty().addListener(new ChangeListener<String>() {
-			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				Matcher matcher = INPUT_PATTERN.matcher(newValue);
-				System.out.println(newValue + "  --   " + oldValue);
-				if (!matcher.matches()) {
-					tf_starttime.setText("");
-				}else{
-					tf_starttime.setText(newValue);
 				}
 			}
 		});

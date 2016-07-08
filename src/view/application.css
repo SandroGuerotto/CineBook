@@ -72,6 +72,12 @@
 .btn:hover, .btn:focused{
 	-fx-background-color: rgb(170,0,0);
 }
+
+#btn_tp{
+	-fx-border: none;
+	-fx-border-radius: 0, 0 , 0 ,0;
+	-fx-background-radius: 0;
+}
 /* Textinput */
 .text-input{
 	-fx-font-size: 25 pt;

@@ -198,8 +198,8 @@
                         </HBox>
                         <HBox prefHeight="50.0" prefWidth="810.0">
                            <children>
-                              <DatePicker fx:id="dp_startdate" prefHeight="50.0" prefWidth="405.0" promptText="Start date" showWeekNumbers="true" />
-                              <TextField fx:id="tf_starttime" prefHeight="50.0" prefWidth="405.0" promptText="Start time" />
+                              <DatePicker fx:id="dp_startdate" prefHeight="54.0" prefWidth="405.0" promptText="Start date" showWeekNumbers="true" />
+                              <TextField fx:id="tf_starttime" onKeyPressed="#initialize" prefHeight="54.0" prefWidth="405.0" promptText="Start time" />
                            </children>
                         </HBox>
                      </children>
