@@ -113,7 +113,13 @@ public class Message {
 			setProperties(type, "No Date given. Please choose a start date!");
 			break;
 		case "24":
-			setProperties(type, "");
+			setProperties(type, "An error occurred while deleting the show!");
+			break;
+		case "25":
+			setProperties(type, "An error occurred while deleting the reservation!");
+			break;
+		case "26":
+			setProperties(type, "Show successfully deleted!");
 			break;
 		}
 		removeMsg();

@@ -73,7 +73,8 @@ public class ShowList extends ArrayList<Show> {
 		Date date = new Date();
 		
 		for(Show show : this){
-			if(show.film == film && show.startDateTime.after(date)){
+			if(show.film == film && show.startDateTime.after(date)
+			&& show.film == film && show.startDateTime.before(date)){
 				return true;
 			}
 		}
@@ -87,7 +88,8 @@ public class ShowList extends ArrayList<Show> {
 		Date date = new Date();
 		
 		for(Show show : this){
-			if(show.room == room && show.startDateTime.after(date)){
+			if(show.room == room && show.startDateTime.after(date)
+		    && show.room == room && show.startDateTime.before(date)){
 				return true;
 			}
 		}
@@ -187,10 +189,13 @@ public class ShowList extends ArrayList<Show> {
 		for (Show show : this) {
 			if (show.id > id) {
 				id = show.id;
+				System.out.println(id);
 			}
 		}
+		id++;
+		System.out.println(id);
 
-		return id++;
+		return id;
 	}
 
 	// Liste via FileStream in File schreiben

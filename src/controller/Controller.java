@@ -198,15 +198,18 @@ public class Controller {
 
 	// Löscht eine Show mit all ihren Reservierungen
 	// ----------------------------------------------------------------------
-	public void deleteShowAndReservations(Show show) {
+	public String deleteShowAndReservations(Show show) {
 
-		showList.deleteShow(show);
+		if(!showList.deleteShow(show))
+			return "e24";
 
 		for (Reservation reservation : getAllReservations()) {
 			if (reservation.getShow() == show) {
-				reservationList.deleteReservation(reservation);
+				if(!reservationList.deleteReservation(reservation))
+					return "e25";
 			}
 		}
+		return "s26";
 	}
 
 	// Gibt eine Liste mit den bereits reservierten Plätzen zurück

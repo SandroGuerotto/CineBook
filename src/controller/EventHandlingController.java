@@ -311,6 +311,11 @@ public class EventHandlingController {
 			lv_room.setItems(loadLVRoom());
 			lbl_show.setText("Create new Show");
 			btn_cancelshow.setUnderline(false);
+			
+			Thread checkinput = new Thread(){
+				
+			};
+			
 		});
 
 		btn_showsave.setOnAction((event) -> {
@@ -324,6 +329,8 @@ public class EventHandlingController {
 				System.out.println(returncode);
 				if (message.showMsg(returncode))
 					backToMenu(true);
+			}else{
+				message.showMsg("i9");
 			}
 			// controller.edit
 		});
@@ -334,6 +341,23 @@ public class EventHandlingController {
 			// load data to screen
 		});
 
+		
+		
+		btn_deleteshow.setOnAction((event) ->{
+			if (loadShowList() != null) {
+				Show delshow = deleteShow(loadShowList());
+				if (delshow != null) {
+					returncode = controller.deleteShowAndReservations(delshow);
+					message.showMsg(returncode);
+					backToMenu(true);
+				}
+			} else {
+				message.showMsg("i16");
+				backToMenu(true);
+			}
+		});
+		
+		
 		// check if entered value is valid to time 24 hours. otherwise reset
 		// field
 		tf_starttime.setOnKeyPressed(new EventHandler<KeyEvent>() {
@@ -504,6 +528,25 @@ public class EventHandlingController {
 		}
 		return null;
 	}
+	private Show deleteShow(ShowList showlist) {
+		ArrayList<String> choices = new ArrayList<String>();
+		for (Show current : showlist) {
+			choices.add(current.getFilm().getTitle() + " - " + current.getStartDateTime());
+		}
+		ChoiceDialog<String> dialog = new ChoiceDialog<>("please choose", choices);
+		dialog.setTitle("Delete an existing show");
+		dialog.setContentText("Choose a show:");
+		// Traditional way to get the response value.
+		Optional<String> result = dialog.showAndWait();
+		if (result.isPresent()) {
+			for (Show current : showlist) {
+				if (result.get().equals(current.getFilm().getTitle() + " - " + current.getStartDateTime())) {
+					return current;
+				}
+			}
+		}
+		return null;
+	}
 
 	// general methods
 	public void setStage(Stage stage) {
@@ -511,6 +554,7 @@ public class EventHandlingController {
 	}
 
 	private void backToMenu(Boolean hide) {
+		
 		pane_main.setVisible(true);
 		pane_main.setDisable(false);
 		pane_film.setVisible(false);
