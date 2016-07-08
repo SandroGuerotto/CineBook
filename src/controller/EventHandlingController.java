@@ -411,9 +411,9 @@ public class EventHandlingController {
 
 		return content;
 	}
-	// Mehtode to load lv_room with all available rooms.
-
-	private ObservableList<String> loadLVRoom(RoomList roomlist) {
+	//TMP ----------------------------------------------------------------------------------------------------------
+	private ObservableList<String> loadLVRoom() {
+		RoomList roomlist = controller.getAllRooms();
 		ObservableList<String> content = FXCollections.observableArrayList();
 		for (Room room : roomlist) {
 			content.add(room.getName());
@@ -421,9 +421,11 @@ public class EventHandlingController {
 
 		return content;
 	}
-
-	private ObservableList<String> loadLVRoom() {
-		RoomList roomlist = controller.getAllRooms();
+	//--------------------------------------------------------------------------------------------------------------
+	
+	// Mehtode to load lv_room with all available rooms.
+	private ObservableList<String> loadLVRoom(LocalDate startDate, String startTime, Film film) {
+		RoomList roomlist = controller.getAllAvailableRooms(startDate, startTime, film);
 		ObservableList<String> content = FXCollections.observableArrayList();
 		for (Room room : roomlist) {
 			content.add(room.getName());

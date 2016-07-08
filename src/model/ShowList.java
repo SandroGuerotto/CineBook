@@ -118,25 +118,30 @@ public class ShowList extends ArrayList<Show> {
 	// Man übergibt beim Erstellen einer neuen Show die geplante Startzeit und den Film
 	// Eine Liste mit nicht besetzen Räumen wird zurückgegeben
 	public RoomList getAvailableRooms(Date startDateTime, Film film, RoomList roomList) {
-
-		RoomList tmpRoomList = roomList;
+		System.out.println("StartDateTime" + startDateTime.toString());
+		RoomList tmpRoomList = new RoomList();
+		tmpRoomList = roomList;
+		
 		long filmStartMillisec = startDateTime.getTime();
 		long filmDurationMillisec = film.durationInMinutes * 60000;
 		long filmEndMillisec = filmStartMillisec + filmDurationMillisec;
 
-		for (Show show : this) {
-			long showStartMillisec = show.startDateTime.getTime() - 1800000;
-			long showEndMillisec = show.endDateTime.getTime() + 1800000;
-
-			if (filmStartMillisec >= showStartMillisec && filmEndMillisec <= showEndMillisec) {
-				tmpRoomList.deleteRoom(show.room);
-			}
-
-			else if (filmEndMillisec >= showStartMillisec && filmEndMillisec <= showEndMillisec) {
-				tmpRoomList.deleteRoom(show.room);
+		if(!this.isEmpty()){
+			for (Show show : this) {
+				long showStartMillisec = show.startDateTime.getTime() - 1800000;
+				long showEndMillisec = show.endDateTime.getTime() + 1800000;
+	
+				if (filmStartMillisec > showStartMillisec && filmEndMillisec < showEndMillisec) {
+					tmpRoomList.remove(show.room);
+				}
+	
+				else if (filmEndMillisec > showStartMillisec && filmEndMillisec < showEndMillisec) {
+					tmpRoomList.remove(show.room);
+				}else{
+					
+				}
 			}
 		}
-
 		return tmpRoomList;
 	}
 
@@ -146,17 +151,19 @@ public class ShowList extends ArrayList<Show> {
 		long filmDurationMillisec = film.durationInMinutes * 60000;
 		long filmEndMillisec = filmStartMillisec + filmDurationMillisec;
 
-		for (Show show : this) {
-			long showStartMillisec = show.startDateTime.getTime() - 1800000;
-			long showEndMillisec = show.endDateTime.getTime() + 1800000;
-
-			if (filmStartMillisec >= showStartMillisec && filmEndMillisec <= showEndMillisec) {
-				return false;
-			}
-
-			else if (filmEndMillisec >= showStartMillisec && filmEndMillisec <= showEndMillisec) {
-				return false;
-
+		if(!this.isEmpty()){
+			for (Show show : this) {
+				long showStartMillisec = show.startDateTime.getTime() - 1800000;
+				long showEndMillisec = show.endDateTime.getTime() + 1800000;
+	
+				if (filmStartMillisec >= showStartMillisec && filmEndMillisec <= showEndMillisec) {
+					return false;
+				}
+	
+				else if (filmEndMillisec >= showStartMillisec && filmEndMillisec <= showEndMillisec) {
+					return false;
+	
+				}
 			}
 		}
 		return true;

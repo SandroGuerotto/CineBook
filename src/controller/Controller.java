@@ -46,10 +46,10 @@ public class Controller {
 		filmList.setFileStream(fileStream);
 		roomList.setFileStream(fileStream);
 
-		for (Film film : filmList) {
-			System.out.print(film.getId() + ": ");
-			System.out.print(film.getTitle() + ", ");
-			System.out.print(film.getImagePath() + "\n");
+		for (Show show : showList) {
+			System.out.print(show.getFilm().getTitle() + ": ");
+			System.out.print(show.getRoom().getName() + ", ");
+			System.out.print(show.getStartDateTime() + "\n");
 		}
 	}
 
@@ -166,11 +166,26 @@ public class Controller {
 
 	// Gibt alle nicht besetzten Räume zurück (geplante Startzeit & geplanter
 	// Film muss übergeben werden) -----------------
-	public RoomList getAllAvailableRooms(Date startDateTime, Film film) {
+	public RoomList getAllAvailableRooms(LocalDate startDate, String startTime, Film film) {
 
-		RoomList tmpRoomList = this.showList.getAvailableRooms(startDateTime, film, this.roomList);
+		Date date = null;
+		DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		String startDateTime = startDate + " " + startTime;
+
+		try {
+			date = format.parse(startDateTime);
+		} catch (ParseException e) { e.printStackTrace(); }
+
+		System.out.println(date.toString());
+		System.out.println(film.getTitle());
+		tmpRoomList = new RoomList();
+		RoomList tmpRoomList = this.showList.getAvailableRooms(date, film, this.roomList);
 		this.tmpRoomList.sort((o1, o2) -> o1.getName().compareTo(o2.getName()));
 
+		for(Room room : tmpRoomList){
+			System.out.println(room.getName());
+		}
+		
 		return tmpRoomList;
 	}
 

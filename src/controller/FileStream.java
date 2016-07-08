@@ -107,7 +107,6 @@ public class FileStream {
 			FilmList list = (FilmList) ois.readObject();
 			ois.close();
 			fis.close();
-			System.out.println("Deserialize Films");
 			return list;
 
 		} catch (FileNotFoundException e) {
@@ -128,7 +127,6 @@ public class FileStream {
 			ReservationList list = (ReservationList) ois.readObject();
 			ois.close();
 			fis.close();
-			System.out.println("Deserialize Reservations");
 			return list;
 
 		} catch (FileNotFoundException e) {
@@ -149,7 +147,6 @@ public class FileStream {
 			ShowList list = (ShowList) ois.readObject();
 			ois.close();
 			fis.close();
-			System.out.println("Deserialize Shows");
 			return list;
 
 		}catch(FileNotFoundException e){
@@ -170,7 +167,6 @@ public class FileStream {
 			RoomList list = (RoomList) ois.readObject();
 			ois.close();
 			fis.close();
-			System.out.println("Deserialize Rooms");
 			return list;
 
 		}catch(FileNotFoundException e){
