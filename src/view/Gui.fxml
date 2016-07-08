@@ -166,7 +166,7 @@
                      <children>
                         <HBox prefHeight="50.0" prefWidth="810.0">
                            <children>
-                              <Label prefHeight="50.0" prefWidth="405.0" text="Room">
+                              <Label prefHeight="50.0" prefWidth="405.0" text="Film">
                                  <font>
                                     <Font size="25.0" />
                                  </font>
@@ -174,7 +174,7 @@
                                     <Insets left="25.0" />
                                  </padding>
                               </Label>
-                              <Label prefHeight="50.0" prefWidth="405.0" text="Film">
+                              <Label prefHeight="50.0" prefWidth="405.0" text="Room">
                                  <padding>
                                     <Insets left="25.0" />
                                  </padding>
@@ -186,11 +186,11 @@
                         </HBox>
                         <HBox prefHeight="371.0" prefWidth="810.0">
                            <children>
-                              <ListView fx:id="lv_room" prefHeight="369.0" prefWidth="405.0">
+                              <ListView fx:id="lv_film" prefHeight="369.0" prefWidth="405.0">
                                  <cursor>
                                     <Cursor fx:constant="HAND" />
                                  </cursor></ListView>
-                              <ListView fx:id="lv_film" prefHeight="369.0" prefWidth="405.0">
+                              <ListView fx:id="lv_room" disable="true" prefHeight="369.0" prefWidth="405.0">
                                  <cursor>
                                     <Cursor fx:constant="HAND" />
                                  </cursor></ListView>

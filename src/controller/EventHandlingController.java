@@ -1,8 +1,12 @@
 package controller;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -129,6 +133,7 @@ public class EventHandlingController {
 		}
 		// Film controlling start-----
 		btn_createfilm.setOnAction((event) -> {
+			backToMenu();
 			pane_film.setVisible(true);
 			pane_film.setDisable(false);
 			// Init all inputfields
@@ -136,6 +141,7 @@ public class EventHandlingController {
 			tf_filmduration.setText("");
 			tf_filmtitle.setText("");
 			ta_filmdesc.setText("");
+			btn_cancel.setUnderline(false);
 			lbl_film.setText("Create new film");
 		});
 		btn_exitprogramm.setOnAction((event) -> {
@@ -236,6 +242,7 @@ public class EventHandlingController {
 		// Room controlling start--------------------
 
 		btn_createroom.setOnAction((event) -> {
+			backToMenu();
 			TextInputDialog dialog = new TextInputDialog();
 			dialog.setTitle("Create new Room");
 			dialog.setHeaderText("Create new Room");
@@ -282,6 +289,7 @@ public class EventHandlingController {
 		// Show controlling start -------
 
 		btn_createshow.setOnAction((event) -> {
+			backToMenu();
 			pane_show.setVisible(true);
 			pane_show.setDisable(false);
 			// Init all inputfields
@@ -292,6 +300,7 @@ public class EventHandlingController {
 			lv_film.setItems(loadLVFilm());
 			lv_room.setItems(loadLVRoom());
 			lbl_show.setText("Create new Show");
+			btn_cancelshow.setUnderline(false);
 		});
 
 		btn_showsave.setOnAction((event) -> {
@@ -306,7 +315,15 @@ public class EventHandlingController {
 				if (message.showMsg(returncode))
 					backToMenu();
 			}
+//			controller.edit
 		});
+		
+		// Eventhandling for editing shows
+		btn_editshow.setOnAction((event) -> {
+			//popup choose show -> same as film
+			// load data to screen
+		});
+		
 		// check if entered value is valid to time 24 hours. otherwise reset field
 		tf_starttime.setOnKeyPressed(new EventHandler<KeyEvent>() {
 			@Override
@@ -340,6 +357,7 @@ public class EventHandlingController {
 					lbl_filmduration.setText(Integer.toString(film.getDurationInMinutes()) + " min");
 					lbl_filmtitle.setText(film.getTitle());
 					iv_filmcovershow.setImage(new Image("File:" + film.getImagePath()));
+
 				}
 			}
 		});
@@ -363,7 +381,15 @@ public class EventHandlingController {
 
 		return content;
 	}
+	// Mehtode to load lv_room with all available rooms.
+	private ObservableList<String> loadLVRoom(RoomList roomlist) {
+		ObservableList<String> content = FXCollections.observableArrayList();
+		for (Room room : roomlist) {
+			content.add(room.getName());
+		}
 
+		return content;
+	}
 	private ObservableList<String> loadLVRoom() {
 		RoomList roomlist = controller.getAllRooms();
 		ObservableList<String> content = FXCollections.observableArrayList();
