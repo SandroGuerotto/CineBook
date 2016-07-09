@@ -10,8 +10,8 @@ import controller.FileStream;
 public class ShowList extends ArrayList<Show> {
 	transient Show show;
 	transient FileStream fileStream;
-	
-	public ShowList(){
+
+	public ShowList() {
 	}
 
 	// Neue Show hinzufügen
@@ -41,23 +41,21 @@ public class ShowList extends ArrayList<Show> {
 		save();
 	}
 
-
-	// Show löschen mit Objekt (boolean gibt Wert zurück ob wirklich gelöscht wurde)
+	// Show löschen mit Objekt (boolean gibt Wert zurück ob wirklich gelöscht
+	// wurde)
 	public boolean deleteShow(Show show) {
 		show = getShowById(show.id);
-		
+
 		boolean hasRemoved = this.remove(show);
 		save();
-		
+
 		return hasRemoved;
 	}
 
-
-
 	// Sucht Show per Id, wenn keine gefunden dann wird null zurückgegeben
 	public Show getShowById(int id) {
-		
-		if(this.size() != 0){
+
+		if (this.size() != 0) {
 			for (Show show : this) {
 				if (show.id == id) {
 					return show;
@@ -66,82 +64,96 @@ public class ShowList extends ArrayList<Show> {
 		}
 		return null;
 	}
-	
-	
+
 	// Überprüfen ob es in Zukunft eine Show mit diesem Film gibt
-	public boolean isShowDepending(Film film){
+	public boolean isShowDepending(Film film) {
 		Date date = new Date();
-		
-		for(Show show : this){
-			if(show.film == film && show.startDateTime.after(date)
-			&& show.film == film && show.startDateTime.before(date)){
+
+		for (Show show : this) {
+			if (show.film == film && show.startDateTime.after(date) && show.film == film
+					&& show.startDateTime.before(date)) {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
-	
+
 	// Überprüfen ob es in Zukunft eine Show mit diesem Room gibt
-	public boolean isShowDepending(Room room){
+	public boolean isShowDepending(Room room) {
 		Date date = new Date();
-		
-		for(Show show : this){
-			if(show.room == room && show.startDateTime.after(date)
-		    && show.room == room && show.startDateTime.before(date)){
+
+		for (Show show : this) {
+			if (show.room == room && show.startDateTime.after(date) && show.room == room
+					&& show.startDateTime.before(date)) {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
-	
+
 	// Gibt alle Shows zurück die an einem bestimmten Tag stattfinden
-	public ShowList getShowsByDate(String mainDate){
+	public ShowList getShowsByDate(String mainDate) {
 		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
 		ShowList tmpShowList = new ShowList();
-		
+
 		// Überprüft ob mainDate valid ist
-		try { Date tmpDate = format.parse(mainDate); } catch (ParseException e) { return null; }
-		
-		if(this.size() != 0){
-			for(Show show : this){
-				if(mainDate.equals(format.format(show.startDateTime))){
+		try {
+			Date tmpDate = format.parse(mainDate);
+		} catch (ParseException e) {
+			return null;
+		}
+
+		if (this.size() != 0) {
+			for (Show show : this) {
+				if (mainDate.equals(format.format(show.startDateTime))) {
 					tmpShowList.add(show);
 				}
 			}
 		}
 		return tmpShowList;
 	}
-	
 
-	// Man übergibt beim Erstellen einer neuen Show die geplante Startzeit und den Film
+	// Man übergibt beim Erstellen einer neuen Show die geplante Startzeit und
+	// den Film
 	// Eine Liste mit nicht besetzen Räumen wird zurückgegeben
 	public RoomList getAvailableRooms(Date startDateTime, Film film, RoomList roomList) {
-		System.out.println("StartDateTime" + startDateTime.toString());
+		// System.out.println("StartDateTime" + startDateTime.toString());
+		// create new tmp Room list
 		RoomList tmpRoomList = new RoomList();
-		tmpRoomList = roomList;
-		
-		long filmStartMillisec = startDateTime.getTime();
-		long filmDurationMillisec = film.durationInMinutes * 60000;
-		long filmEndMillisec = filmStartMillisec + filmDurationMillisec;
+		tmpRoomList = fileStream.deserializeRoomList();
 
-		if(!this.isEmpty()){
+		long newShowStartTime = startDateTime.getTime();
+		long filmDurationMillisec = film.durationInMinutes * 60000;
+		long newShowEndTime = newShowStartTime + filmDurationMillisec + 0;
+
+		if (tmpRoomList.size() > 0) {
 			for (Show show : this) {
-				long showStartMillisec = show.startDateTime.getTime() - 1800000;
-				long showEndMillisec = show.endDateTime.getTime() + 1800000;
-	
-				if (filmStartMillisec > showStartMillisec && filmEndMillisec < showEndMillisec) {
-					tmpRoomList.remove(show.room);
-				}
-	
-				else if (filmEndMillisec > showStartMillisec && filmEndMillisec < showEndMillisec) {
-					tmpRoomList.remove(show.room);
-				}else{
+				long existShowStart = show.startDateTime.getTime();
+				long existShowEnd = show.endDateTime.getTime();
+				if ((existShowStart <= newShowStartTime && newShowStartTime  <= existShowEnd)
+						|| (existShowStart <= newShowEndTime && existShowEnd >= newShowEndTime)) {
+					for( Room room : tmpRoomList){
+						if(room.getName().equals(show.room.getName())){
+							tmpRoomList.remove(room);
+							break;
+						}
+					}
 					
 				}
+
+				// if (filmStartMillisec >= showStartMillisec && filmEndMillisec
+				// <= showEndMillisec) {
+				// tmpRoomList.remove(show.room);
+				// }
+				//
+				// else if (filmEndMillisec >= showStartMillisec &&
+				// filmEndMillisec <= showEndMillisec) {
+				// tmpRoomList.remove(show.room);
+				// } else {
+				//
+				// }
 			}
 		}
 		return tmpRoomList;
@@ -153,25 +165,26 @@ public class ShowList extends ArrayList<Show> {
 		long filmDurationMillisec = film.durationInMinutes * 60000;
 		long filmEndMillisec = filmStartMillisec + filmDurationMillisec;
 
-		if(!this.isEmpty()){
+		if (!this.isEmpty()) {
 			for (Show show : this) {
 				long showStartMillisec = show.startDateTime.getTime() - 1800000;
 				long showEndMillisec = show.endDateTime.getTime() + 1800000;
-	
+
 				if (filmStartMillisec >= showStartMillisec && filmEndMillisec <= showEndMillisec) {
 					return false;
 				}
-	
+
 				else if (filmEndMillisec >= showStartMillisec && filmEndMillisec <= showEndMillisec) {
 					return false;
-	
+
 				}
 			}
 		}
 		return true;
 	}
 
-	// Rechnet anhand von Filmdauer das Spielende aus und gibt dieses im Date Format zurück
+	// Rechnet anhand von Filmdauer das Spielende aus und gibt dieses im Date
+	// Format zurück
 	public Date getEndTime(Date startDateTime, Film film) {
 		long filmStartMillisec = startDateTime.getTime();
 		long durationMillisec = film.durationInMinutes * 60000;

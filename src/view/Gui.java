@@ -5,6 +5,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
@@ -30,7 +31,7 @@ public class Gui extends Application {
 
 			stage.setTitle("Cinema Booking System"); // Titel
 			stage.setScene(scene);
-
+			stage.getIcons().add(new Image("File:" + "images/tab-icon.png"));
 			// Set position and size
 			stage.setX(xpos);
 			stage.setY(ypos);

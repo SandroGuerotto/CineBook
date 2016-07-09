@@ -187,7 +187,7 @@
                         </HBox>
                         <HBox prefHeight="371.0" prefWidth="810.0">
                            <children>
-                              <ListView fx:id="lv_film" prefHeight="369.0" prefWidth="405.0">
+                              <ListView fx:id="lv_film" onKeyPressed="#checkAndLoad" onMouseClicked="#checkAndLoad" prefHeight="369.0" prefWidth="405.0">
                                  <cursor>
                                     <Cursor fx:constant="HAND" />
                                  </cursor></ListView>
@@ -199,8 +199,8 @@
                         </HBox>
                         <HBox prefHeight="50.0" prefWidth="810.0">
                            <children>
-                              <DatePicker fx:id="dp_startdate" prefHeight="54.0" prefWidth="405.0" promptText="Start date" showWeekNumbers="true" />
-                              <TextField fx:id="tf_starttime" onKeyPressed="#initialize" prefHeight="54.0" prefWidth="405.0" promptText="Start time" />
+                              <DatePicker fx:id="dp_startdate" onAction="#initialize" prefHeight="54.0" prefWidth="405.0" promptText="Start date" showWeekNumbers="true" />
+                              <TextField fx:id="tf_starttime" onKeyPressed="#initialize" onKeyReleased="#checkAndLoad" prefHeight="54.0" prefWidth="405.0" promptText="Start time" />
                            </children>
                         </HBox>
                      </children>
@@ -244,8 +244,20 @@
                   </BorderPane>
                </children>
             </GridPane>
-            <VBox fx:id="pane_overview" prefHeight="200.0" prefWidth="100.0" GridPane.columnSpan="2" GridPane.rowIndex="2" GridPane.rowSpan="2">
+            <VBox fx:id="pane_overview" alignment="TOP_RIGHT" prefHeight="200.0" prefWidth="100.0" GridPane.columnSpan="2" GridPane.rowIndex="2" GridPane.rowSpan="2">
                <children>
+                  <Button fx:id="btn_refresh" alignment="CENTER" focusTraversable="false" mnemonicParsing="false" onAction="#refreshShows">
+                     <graphic>
+                        <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../../images/refresh.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                     <VBox.margin>
+                        <Insets bottom="10.0" />
+                     </VBox.margin>
+                  </Button>
                   <ScrollPane fx:id="sp_show" fitToHeight="true" fitToWidth="true" maxHeight="400.0" minHeight="400.0" prefHeight="400.0" prefWidth="1820.0" vbarPolicy="NEVER">
                      <padding>
                         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />

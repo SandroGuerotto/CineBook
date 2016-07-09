@@ -1,10 +1,6 @@
 package view;
 
-import java.text.DateFormat;
-import java.text.Format;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
 import javafx.event.EventHandler;
@@ -18,19 +14,18 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import model.Film;
 import model.Room;
 import model.Show;
 
-public class ShowItem {
+public class ShowItem{
 
 	// Data
 	private Film film;
 	private Room room;
 	private int showid;
-		
+
 	// Layer 1
 	// Visible at start
 	private Image cover;
@@ -41,17 +36,17 @@ public class ShowItem {
 	// Layer 2
 	private BorderPane pane;
 	private Boolean clicked = false;
-	
-	//Layer 3
+
+	// Layer 3
 	private VBox dataholder;
 	private Label lbl_title, lbl_duration, lbl_desc;
 
 	public Pane createShowItem(Show show) {
-				
+		 System.out.println("item");
 		film = show.getFilm();
 		room = show.getRoom();
 		showid = show.getId();
-		
+
 		// Bild laden und event hinzufügen
 		imagePath = "File:" + film.getImagePath();
 		iv_cover = new ImageView();
@@ -74,16 +69,25 @@ public class ShowItem {
 				}
 			}
 		});
-		
-		//show daten laden
+
+		//show daten verarbeiten
+		Date showstart =show.getStartDateTime();
+		Date showend = show.getEndDateTime();
+		String starttime = LocalTimeToString(showstart);
+		String endtime = LocalTimeToString(showend);
+		String startdate = LocalDateToString(showstart);
+		String enddate = LocalDateToString(showend);
+		String showlaunch = startdate + " " + starttime + " - " + endtime;
+
+		// show daten laden
 		showinfo = new VBox();
-		lbl_start = new Label(show.getStartDateTime().toString());
+		lbl_start = new Label(showlaunch);
 		lbl_start.getStyleClass().add("showinfo");
 		lbl_start.setAlignment(Pos.CENTER);
-		lbl_start.setFont(Font.font( "System",  15));
+		lbl_start.setFont(Font.font("System", 15));
 		lbl_start.setPrefHeight(35);
 		lbl_start.setPadding(new Insets(0, 0, 0, 5));
-		
+
 		showinfo.getChildren().addAll(iv_cover, lbl_start);
 		// Vorschau laden und mit daten abfüllen
 		dataholder = new VBox();
@@ -93,7 +97,7 @@ public class ShowItem {
 		lbl_title.getStyleClass().add("showinfo");
 		lbl_title.setFont(new Font("System", 25));
 		lbl_title.setPrefHeight(35);
-		
+
 		lbl_desc = new Label(film.getDescription());
 		lbl_desc.setWrapText(true);
 		lbl_desc.setFont(new Font("System", 15));
@@ -101,20 +105,29 @@ public class ShowItem {
 		lbl_desc.setPrefHeight(270);
 		lbl_desc.setMaxHeight(270);
 		lbl_desc.setAlignment(Pos.TOP_LEFT);
-		
+
 		lbl_duration = new Label(Integer.toString(film.getDurationInMinutes()) + " Minutes");
 		lbl_duration.getStyleClass().add("showinfo");
-		lbl_duration.setFont(Font.font( "System",FontWeight.BOLD,  15));
+		lbl_duration.setFont(Font.font("System", FontWeight.BOLD, 15));
 		lbl_duration.setPrefHeight(35);
-		
+
 		dataholder.getChildren().addAll(lbl_title, lbl_desc, lbl_duration);
 		pane = new BorderPane();
 		pane.setPrefHeight(330);
 		pane.setPrefWidth(220);
 		pane.setStyle(" -fx-background-color: rgb(72, 72, 72);");
 		pane.setLeft(showinfo);
-		
+
 		pane.setAlignment(showinfo, Pos.CENTER_LEFT);
 		return pane;
+	}
+	
+	private String LocalDateToString(Date date){
+		SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
+		return formatter.format(date);
+	}
+	private String LocalTimeToString(Date time){
+		SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
+		return formatter.format(time);
 	}
 }

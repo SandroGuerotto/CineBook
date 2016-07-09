@@ -121,6 +121,15 @@ public class Message {
 		case "26":
 			setProperties(type, "Show successfully deleted!");
 			break;
+		case "27":
+			setProperties(type, "No shows are existing! Please create one!");
+			break;
+		case "28":
+			setProperties(type, "Show date can not be in the past!");
+			break;
+		case "99":
+			setProperties(type, "This Feature is not available yet!");
+			break;
 		}
 		removeMsg();
 		return backToMenu;

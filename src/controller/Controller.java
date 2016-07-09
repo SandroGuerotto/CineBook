@@ -31,7 +31,7 @@ public class Controller {
 	ShowList showList;
 	FilmList filmList;
 	RoomList roomList;
-	private RoomList tmpRoomList;
+	//private RoomList tmpRoomList;
 
 	public Controller() {
 		fileStream = new FileStream();
@@ -178,9 +178,9 @@ public class Controller {
 
 		System.out.println(date.toString());
 		System.out.println(film.getTitle());
-		tmpRoomList = new RoomList();
+	//	tmpRoomList = new RoomList();
 		RoomList tmpRoomList = this.showList.getAvailableRooms(date, film, this.roomList);
-		this.tmpRoomList.sort((o1, o2) -> o1.getName().compareTo(o2.getName()));
+		tmpRoomList.sort((o1, o2) -> o1.getName().compareTo(o2.getName()));
 
 		for(Room room : tmpRoomList){
 			System.out.println(room.getName());

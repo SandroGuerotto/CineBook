@@ -1,9 +1,16 @@
 package controller;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -57,13 +64,14 @@ import view.ShowItem;
  */
 
 public class EventHandlingController {
-	private static final String TIMEREGEX = "([01]?[0-9]|2[0-3]):[0-5][0-9]"; // regex
-																				// für
-																				// Zeit
+	private static final String TIMEREGEX = "([01]?[0-9]|2[0-3]):[0-5][0-9]"; 
 	private static final String NUMBERREGEX = "[0-9]{4}"; // regex für Zahlen
 	private static final Pattern TIME24HOURS_PATTERN = Pattern.compile(TIMEREGEX);
 	private static final Pattern NUMBERPATTERN = Pattern.compile(NUMBERREGEX);
 	private static final String PIC_DIR = "../";
+	private final ScheduledExecutorService schedulerLoader = Executors.newScheduledThreadPool(1);
+	
+	private ScheduledFuture<?> showLoader;
 	private boolean firstrun = true;
 	private FileChooser mediaChooser;
 	private ExtensionFilter extFilter;
@@ -86,41 +94,36 @@ public class EventHandlingController {
 
 	@FXML
 	private GridPane pane_film, pane_main, pane_show;
-
+	@FXML
+	private ScrollPane sp_show;
+	@FXML
+	private HBox vb_wrapper_show;
 	@FXML
 	private VBox pane_overview;
-	@FXML
-	private Button btn_filmsave, btn_showsave;
 
 	@FXML
+	private Button btn_filmsave, btn_showsave;
+	@FXML
 	private Hyperlink btn_cancel, btn_cancelshow;
+	@FXML
+	private DatePicker dp_startdate;
 
 	@FXML
 	private TextField tf_filmtitle, tf_filmduration, tf_starttime;
+	@FXML
+	private TextArea ta_filmdesc;
 
 	@FXML
 	private Label lbl_message, lbl_film, lbl_show;
 	@FXML
 	private Label lbl_filmtitle, lbl_filmduration;
-	@FXML
-	private TextArea ta_filmdesc;
 
 	@FXML
 	private ImageView iv_filmcover, iv_filmcovershow;
 	@FXML
 	private ListView<String> lv_room;
-
 	@FXML
 	private ListView<String> lv_film;
-	@FXML
-	private DatePicker dp_startdate;
-
-	@FXML
-	private ImageView iv_test;
-	@FXML
-	private ScrollPane sp_show;
-	@FXML
-	private HBox vb_wrapper_show;
 
 	public EventHandlingController() {
 		mediaChooser = new FileChooser();
@@ -137,8 +140,9 @@ public class EventHandlingController {
 			lv_film.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 			lv_room.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 			backToMenu(true);
+		//	createShowLoader();
 			firstrun = false;
-			
+
 		}
 		// Film controlling start-----
 		btn_createfilm.setOnAction((event) -> {
@@ -154,6 +158,7 @@ public class EventHandlingController {
 			lbl_film.setText("Create new film");
 		});
 		btn_exitprogramm.setOnAction((event) -> {
+			showLoader.cancel(true);
 			System.exit(0);
 		});
 		btn_cancel.setOnAction((event) -> {
@@ -285,7 +290,7 @@ public class EventHandlingController {
 		});
 		btn_deleteroom.setOnAction((event) -> {
 			if (loadRoomList() != null) {
-				Room delroom = deleteRoom(loadRoomList());
+				Room delroom = choosePopupRoom(loadRoomList());
 				if (delroom != null) {
 					returncode = controller.deleteRoom(delroom);
 					message.showMsg(returncode);
@@ -304,18 +309,21 @@ public class EventHandlingController {
 			pane_show.setDisable(false);
 			// Init all inputfields
 			tf_starttime.setText("");
+			dp_startdate.setValue(null);
 			lbl_filmduration.setText("");
 			lbl_filmtitle.setText("");
+			// set Cover to null
 			iv_filmcovershow.setImage(null);
+			// film list handling
 			lv_film.setItems(loadLVFilm());
-			lv_room.setItems(loadLVRoom());
-			lbl_show.setText("Create new Show");
+			lv_film.getSelectionModel().clearSelection();
+			// room list handling -> default empty and locked
+			lv_room.setItems(null);
+			lv_room.setDisable(true);
+			lv_room.getSelectionModel().clearSelection();
+
+			lbl_show.setText("Create new show");
 			btn_cancelshow.setUnderline(false);
-			
-			Thread checkinput = new Thread(){
-				
-			};
-			
 		});
 
 		btn_showsave.setOnAction((event) -> {
@@ -323,13 +331,28 @@ public class EventHandlingController {
 			String roomname = lv_room.getSelectionModel().getSelectedItem();
 			LocalDate startDate = dp_startdate.getValue();
 			String startTime = tf_starttime.getText();
-			if (filmname != null && roomname != null && startDate != null && !startTime.isEmpty()) {
-				returncode = controller.createNewShow(controller.getRoomByName(roomname),
-						controller.getFilmByName(filmname), startDate, startTime);
-				System.out.println(returncode);
-				if (message.showMsg(returncode))
-					backToMenu(true);
-			}else{
+
+			if (filmname != null && roomname != null && startDate != null && !startTime.isEmpty() && checkStartDate()) {
+				if (lbl_show.getText().equals("Create new show")) {
+					returncode = controller.createNewShow(controller.getRoomByName(roomname),
+							controller.getFilmByName(filmname), startDate, startTime);
+					if (message.showMsg(returncode))
+						backToMenu(true);
+				} else if (lbl_show.getText().equals("Edit show")) {
+
+					// returncode =
+					// controller.editshow(controller.getRoomByName(roomname),
+					// controller.getFilmByName(filmname), startDate,
+					// startTime);
+					if (message.showMsg(returncode))
+						backToMenu(true);
+				}
+
+			} else {
+				if (!checkStartDate()) {
+					message.showMsg("e28");
+					return;
+				}
 				message.showMsg("i9");
 			}
 			// controller.edit
@@ -337,50 +360,60 @@ public class EventHandlingController {
 
 		// Eventhandling for editing shows
 		btn_editshow.setOnAction((event) -> {
-			// popup choose show -> same as film
-			// load data to screen
+			message.showMsg("i99");
+			return;
+			// if (loadShowList() != null) {
+			// Show editshow = choosePopupShow(loadShowList(), "Edit");
+			// if (editshow != null) {
+			// loadEditShow(editshow);
+			//
+			// }
+			// } else {
+			// message.showMsg("i27");
+			// backToMenu(true);
+			// }
 		});
 
-		
-		
-		btn_deleteshow.setOnAction((event) ->{
+		btn_deleteshow.setOnAction((event) -> {
 			if (loadShowList() != null) {
-				Show delshow = deleteShow(loadShowList());
+				Show delshow = choosePopupShow(loadShowList(), "Delete");
 				if (delshow != null) {
 					returncode = controller.deleteShowAndReservations(delshow);
 					message.showMsg(returncode);
 					backToMenu(true);
 				}
 			} else {
-				message.showMsg("i16");
+				message.showMsg("i27");
 				backToMenu(true);
 			}
 		});
-		
-		
+
 		// check if entered value is valid to time 24 hours. otherwise reset
 		// field
 		tf_starttime.setOnKeyPressed(new EventHandler<KeyEvent>() {
+
 			@Override
 			public void handle(KeyEvent ke) {
 				if (ke.getCode().equals(KeyCode.ENTER)) {
-					Matcher timeMatcher = TIME24HOURS_PATTERN.matcher(tf_starttime.getText());
+					String time = "";
 					Matcher numMatcher = NUMBERPATTERN.matcher(tf_starttime.getText());
 					if (numMatcher.matches()) {
-						tf_starttime.setText(
-								tf_starttime.getText().substring(0, 2) + ":" + tf_starttime.getText().substring(2, 4));
-						System.out.println(tf_starttime.getText());
-					} else {
-						if (!timeMatcher.matches()) {
-							tf_starttime.setText("");
-						}
+						time = tf_starttime.getText().substring(0, 2) + ":" + tf_starttime.getText().substring(2, 4);
+						tf_starttime.setText(time);
 					}
-					System.out.println(tf_starttime.getText());
-
+					Matcher timeMatcher = TIME24HOURS_PATTERN.matcher(tf_starttime.getText());
+					if (timeMatcher.matches()) {
+						checkAndLoad();
+						return;
+					} else {
+						tf_starttime.setText("");
+					}
 				}
 			}
 		});
-
+		dp_startdate.setOnAction((event) -> {
+			checkStartDate();
+		});
 		// Show controlling end -------------
 
 		// ListView controlling start ----------------
@@ -408,20 +441,47 @@ public class EventHandlingController {
 	}
 
 	private void loadShowsToOverview() {
-		
-
+		 //System.out.println("hier");
+		 vb_wrapper_show.getChildren().clear();
 		if (loadShowList() != null) {
-			vb_wrapper_show.getChildren().clear();
 			ShowList showlist = loadShowList();
 			for (Show show : showlist) {
-				ShowItem showitem = new ShowItem();
-				// showitem.createShowItem(film);
-				Pane pane = showitem.createShowItem(show);
-				vb_wrapper_show.getChildren().add(pane);
-				vb_wrapper_show.setMargin(pane, new Insets(0, 0, 0, 20));
+				if (!show.getStartDateTime().before(new Date())) {
+					ShowItem showitem = new ShowItem();
+					// showitem.createShowItem(film);
+					Pane pane = showitem.createShowItem(show);
+					vb_wrapper_show.getChildren().add(pane);
+					vb_wrapper_show.setMargin(pane, new Insets(0, 0, 0, 20));
 
+				}
 			}
 			sp_show.setContent(vb_wrapper_show);
+		}
+	}
+
+	@FXML
+	private void refreshShows() {
+		loadShowsToOverview();
+	}
+
+	@FXML
+	private void checkAndLoad() {
+		Matcher timeMatcher = TIME24HOURS_PATTERN.matcher(tf_starttime.getText());
+		if (dp_startdate.getValue() != null && timeMatcher.matches()
+				&& lv_film.getSelectionModel().getSelectedItem() != null) {
+			lv_room.setItems(loadLVRoom(dp_startdate.getValue(), tf_starttime.getText(),
+					controller.getFilmByName(lv_film.getSelectionModel().getSelectedItem())));
+			if (lv_room.getItems().size() == 0) {
+				lv_room.setDisable(true);
+				message.showMsg("i16");
+			} else {
+				lv_room.setDisable(false);
+			}
+
+		} else {
+			lv_room.setItems(null);
+			lv_room.setDisable(true);
+			lv_room.getSelectionModel().clearSelection();
 		}
 
 	}
@@ -435,18 +495,7 @@ public class EventHandlingController {
 
 		return content;
 	}
-	//TMP ----------------------------------------------------------------------------------------------------------
-	private ObservableList<String> loadLVRoom() {
-		RoomList roomlist = controller.getAllRooms();
-		ObservableList<String> content = FXCollections.observableArrayList();
-		for (Room room : roomlist) {
-			content.add(room.getName());
-		}
 
-		return content;
-	}
-	//--------------------------------------------------------------------------------------------------------------
-	
 	// Mehtode to load lv_room with all available rooms.
 	private ObservableList<String> loadLVRoom(LocalDate startDate, String startTime, Film film) {
 		RoomList roomlist = controller.getAllAvailableRooms(startDate, startTime, film);
@@ -509,7 +558,7 @@ public class EventHandlingController {
 		return null;
 	}
 
-	private Room deleteRoom(RoomList roomlist) {
+	private Room choosePopupRoom(RoomList roomlist) {
 		ArrayList<String> choices = new ArrayList<String>();
 		for (Room current : roomlist) {
 			choices.add(current.getName());
@@ -528,13 +577,14 @@ public class EventHandlingController {
 		}
 		return null;
 	}
-	private Show deleteShow(ShowList showlist) {
+
+	private Show choosePopupShow(ShowList showlist, String modus) {
 		ArrayList<String> choices = new ArrayList<String>();
 		for (Show current : showlist) {
 			choices.add(current.getFilm().getTitle() + " - " + current.getStartDateTime());
 		}
 		ChoiceDialog<String> dialog = new ChoiceDialog<>("please choose", choices);
-		dialog.setTitle("Delete an existing show");
+		dialog.setTitle(modus + " an existing show");
 		dialog.setContentText("Choose a show:");
 		// Traditional way to get the response value.
 		Optional<String> result = dialog.showAndWait();
@@ -548,13 +598,62 @@ public class EventHandlingController {
 		return null;
 	}
 
+	private boolean checkStartDate() {
+		if (dp_startdate.getValue() != null) {
+			if (dp_startdate.getValue().isBefore(LocalDate.now())) {
+				message.showMsg("e28");
+				return false;
+			}
+			checkAndLoad();
+			return true;
+		}
+		return false;
+
+	}
+
+	private void loadEditShow(Show editshow) {
+		backToMenu(false);
+		pane_show.setVisible(true);
+		pane_show.setDisable(false);
+		// Init all inputfields
+		Film film = editshow.getFilm();
+
+		// date formater
+		SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
+		String starttime = formatter.format(editshow.getStartDateTime());
+
+		// convert date to LocalDate for datePicker
+		LocalDate startdate = editshow.getStartDateTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+		tf_starttime.setText(starttime);
+		dp_startdate.setValue(startdate);
+		lbl_filmduration.setText(Integer.toString(film.getDurationInMinutes()));
+		lbl_filmtitle.setText(film.getTitle());
+
+		// set Cover to null
+		iv_filmcovershow.setImage(new Image("File:" + film.getImagePath()));
+
+		// film list handling
+		lv_film.setItems(loadLVFilm());
+		lv_film.getSelectionModel().select(film.getTitle());
+
+		// room list handling -> load as default and add show room -> sort
+		lv_room.setItems(loadLVRoom(startdate, starttime, film));
+		lv_room.getItems().add(editshow.getRoom().getName());
+		lv_room.getItems().sort(((o1, o2) -> editshow.getRoom().getName().compareTo(editshow.getRoom().getName())));
+		lv_room.getSelectionModel().select(editshow.getRoom().getName());
+		lv_room.setDisable(false);
+
+		lbl_show.setText("Edit show");
+		btn_cancelshow.setUnderline(false);
+	}
+
 	// general methods
 	public void setStage(Stage stage) {
 		this.stage = stage;
 	}
 
 	private void backToMenu(Boolean hide) {
-		
+
 		pane_main.setVisible(true);
 		pane_main.setDisable(false);
 		pane_film.setVisible(false);
@@ -570,5 +669,15 @@ public class EventHandlingController {
 			loadShowsToOverview();
 		}
 
+	}
+
+	private void createShowLoader() {
+		Runnable run_showLoader = new Runnable() {
+			public void run() {
+				loadShowsToOverview();
+			//	 System.out.println("hier");
+			}
+		};
+		showLoader = schedulerLoader.scheduleAtFixedRate(run_showLoader, 1, 1, TimeUnit.SECONDS);
 	}
 }
