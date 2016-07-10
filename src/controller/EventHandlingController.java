@@ -773,12 +773,14 @@ public class EventHandlingController {
 		int rownr = 0, seatnr = 0;
 		for(int row = 0; row < 15; row++){
 			rownr++;
+			seatnr = 0;
 			for(int seat = 0; seat < 31; seat++){
-				seatnr++;
+				
 				if(seat == 0){
 					pane_seats.add(new Label(Integer.toString(row+1)), seat, row);
 					continue;
 				}
+				seatnr++;
 				// walkway
 				if(seat == 5 || seat == 26){
 					seatnr--;
