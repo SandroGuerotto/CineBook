@@ -19,7 +19,7 @@ import model.Film;
 import model.Room;
 import model.Show;
 
-public class ShowItem{
+public class ShowItem extends BorderPane{
 
 	// Data
 	private Film film;
@@ -42,7 +42,6 @@ public class ShowItem{
 	private Label lbl_title, lbl_duration, lbl_desc;
 
 	public Pane createShowItem(Show show) {
-		 System.out.println("item");
 		film = show.getFilm();
 		room = show.getRoom();
 		showid = show.getId();
@@ -58,18 +57,16 @@ public class ShowItem{
 			@Override
 			public void handle(MouseEvent event) {
 				if (clicked) {
-					pane.setPrefWidth(220);
-					pane.setRight(null);
-					clicked = false;
+					hide();
 				} else {
 					System.out.println("ShowID " + showid);
-					pane.setPrefWidth(440);
-					pane.setRight(dataholder);
+					setPrefWidth(440);
+					setRight(dataholder);
 					clicked = true;
 				}
 			}
 		});
-
+		iv_cover.getStyleClass().add("handcursor");
 		//show daten verarbeiten
 		Date showstart =show.getStartDateTime();
 		Date showend = show.getEndDateTime();
@@ -113,15 +110,20 @@ public class ShowItem{
 
 		dataholder.getChildren().addAll(lbl_title, lbl_desc, lbl_duration);
 		pane = new BorderPane();
-		pane.setPrefHeight(330);
-		pane.setPrefWidth(220);
-		pane.setStyle(" -fx-background-color: rgb(72, 72, 72);");
-		pane.setLeft(showinfo);
+		this.setPrefHeight(330);
+		this.setPrefWidth(220);
+		this.setStyle(" -fx-background-color: rgb(72, 72, 72);");
+		this.setLeft(showinfo);
 
 		pane.setAlignment(showinfo, Pos.CENTER_LEFT);
-		return pane;
+		return this;
 	}
 	
+	public void hide(){
+		this.setPrefWidth(220);
+		this.setRight(null);
+		this.clicked = false;
+	}
 	private String LocalDateToString(Date date){
 		SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
 		return formatter.format(date);
@@ -129,5 +131,14 @@ public class ShowItem{
 	private String LocalTimeToString(Date time){
 		SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
 		return formatter.format(time);
+	}
+	public boolean isClicked(){
+		return clicked;
+	}
+	public void setClicked(boolean bool){
+		this.clicked = bool;
+	}
+	public int getShowId(){
+		return showid;
 	}
 }

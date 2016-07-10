@@ -125,7 +125,10 @@ public class Message {
 			setProperties(type, "No shows are existing! Please create one!");
 			break;
 		case "28":
-			setProperties(type, "Show date can not be in the past!");
+			setProperties(type, "Show start date can not be in the past!");
+			break;
+		case "29":
+			setProperties(type, "Show start time can not be in the past!");
 			break;
 		case "99":
 			setProperties(type, "This Feature is not available yet!");

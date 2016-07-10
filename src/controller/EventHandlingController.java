@@ -1,11 +1,13 @@
 package controller;
 
 import java.io.File;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -22,6 +24,7 @@ import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.DatePicker;
@@ -38,6 +41,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -54,6 +58,7 @@ import model.Show;
 import model.ShowList;
 import view.EditRoomDialog;
 import view.Message;
+import view.Seat;
 import view.ShowItem;
 
 /**
@@ -65,13 +70,13 @@ import view.ShowItem;
  */
 
 public class EventHandlingController {
-	private static final String TIMEREGEX = "([01]?[0-9]|2[0-3]):[0-5][0-9]"; 
+	private static final String TIMEREGEX = "([01]?[0-9]|2[0-3]):[0-5][0-9]";
 	private static final String NUMBERREGEX = "[0-9]{4}"; // regex für Zahlen
 	private static final Pattern TIME24HOURS_PATTERN = Pattern.compile(TIMEREGEX);
 	private static final Pattern NUMBERPATTERN = Pattern.compile(NUMBERREGEX);
 	private static final String PIC_DIR = "../";
 	private final ScheduledExecutorService schedulerLoader = Executors.newScheduledThreadPool(1);
-	
+
 	private ScheduledFuture<?> showLoader;
 	private boolean firstrun = true;
 	private FileChooser mediaChooser;
@@ -94,18 +99,20 @@ public class EventHandlingController {
 	private MenuItem btn_createroom, btn_editroom, btn_deleteroom;
 
 	@FXML
-	private GridPane pane_film, pane_main, pane_show;
+	private GridPane pane_film, pane_main, pane_show, pane_seats;
 	@FXML
 	private ScrollPane sp_show;
 	@FXML
 	private HBox vb_wrapper_show;
 	@FXML
 	private VBox pane_overview;
+	@FXML
+	private BorderPane pane_seatsarr;
 
 	@FXML
 	private Button btn_filmsave, btn_showsave;
 	@FXML
-	private Hyperlink btn_cancel, btn_cancelshow;
+	private Hyperlink btn_cancel, btn_cancelshow, btn_cancelNewRes;
 	@FXML
 	private DatePicker dp_startdate;
 
@@ -126,11 +133,23 @@ public class EventHandlingController {
 	@FXML
 	private ListView<String> lv_film;
 
+	private int showclicked;
+	int oldclick = -1, newclick = -1;
+
 	public EventHandlingController() {
 		mediaChooser = new FileChooser();
 		extFilter = new ExtensionFilter("ImageFormat", "*.png", "*.jpg", "*.jpeg");
 		controller = new Controller();
-
+		// new Thread(new Runnable() {
+		// public void run() {
+		// while (true) {
+		// Platform.runLater(() -> {
+		// loadShowsToOverview();
+		//
+		// });
+		// }
+		// }
+		// }).start();
 	}
 
 	@FXML
@@ -141,7 +160,7 @@ public class EventHandlingController {
 			lv_film.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 			lv_room.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 			backToMenu(true);
-		//	createShowLoader();
+			// createShowLoader();
 			firstrun = false;
 
 		}
@@ -159,10 +178,13 @@ public class EventHandlingController {
 			lbl_film.setText("Create new film");
 		});
 		btn_exitprogramm.setOnAction((event) -> {
-			showLoader.cancel(true);
+			// showLoader.cancel(true);
 			System.exit(0);
 		});
 		btn_cancel.setOnAction((event) -> {
+			backToMenu(true);
+		});
+		btn_cancelNewRes.setOnAction((event) -> {
 			backToMenu(true);
 		});
 		btn_cancelshow.setOnAction((event) -> {
@@ -356,7 +378,7 @@ public class EventHandlingController {
 				}
 				message.showMsg("i9");
 			}
-			// controller.edit
+
 		});
 
 		// Eventhandling for editing shows
@@ -389,49 +411,17 @@ public class EventHandlingController {
 			}
 		});
 
-//		textProperty().addListener((observable, oldValue, newValue) -> {
-//		    System.out.println("textfield changed from " + oldValue + " to " + newValue);
-//		});
-//		
-		
 		// check if entered value is valid to time 24 hours. otherwise reset
 		// field
-		tf_starttime.textProperty().addListener(
-				(observable, oldValue, newValue) -> {
-					if (tf_starttime.getText().contains(":")
-							&& tf_starttime.getText().length() == 5) {
-						checkTimeFormat();
-					} else if (tf_starttime.getText().length() == 4
-							&& !tf_starttime.getText().contains(":")) {
-						checkTimeFormat();
-					}
-				});
-		
-		new Thread(new Runnable() {
-			public void run() {
-				while (true) {
-					Platform.runLater(() -> {
-					vb_wrapper_show.getChildren().clear();
-					if (loadShowList() != null) {
-						ShowList showlist = loadShowList();
-						for (Show show : showlist) {
-							if (!show.getStartDateTime().before(new Date())) {
-								ShowItem showitem = new ShowItem();
-								// showitem.createShowItem(film);
-								Pane pane = showitem.createShowItem(show);
-								vb_wrapper_show.getChildren().add(pane);
-								vb_wrapper_show.setMargin(pane, new Insets(0, 0, 0, 20));
-
-							}
-						}
-						sp_show.setContent(vb_wrapper_show);
-					}
-				
-				});
+		tf_starttime.setOnKeyPressed(new EventHandler<KeyEvent>() {
+			@Override
+			public void handle(KeyEvent ke) {
+				if (ke.getCode().equals(KeyCode.ENTER)) {
+					checkTimeFormat();
 				}
 			}
-			}).start();
-		
+		});
+
 		dp_startdate.setOnAction((event) -> {
 			checkStartDate();
 		});
@@ -461,7 +451,7 @@ public class EventHandlingController {
 
 	}
 
-	public void checkTimeFormat(){
+	public void checkTimeFormat() {
 		String time = "";
 		Matcher numMatcher = NUMBERPATTERN.matcher(tf_starttime.getText());
 		if (numMatcher.matches()) {
@@ -470,29 +460,41 @@ public class EventHandlingController {
 		}
 		Matcher timeMatcher = TIME24HOURS_PATTERN.matcher(tf_starttime.getText());
 		if (timeMatcher.matches()) {
-			checkAndLoad();
-			return;
+			if (checkStartTime()) {
+				checkAndLoadRooms();
+				return;
+			}
 		} else {
 			tf_starttime.setText("");
 		}
 	}
-	
-	
-	
-	
-	
-	private void loadShowsToOverview() {
-		
-	}
 
+	private void loadShowsToOverview() {
+		vb_wrapper_show.getChildren().clear();
+		if (loadShowList() != null) {
+			ShowList showlist = loadShowList();
+			for (Show show : showlist) {
+				if (!show.getStartDateTime().before(new Date())) {
+					ShowItem showitem = new ShowItem();
+					// showitem.createShowItem(film);
+					Pane pane = showitem.createShowItem(show);
+					vb_wrapper_show.getChildren().add(pane);
+					vb_wrapper_show.setMargin(pane, new Insets(0, 0, 0, 20));
+
+				}
+			}
+			sp_show.setContent(vb_wrapper_show);
+		}
+	}
 
 	@FXML
 	private void refreshShows() {
 		loadShowsToOverview();
 	}
 
+	// laden der Raumliste
 	@FXML
-	private void checkAndLoad() {
+	private void checkAndLoadRooms() {
 		Matcher timeMatcher = TIME24HOURS_PATTERN.matcher(tf_starttime.getText());
 		if (dp_startdate.getValue() != null && timeMatcher.matches()
 				&& lv_film.getSelectionModel().getSelectedItem() != null) {
@@ -530,7 +532,6 @@ public class EventHandlingController {
 		for (Room room : roomlist) {
 			content.add(room.getName());
 		}
-
 		return content;
 	}
 
@@ -631,11 +632,29 @@ public class EventHandlingController {
 				message.showMsg("e28");
 				return false;
 			}
-			checkAndLoad();
+			checkAndLoadRooms();
 			return true;
 		}
 		return false;
+	}
 
+	private boolean checkStartTime() {
+		if (!tf_starttime.getText().isEmpty()) {
+			SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+			Date tmpDate = null;
+			String now = LocalDateToString(new Date()) + " " + tf_starttime.getText();
+			try {
+				tmpDate = format.parse(now);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			if (tmpDate.before(new Date())) {
+				message.showMsg("e29");
+				return false;
+			}
+			return true;
+		}
+		return false;
 	}
 
 	private void loadEditShow(Show editshow) {
@@ -689,6 +708,8 @@ public class EventHandlingController {
 		pane_show.setDisable(true);
 		pane_overview.setVisible(false);
 		pane_overview.setDisable(true);
+		pane_seatsarr.setVisible(false);
+		pane_seatsarr.setDisable(true);
 
 		if (hide) {
 			pane_overview.setVisible(true);
@@ -697,14 +718,85 @@ public class EventHandlingController {
 		}
 
 	}
-f
-//	private void createShowLoader() {
-//		Runnable run_showLoader = new Runnable() {
-//			public void run() {
-//				loadShowsToOverview();
-//			//	 System.out.println("hier");
-//			}
-//		};
-//		showLoader = schedulerLoader.scheduleAtFixedRate(run_showLoader, 1, 1, TimeUnit.SECONDS);
-//	}
+
+	private String LocalDateToString(Date date) {
+		SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
+		return formatter.format(date);
+	}
+	// private void createShowLoader() {
+	// Runnable run_showLoader = new Runnable() {
+	// public void run() {
+	// loadShowsToOverview();
+	// // System.out.println("hier");
+	// }
+	// };
+	// showLoader = schedulerLoader.scheduleAtFixedRate(run_showLoader, 1, 1,
+	// TimeUnit.SECONDS);
+	// }
+
+	@FXML
+	private void clickShow() {
+		ObservableList<Node> showItems = vb_wrapper_show.getChildren();
+		ShowItem item;
+
+		for (int i = 0; i < showItems.size(); i++) {
+			item = (ShowItem) showItems.get(i);
+			if (item.isClicked()) {
+				if (oldclick != i) {
+					newclick = i;
+				}
+			}
+
+		}
+		if (oldclick != newclick && newclick != -1 && oldclick != -1) {
+
+			item = (ShowItem) showItems.get(oldclick);
+			item.hide();
+			item.setClicked(false);
+			oldclick = newclick;
+			newclick = -1;
+			showclicked = oldclick;
+			loadSeatPane();
+		} else if (oldclick != newclick && newclick != -1 && oldclick == -1) {
+			oldclick = newclick;
+			newclick = -1;
+			showclicked = oldclick;
+			loadSeatPane();
+		}else{
+			backToMenu(true);
+		}
+		
+	}
+	private void loadSeatPane(){
+		pane_seatsarr.setVisible(true);
+		pane_seatsarr.setDisable(false);
+		int rownr = 0, seatnr = 0;
+		for(int row = 0; row < 15; row++){
+			rownr++;
+			for(int seat = 0; seat < 31; seat++){
+				seatnr++;
+				if(seat == 0){
+					pane_seats.add(new Label(Integer.toString(row+1)), seat, row);
+					continue;
+				}
+				// walkway
+				if(seat == 5 || seat == 26){
+					seatnr--;
+					continue;
+				}
+//				if(row == 15){
+//					pane_seats.add(new Label(Integer.toString(seat+1)), seat, row);
+//					continue;
+//				}
+				
+//				if(seat == 6 || seat == 27){
+//					pane_seats.add(new Seat(row+1, seat), seat+1, row);
+//				}else{
+					pane_seats.add(new Seat(row+1, seatnr), seat+1, row);
+//				}
+				
+			}
+		}
+		
+	}
 }

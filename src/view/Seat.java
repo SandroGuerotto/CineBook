@@ -1,7 +1,10 @@
 package view;
 
+import javax.swing.plaf.ToolTipUI;
+
 import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
@@ -10,9 +13,9 @@ import javafx.scene.image.ImageView;
 
 public class Seat extends ToggleButton {
 
-	Image seatIconEmpty = new Image(getClass().getResourceAsStream("seat2.png"), 25, 25, false, false);
-	Image seatIconDisabled = new Image(getClass().getResourceAsStream("seat3.png"), 25, 25, false, false);
-	Image seatIconClicked = new Image(getClass().getResourceAsStream("seat4.png"), 25, 25, false, false);
+	Image seatIconEmpty = new Image("File:images/seat2.png", 25, 25, false, false);
+	Image seatIconDisabled = new Image("File:images/seat3.png", 25, 25, false, false);
+	Image seatIconClicked = new Image("File:images/seat4.png", 25, 25, false, false);
 	
 	public Seat(int row, int seat){	
 
@@ -20,13 +23,15 @@ public class Seat extends ToggleButton {
     	setGraphic(new ImageView(seatIconEmpty));
     	setPadding(Insets.EMPTY);
     	setStyle("-fx-background-color: transparent;");
-	
+    	setAlignment(Pos.CENTER);
+    	setTooltip(new Tooltip(Integer.toString(row) + " " + Integer.toString(seat)));
     	// Bild wechseln wenn Sitz angeklickt wird
     	setOnAction(e -> {
     		if(isSelected() == false){
     			Platform.runLater(() -> { setGraphic(new ImageView(seatIconEmpty)); });
     		}else{
     			Platform.runLater(() -> { setGraphic(new ImageView(seatIconClicked)); });
+    			System.out.println(row + " " + seat);
     		}
     	});
     	
