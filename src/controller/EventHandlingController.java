@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -388,29 +389,49 @@ public class EventHandlingController {
 			}
 		});
 
+//		textProperty().addListener((observable, oldValue, newValue) -> {
+//		    System.out.println("textfield changed from " + oldValue + " to " + newValue);
+//		});
+//		
+		
 		// check if entered value is valid to time 24 hours. otherwise reset
 		// field
-		tf_starttime.setOnKeyPressed(new EventHandler<KeyEvent>() {
+		tf_starttime.textProperty().addListener(
+				(observable, oldValue, newValue) -> {
+					if (tf_starttime.getText().contains(":")
+							&& tf_starttime.getText().length() == 5) {
+						checkTimeFormat();
+					} else if (tf_starttime.getText().length() == 4
+							&& !tf_starttime.getText().contains(":")) {
+						checkTimeFormat();
+					}
+				});
+		
+		new Thread(new Runnable() {
+			public void run() {
+				while (true) {
+					Platform.runLater(() -> {
+					vb_wrapper_show.getChildren().clear();
+					if (loadShowList() != null) {
+						ShowList showlist = loadShowList();
+						for (Show show : showlist) {
+							if (!show.getStartDateTime().before(new Date())) {
+								ShowItem showitem = new ShowItem();
+								// showitem.createShowItem(film);
+								Pane pane = showitem.createShowItem(show);
+								vb_wrapper_show.getChildren().add(pane);
+								vb_wrapper_show.setMargin(pane, new Insets(0, 0, 0, 20));
 
-			@Override
-			public void handle(KeyEvent ke) {
-				if (ke.getCode().equals(KeyCode.ENTER)) {
-					String time = "";
-					Matcher numMatcher = NUMBERPATTERN.matcher(tf_starttime.getText());
-					if (numMatcher.matches()) {
-						time = tf_starttime.getText().substring(0, 2) + ":" + tf_starttime.getText().substring(2, 4);
-						tf_starttime.setText(time);
+							}
+						}
+						sp_show.setContent(vb_wrapper_show);
 					}
-					Matcher timeMatcher = TIME24HOURS_PATTERN.matcher(tf_starttime.getText());
-					if (timeMatcher.matches()) {
-						checkAndLoad();
-						return;
-					} else {
-						tf_starttime.setText("");
-					}
+				
+				});
 				}
 			}
-		});
+			}).start();
+		
 		dp_startdate.setOnAction((event) -> {
 			checkStartDate();
 		});
@@ -440,24 +461,30 @@ public class EventHandlingController {
 
 	}
 
-	private void loadShowsToOverview() {
-		 //System.out.println("hier");
-		 vb_wrapper_show.getChildren().clear();
-		if (loadShowList() != null) {
-			ShowList showlist = loadShowList();
-			for (Show show : showlist) {
-				if (!show.getStartDateTime().before(new Date())) {
-					ShowItem showitem = new ShowItem();
-					// showitem.createShowItem(film);
-					Pane pane = showitem.createShowItem(show);
-					vb_wrapper_show.getChildren().add(pane);
-					vb_wrapper_show.setMargin(pane, new Insets(0, 0, 0, 20));
-
-				}
-			}
-			sp_show.setContent(vb_wrapper_show);
+	public void checkTimeFormat(){
+		String time = "";
+		Matcher numMatcher = NUMBERPATTERN.matcher(tf_starttime.getText());
+		if (numMatcher.matches()) {
+			time = tf_starttime.getText().substring(0, 2) + ":" + tf_starttime.getText().substring(2, 4);
+			tf_starttime.setText(time);
+		}
+		Matcher timeMatcher = TIME24HOURS_PATTERN.matcher(tf_starttime.getText());
+		if (timeMatcher.matches()) {
+			checkAndLoad();
+			return;
+		} else {
+			tf_starttime.setText("");
 		}
 	}
+	
+	
+	
+	
+	
+	private void loadShowsToOverview() {
+		
+	}
+
 
 	@FXML
 	private void refreshShows() {
@@ -670,14 +697,14 @@ public class EventHandlingController {
 		}
 
 	}
-
-	private void createShowLoader() {
-		Runnable run_showLoader = new Runnable() {
-			public void run() {
-				loadShowsToOverview();
-			//	 System.out.println("hier");
-			}
-		};
-		showLoader = schedulerLoader.scheduleAtFixedRate(run_showLoader, 1, 1, TimeUnit.SECONDS);
-	}
+f
+//	private void createShowLoader() {
+//		Runnable run_showLoader = new Runnable() {
+//			public void run() {
+//				loadShowsToOverview();
+//			//	 System.out.println("hier");
+//			}
+//		};
+//		showLoader = schedulerLoader.scheduleAtFixedRate(run_showLoader, 1, 1, TimeUnit.SECONDS);
+//	}
 }

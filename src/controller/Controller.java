@@ -107,13 +107,13 @@ public class Controller {
 			return "e20"; // Raum und Film auswählen
 
 		// Überprüft ob zu dieser Zeit kein anderer Film läuft
-		if (showList.isAvailable(date, film) == true) {
+//		if (showList.isAvailable(date, film) == true) {
 			showList.addShow(showList.getNewId(), room, film, date, showList.getEndTime(date, film),
 					film.getDurationInMinutes());
 			return "s21"; // Vorstellung erfolgreich gespeichert
-		}else{
-			return "i22"; //Zu dieser Zeit läuft ein Film bereits
-		}
+//		}else{
+//			return "i22"; //Zu dieser Zeit läuft ein Film bereits
+//		}
 	}
 
 	// Einen neuen Film erstellen
