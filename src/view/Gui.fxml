@@ -244,7 +244,7 @@
                   </BorderPane>
                </children>
             </GridPane>
-            <VBox fx:id="pane_overview" alignment="TOP_RIGHT" prefHeight="200.0" prefWidth="100.0" visible="false" GridPane.columnSpan="2" GridPane.rowIndex="2" GridPane.rowSpan="2">
+            <VBox fx:id="pane_overview" alignment="TOP_RIGHT" prefHeight="200.0" prefWidth="100.0" GridPane.columnSpan="2" GridPane.rowIndex="2" GridPane.rowSpan="2">
                <children>
                   <Button fx:id="btn_refresh" alignment="CENTER" focusTraversable="false" mnemonicParsing="false" onAction="#refreshShows">
                      <graphic>
@@ -261,9 +261,9 @@
                   <ListView fx:id="lv_shows" focusTraversable="false" onMouseClicked="#deselectShow" orientation="HORIZONTAL" prefWidth="1870.0" />
                   <BorderPane fx:id="pane_seatsarr">
                      <right>
-                        <VBox fx:id="vb_toolbox" BorderPane.alignment="TOP_CENTER">
+                        <VBox fx:id="vb_toolbox" alignment="TOP_CENTER" prefHeight="451.0" prefWidth="200.0" BorderPane.alignment="TOP_CENTER">
                            <children>
-                              <Button fx:id="btn_reservationsave" mnemonicParsing="false" onAction="#saveReservation" prefHeight="44.0" prefWidth="178.0" styleClass="btn, handcursor" text="Save">
+                              <Button fx:id="btn_reservationsave" alignment="CENTER" mnemonicParsing="false" onAction="#saveReservation" prefHeight="44.0" prefWidth="178.0" styleClass="btn, handcursor" text="Save">
                                  <font>
                                     <Font size="25.0" fx:id="x13" />
                                  </font>
@@ -271,7 +271,7 @@
                                     <Insets bottom="15.0" />
                                  </VBox.margin>
                               </Button>
-                              <TextField fx:id="tf_phonenumber" disable="true" editable="false" prefHeight="54.0" prefWidth="42.0" promptText="Tel number" visible="false" />
+                              <TextField fx:id="tf_phonenumber" prefHeight="54.0" prefWidth="42.0" promptText="Phone number" />
                               <HBox alignment="BOTTOM_CENTER" prefHeight="345.0" prefWidth="178.0">
                                  <children>
                                     <Hyperlink fx:id="btn_cancelNewRes" contentDisplay="LEFT" onAction="#initialize" prefHeight="45.0" prefWidth="90.0" text="Cancel" textAlignment="LEFT" underline="false" wrapText="false">

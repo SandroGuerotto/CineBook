@@ -136,6 +136,9 @@ public class Message {
 		case "31":
 			setProperties(type, "Reservation successfully saved!");
 			break;
+		case "32":
+			setProperties(type, "Please select at least one seat!");
+			break;
 		case "99":
 			setProperties(type, "This Feature is not available yet!");
 			break;

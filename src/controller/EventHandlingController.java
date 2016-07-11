@@ -807,7 +807,9 @@ public class EventHandlingController {
 		tf_phonenumber.setEditable(false);
 		tf_phonenumber.setDisable(true);
 		tf_phonenumber.setVisible(false);
+		tf_phonenumber.setText("");
 		ArrayList<String> reservedSeats = controller.getReservedSeats(controller.getShowById(shownr));
+		pane_seats.getChildren().clear();
 		Seat seatobj;
 		int rownr = 0, seatnr = 0;
 		for (int row = 1; row < 16; row++) {
@@ -842,8 +844,10 @@ public class EventHandlingController {
 	private void saveReservation() {
 		ObservableList<Node> seatList = pane_seats.getChildren();
 		ArrayList<String> reservationList = new ArrayList<String>();
+		reservationList.clear();
+		ShowItem item = (ShowItem) lv_shows.getSelectionModel().getSelectedItem();
 		Seat seat;
-		Show show = controller.getShowById(showclicked);
+		Show show = controller.getShowById(item.getShowId());
 		for (int i = 0; i < seatList.size(); i++) {
 			try {
 				seat = (Seat) seatList.get(i);
@@ -854,6 +858,10 @@ public class EventHandlingController {
 				reservationList.add(seat.getRow() + "-" + seat.getSeat());
 			}
 		}
+		if(reservationList.size() == 0){
+			message.showMsg("i32");
+			return;
+		}
 		if (reservationList.size() != 0 && tf_phonenumber.getText().isEmpty()) {
 			message.showMsg("i30");
 			tf_phonenumber.setEditable(true);
@@ -863,6 +871,9 @@ public class EventHandlingController {
 		} else if (reservationList.size() != 0 && !tf_phonenumber.getText().isEmpty()) {
 			if (controller.createNewReservations(show, reservationList, tf_phonenumber.getText())) {
 				message.showMsg("s31");
+				
+				
+				loadSeatPane(item.getShowId());
 			}
 		}
 
