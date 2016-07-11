@@ -59,7 +59,6 @@ public class ShowItem extends BorderPane{
 				if (clicked) {
 					hide();
 				} else {
-					System.out.println("ShowID " + showid);
 					setPrefWidth(440);
 					setRight(dataholder);
 					clicked = true;

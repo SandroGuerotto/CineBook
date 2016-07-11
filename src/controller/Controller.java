@@ -31,7 +31,7 @@ public class Controller {
 	ShowList showList;
 	FilmList filmList;
 	RoomList roomList;
-	//private RoomList tmpRoomList;
+	// private RoomList tmpRoomList;
 
 	public Controller() {
 		fileStream = new FileStream();
@@ -46,11 +46,11 @@ public class Controller {
 		filmList.setFileStream(fileStream);
 		roomList.setFileStream(fileStream);
 
-//		for (Show show : showList) {
-//			System.out.print(show.getFilm().getTitle() + ": ");
-//			System.out.print(show.getRoom().getName() + ", ");
-//			System.out.print(show.getStartDateTime() + "\n");
-//		}
+		// for (Show show : showList) {
+		// System.out.print(show.getFilm().getTitle() + ": ");
+		// System.out.print(show.getRoom().getName() + ", ");
+		// System.out.print(show.getStartDateTime() + "\n");
+		// }
 	}
 
 	// Meherer Reservations erstellen
@@ -77,6 +77,7 @@ public class Controller {
 			// Überprüft ob Reservation bereits existiert
 			if (reservationList.doReservationExist(show, seatNr) == false) {
 				reservationList.addReservation(reservationList.getNewId(), show, seatNr, phoneNumber, dateTime);
+//				reservationList = fileStream.deserializeReservationList();
 			} else {
 				return false;
 			}
@@ -92,14 +93,14 @@ public class Controller {
 		DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		String startDateTime = startDate + " " + startTime;
 
-		//Überpüft ob Datum angegeben wurde
-		if(startDate == null)
+		// Überpüft ob Datum angegeben wurde
+		if (startDate == null)
 			return "e23";
 		// Überprüft ob Datum valid ist
 		try {
 			date = format.parse(startDateTime);
 		} catch (ParseException e) {
-			return "e19"; //Fehler beim Konvertieren des Datums
+			return "e19"; // Fehler beim Konvertieren des Datums
 		}
 
 		// Überprüft ob room & film null sind
@@ -107,13 +108,13 @@ public class Controller {
 			return "e20"; // Raum und Film auswählen
 
 		// Überprüft ob zu dieser Zeit kein anderer Film läuft
-//		if (showList.isAvailable(date, film) == true) {
-			showList.addShow(showList.getNewId(), room, film, date, showList.getEndTime(date, film),
-					film.getDurationInMinutes());
-			return "s21"; // Vorstellung erfolgreich gespeichert
-//		}else{
-//			return "i22"; //Zu dieser Zeit läuft ein Film bereits
-//		}
+		// if (showList.isAvailable(date, film) == true) {
+		showList.addShow(showList.getNewId(), room, film, date, showList.getEndTime(date, film),
+				film.getDurationInMinutes());
+		return "s21"; // Vorstellung erfolgreich gespeichert
+		// }else{
+		// return "i22"; //Zu dieser Zeit läuft ein Film bereits
+		// }
 	}
 
 	// Einen neuen Film erstellen
@@ -142,13 +143,13 @@ public class Controller {
 				Files.copy(copy_from_1, copy_to_1, REPLACE_EXISTING, COPY_ATTRIBUTES, NOFOLLOW_LINKS);
 			} catch (IOException e) {
 				return "e6";
-				
+
 			}
 
 			filmList.addFilm(filmList.getNewId(), duration, title, description, "@../../covers/" + name);
 			return "s18";
 
-		}else{
+		} else {
 			return "i7";
 		}
 	}
@@ -174,18 +175,20 @@ public class Controller {
 
 		try {
 			date = format.parse(startDateTime);
-		} catch (ParseException e) { e.printStackTrace(); }
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 
 		System.out.println(date.toString());
 		System.out.println(film.getTitle());
-	//	tmpRoomList = new RoomList();
+		// tmpRoomList = new RoomList();
 		RoomList tmpRoomList = this.showList.getAvailableRooms(date, film, this.roomList);
 		tmpRoomList.sort((o1, o2) -> o1.getName().compareTo(o2.getName()));
 
-		for(Room room : tmpRoomList){
+		for (Room room : tmpRoomList) {
 			System.out.println(room.getName());
 		}
-		
+
 		return tmpRoomList;
 	}
 
@@ -200,12 +203,12 @@ public class Controller {
 	// ----------------------------------------------------------------------
 	public String deleteShowAndReservations(Show show) {
 
-		if(!showList.deleteShow(show))
+		if (!showList.deleteShow(show))
 			return "e24";
 
 		for (Reservation reservation : getAllReservations()) {
 			if (reservation.getShow() == show) {
-				if(!reservationList.deleteReservation(reservation))
+				if (!reservationList.deleteReservation(reservation))
 					return "e25";
 			}
 		}
@@ -277,7 +280,7 @@ public class Controller {
 					Files.delete(deleteImage);
 				} catch (IOException e) {
 					e.printStackTrace();
-					return "w2"; 
+					return "w2";
 				}
 			}
 			if (filmList.deleteFilm(film)) {
@@ -326,7 +329,7 @@ public class Controller {
 			} catch (IOException e) {
 				return "e6"; // Fehler beim speichern vom neuen Bild
 			}
-		}				
+		}
 		// Wenn der Filmtitel geändert wurde
 		if (!newfilm.getTitle().equals(oldFilm.getTitle())) {
 			if (filmList.doFilmExist(newfilm.getTitle()) == false) {
@@ -382,6 +385,15 @@ public class Controller {
 		return this.showList;
 	}
 
+	public Show getShowById(int id) {
+		for (Show show : showList) {
+			if (show.getId() == id) {
+				return show;
+			}
+		}
+		return null;
+	}
+
 	// Gibt alle Filme zurück
 	// ---------------------------------------------------------------------------------------------
 	public FilmList getAllFilms() {
@@ -391,15 +403,17 @@ public class Controller {
 		}
 		return this.filmList;
 	}
+
 	// Gibt den gesuchten Film zurück
-	public Film getFilmByName(String name){
+	public Film getFilmByName(String name) {
 		filmList = getAllFilms();
-		for(Film film : filmList){
-			if(film.getTitle().equals(name))
+		for (Film film : filmList) {
+			if (film.getTitle().equals(name))
 				return film;
 		}
 		return null;
 	}
+
 	// Gibt alle Rooms zurück
 	// ---------------------------------------------------------------------------------------------
 	public RoomList getAllRooms() {
@@ -409,11 +423,12 @@ public class Controller {
 		}
 		return this.roomList;
 	}
+
 	// Gibt den gesuchten Raum zuürck
-	public Room getRoomByName(String name){
+	public Room getRoomByName(String name) {
 		roomList = getAllRooms();
-		for(Room room : roomList){
-		if(room.getName().equals(name))
+		for (Room room : roomList) {
+			if (room.getName().equals(name))
 				return room;
 		}
 		return null;

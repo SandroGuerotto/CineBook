@@ -84,7 +84,10 @@
 	-fx-font-size: 25 pt;
 }
 
-
+/* listview */
+#lv_shows .list-cell{
+	-fx-background-color: transparent;
+}
 /* Message */
 .msg_info, .msg_success, .msg_warning, .msg_error {
 	-fx-padding: 12px 12px 12px 12px;

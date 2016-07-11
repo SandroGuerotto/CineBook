@@ -130,6 +130,12 @@ public class Message {
 		case "29":
 			setProperties(type, "Show start time can not be in the past!");
 			break;
+		case "30":
+			setProperties(type, "Please enter a phone number!");
+			break;
+		case "31":
+			setProperties(type, "Reservation successfully saved!");
+			break;
 		case "99":
 			setProperties(type, "This Feature is not available yet!");
 			break;

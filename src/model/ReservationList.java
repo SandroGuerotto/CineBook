@@ -134,7 +134,7 @@ public class ReservationList extends ArrayList<Reservation> {
 		ArrayList<String> tmpList = new ArrayList<>();
 		
 		for(Reservation reservation : this){
-			if(reservation.getShow() == show){
+			if(reservation.getShow().getId() == show.getId()){
 				tmpList.add(reservation.seatNumber);
 			}
 		}

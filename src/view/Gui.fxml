@@ -11,7 +11,6 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
@@ -245,7 +244,7 @@
                   </BorderPane>
                </children>
             </GridPane>
-            <VBox fx:id="pane_overview" alignment="TOP_RIGHT" prefHeight="200.0" prefWidth="100.0" GridPane.columnSpan="2" GridPane.rowIndex="2" GridPane.rowSpan="2">
+            <VBox fx:id="pane_overview" alignment="TOP_RIGHT" prefHeight="200.0" prefWidth="100.0" visible="false" GridPane.columnSpan="2" GridPane.rowIndex="2" GridPane.rowSpan="2">
                <children>
                   <Button fx:id="btn_refresh" alignment="CENTER" focusTraversable="false" mnemonicParsing="false" onAction="#refreshShows">
                      <graphic>
@@ -259,23 +258,20 @@
                         <Insets bottom="10.0" />
                      </VBox.margin>
                   </Button>
-                  <ScrollPane fx:id="sp_show" fitToHeight="true" fitToWidth="true" maxHeight="400.0" minHeight="400.0" prefHeight="400.0" prefWidth="1820.0" vbarPolicy="NEVER">
-                     <padding>
-                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-                     </padding>
-                     <content>
-                        <HBox fx:id="vb_wrapper_show" alignment="CENTER_LEFT" onMouseClicked="#clickShow" prefWidth="1720.0" />
-                     </content>
-                  </ScrollPane>
+                  <ListView fx:id="lv_shows" focusTraversable="false" onMouseClicked="#deselectShow" orientation="HORIZONTAL" prefWidth="1870.0" />
                   <BorderPane fx:id="pane_seatsarr">
                      <right>
                         <VBox fx:id="vb_toolbox" BorderPane.alignment="TOP_CENTER">
                            <children>
-                              <Button fx:id="btn_reservationsave" mnemonicParsing="false" onAction="#initialize" prefHeight="44.0" prefWidth="178.0" styleClass="btn, handcursor" text="Save">
+                              <Button fx:id="btn_reservationsave" mnemonicParsing="false" onAction="#saveReservation" prefHeight="44.0" prefWidth="178.0" styleClass="btn, handcursor" text="Save">
                                  <font>
                                     <Font size="25.0" fx:id="x13" />
                                  </font>
+                                 <VBox.margin>
+                                    <Insets bottom="15.0" />
+                                 </VBox.margin>
                               </Button>
+                              <TextField fx:id="tf_phonenumber" disable="true" editable="false" prefHeight="54.0" prefWidth="42.0" promptText="Tel number" visible="false" />
                               <HBox alignment="BOTTOM_CENTER" prefHeight="345.0" prefWidth="178.0">
                                  <children>
                                     <Hyperlink fx:id="btn_cancelNewRes" contentDisplay="LEFT" onAction="#initialize" prefHeight="45.0" prefWidth="90.0" text="Cancel" textAlignment="LEFT" underline="false" wrapText="false">
@@ -294,11 +290,6 @@
                      <center>
                         <VBox alignment="CENTER" BorderPane.alignment="CENTER">
                            <children>
-                              <Rectangle arcHeight="5.0" arcWidth="5.0" height="7.0" stroke="BLACK" strokeType="INSIDE" width="469.0">
-                                 <VBox.margin>
-                                    <Insets bottom="10.0" />
-                                 </VBox.margin>
-                              </Rectangle>
                               <GridPane fx:id="pane_seats" alignment="CENTER" vgap="3.0">
                                 <columnConstraints>
                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="10.0" prefWidth="25.0" />
@@ -307,6 +298,7 @@
                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="10.0" prefWidth="25.0" />
                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="10.0" prefWidth="25.0" />
                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="15.0" minWidth="15.0" prefWidth="15.0" />
+                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="10.0" prefWidth="25.0" />
                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="10.0" prefWidth="25.0" />
                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="10.0" prefWidth="25.0" />
                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="10.0" prefWidth="25.0" />
@@ -321,7 +313,6 @@
                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="10.0" prefWidth="25.0" />
                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="10.0" prefWidth="25.0" />
                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="10.0" prefWidth="25.0" />
-                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="10.0" prefWidth="100.0" />
                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="10.0" prefWidth="100.0" />
                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="10.0" prefWidth="100.0" />
                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="10.0" prefWidth="100.0" />
@@ -334,6 +325,7 @@
                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="10.0" prefWidth="25.0" />
                                 </columnConstraints>
                                 <rowConstraints>
+                                    <RowConstraints minHeight="10.0" prefHeight="10.0" vgrow="SOMETIMES" />
                                     <RowConstraints minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
                                     <RowConstraints minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
                                     <RowConstraints minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
@@ -352,6 +344,12 @@
                                     <RowConstraints minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
                                     <RowConstraints minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
                                 </rowConstraints>
+                                 <children>
+                                    <Rectangle arcHeight="5.0" arcWidth="5.0" height="7.0" stroke="BLACK" strokeType="INSIDE" width="450.0" GridPane.columnIndex="8" GridPane.columnSpan="20">
+                                       <GridPane.margin>
+                                          <Insets bottom="10.0" />
+                                       </GridPane.margin></Rectangle>
+                                 </children>
                               </GridPane>
                            </children>
                         </VBox>

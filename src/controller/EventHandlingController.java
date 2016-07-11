@@ -1,5 +1,7 @@
 package controller;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -70,14 +72,17 @@ import view.ShowItem;
  */
 
 public class EventHandlingController {
+	private static final String PHONE = "[0][0-9]{2} [0-9]{3} [0-9]{2}( [0-9]{2})";
 	private static final String TIMEREGEX = "([01]?[0-9]|2[0-3]):[0-5][0-9]";
 	private static final String NUMBERREGEX = "[0-9]{4}"; // regex für Zahlen
 	private static final Pattern TIME24HOURS_PATTERN = Pattern.compile(TIMEREGEX);
 	private static final Pattern NUMBERPATTERN = Pattern.compile(NUMBERREGEX);
+	private static final Pattern PHONEPATTERN = Pattern.compile(PHONE);
 	private static final String PIC_DIR = "../";
-	private final ScheduledExecutorService schedulerLoader = Executors.newScheduledThreadPool(1);
+	// private final ScheduledExecutorService schedulerLoader =
+	// Executors.newScheduledThreadPool(1);
 
-	private ScheduledFuture<?> showLoader;
+	// private ScheduledFuture<?> showLoader;
 	private boolean firstrun = true;
 	private FileChooser mediaChooser;
 	private ExtensionFilter extFilter;
@@ -110,14 +115,14 @@ public class EventHandlingController {
 	private BorderPane pane_seatsarr;
 
 	@FXML
-	private Button btn_filmsave, btn_showsave;
+	private Button btn_filmsave, btn_showsave, btn_reservationsave;
 	@FXML
 	private Hyperlink btn_cancel, btn_cancelshow, btn_cancelNewRes;
 	@FXML
 	private DatePicker dp_startdate;
 
 	@FXML
-	private TextField tf_filmtitle, tf_filmduration, tf_starttime;
+	private TextField tf_filmtitle, tf_filmduration, tf_starttime, tf_phonenumber;
 	@FXML
 	private TextArea ta_filmdesc;
 
@@ -132,6 +137,8 @@ public class EventHandlingController {
 	private ListView<String> lv_room;
 	@FXML
 	private ListView<String> lv_film;
+	@FXML
+	private ListView<Pane> lv_shows;
 
 	private int showclicked;
 	int oldclick = -1, newclick = -1;
@@ -159,9 +166,12 @@ public class EventHandlingController {
 			message = new Message(lbl_message);
 			lv_film.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 			lv_room.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+			lv_shows.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 			backToMenu(true);
 			// createShowLoader();
 			firstrun = false;
+
+			loadShowToOverview();
 
 		}
 		// Film controlling start-----
@@ -449,6 +459,79 @@ public class EventHandlingController {
 			}
 		});
 
+		lv_shows.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Pane>() {
+			@Override
+			public void changed(ObservableValue<? extends Pane> observable, Pane oldValue, Pane newValue) {
+				ShowItem item = null;
+				// alte selektion löschen -> verstecken
+				if (oldValue != null) {
+					item = (ShowItem) oldValue;
+					item.hide();
+					item.setClicked(false);
+
+				}
+				item = (ShowItem) newValue;
+				if (item != null) {
+					loadSeatPane(item.getShowId());
+				}
+
+			}
+
+		});
+
+		// reservation controlling start -----------------
+
+		tf_phonenumber.setOnKeyPressed(new EventHandler<KeyEvent>() {
+			@Override
+			public void handle(KeyEvent ke) {
+				if (ke.getCode().equals(KeyCode.ENTER)) {
+					checkPhoneFormat(tf_phonenumber.getText());
+				}
+			}
+		});
+
+		// reservation controlling end ---------
+
+	}
+
+	@FXML
+	private void deselectShow() {
+		ShowItem item = (ShowItem) lv_shows.getSelectionModel().getSelectedItem();
+		if (!item.isClicked()) {
+			backToMenu(true);
+		}
+
+	}
+
+	private void loadShowToOverview() {
+		if (loadShowList() != null) {
+			ShowList showlist = loadShowList();
+			ObservableList<Pane> content = FXCollections.observableArrayList();
+			for (Show show : showlist) {
+				if (!show.getStartDateTime().before(new Date())) {
+					ShowItem showitem = new ShowItem();
+					Pane pane = showitem.createShowItem(show);
+					content.add(pane);
+				}
+			}
+			lv_shows.setItems(content);
+		}
+	}
+
+	private void checkPhoneFormat(String number) {
+		String formatedphone = "";
+		Pattern sevennum = Pattern.compile("[0-9]{10}");
+		Matcher numMatcher = sevennum.matcher(number);
+		if (numMatcher.matches()) {
+			formatedphone = number.substring(0, 3) + " " + number.substring(3, 6) + " " + number.substring(6, 8) + " "
+					+ number.substring(8, 10);
+		}
+		Matcher phonematcher = PHONEPATTERN.matcher(formatedphone);
+		if (phonematcher.matches()) {
+			tf_phonenumber.setText(formatedphone);
+		} else {
+			tf_phonenumber.setText("");
+		}
 	}
 
 	public void checkTimeFormat() {
@@ -469,27 +552,10 @@ public class EventHandlingController {
 		}
 	}
 
-	private void loadShowsToOverview() {
-		vb_wrapper_show.getChildren().clear();
-		if (loadShowList() != null) {
-			ShowList showlist = loadShowList();
-			for (Show show : showlist) {
-				if (!show.getStartDateTime().before(new Date())) {
-					ShowItem showitem = new ShowItem();
-					// showitem.createShowItem(film);
-					Pane pane = showitem.createShowItem(show);
-					vb_wrapper_show.getChildren().add(pane);
-					vb_wrapper_show.setMargin(pane, new Insets(0, 0, 0, 20));
-
-				}
-			}
-			sp_show.setContent(vb_wrapper_show);
-		}
-	}
-
 	@FXML
 	private void refreshShows() {
-		loadShowsToOverview();
+		loadShowToOverview();
+		backToMenu(true);
 	}
 
 	// laden der Raumliste
@@ -714,7 +780,7 @@ public class EventHandlingController {
 		if (hide) {
 			pane_overview.setVisible(true);
 			pane_overview.setDisable(false);
-			loadShowsToOverview();
+			loadShowToOverview();
 		}
 
 	}
@@ -734,71 +800,71 @@ public class EventHandlingController {
 	// TimeUnit.SECONDS);
 	// }
 
-	@FXML
-	private void clickShow() {
-		ObservableList<Node> showItems = vb_wrapper_show.getChildren();
-		ShowItem item;
 
-		for (int i = 0; i < showItems.size(); i++) {
-			item = (ShowItem) showItems.get(i);
-			if (item.isClicked()) {
-				if (oldclick != i) {
-					newclick = i;
-				}
-			}
-
-		}
-		if (oldclick != newclick && newclick != -1 && oldclick != -1) {
-
-			item = (ShowItem) showItems.get(oldclick);
-			item.hide();
-			item.setClicked(false);
-			oldclick = newclick;
-			newclick = -1;
-			showclicked = oldclick;
-			loadSeatPane();
-		} else if (oldclick != newclick && newclick != -1 && oldclick == -1) {
-			oldclick = newclick;
-			newclick = -1;
-			showclicked = oldclick;
-			loadSeatPane();
-		}else{
-			backToMenu(true);
-		}
-		
-	}
-	private void loadSeatPane(){
+	private void loadSeatPane(int shownr) {
 		pane_seatsarr.setVisible(true);
 		pane_seatsarr.setDisable(false);
+		tf_phonenumber.setEditable(false);
+		tf_phonenumber.setDisable(true);
+		tf_phonenumber.setVisible(false);
+		ArrayList<String> reservedSeats = controller.getReservedSeats(controller.getShowById(shownr));
+		Seat seatobj;
 		int rownr = 0, seatnr = 0;
-		for(int row = 0; row < 15; row++){
+		for (int row = 1; row < 16; row++) {
 			rownr++;
 			seatnr = 0;
-			for(int seat = 0; seat < 31; seat++){
-				
-				if(seat == 0){
-					pane_seats.add(new Label(Integer.toString(row+1)), seat, row);
+			for (int seat = 0; seat < 31; seat++) {
+				if (seat == 0) {
+					pane_seats.add(new Label(Integer.toString(row)), seat, row);
 					continue;
 				}
 				seatnr++;
+				seatobj = new Seat(row, seatnr);
+
 				// walkway
-				if(seat == 5 || seat == 26){
+				if (seat == 5 || seat == 26) {
 					seatnr--;
 					continue;
 				}
-//				if(row == 15){
-//					pane_seats.add(new Label(Integer.toString(seat+1)), seat, row);
-//					continue;
-//				}
-				
-//				if(seat == 6 || seat == 27){
-//					pane_seats.add(new Seat(row+1, seat), seat+1, row);
-//				}else{
-					pane_seats.add(new Seat(row+1, seatnr), seat+1, row);
-//				}
-				
+				// alle sitze mit einer reservierung ausschalten
+				for (String reservation : reservedSeats) {
+					String[] part = reservation.split("-");
+					if (part[0].equals(Integer.toString(row)) && part[1].equals(Integer.toString(seat))) {
+						seatobj.disable();
+					}
+				}
+				pane_seats.add(seatobj, seat + 1, row);
 			}
 		}
-		
+	}
+
+	@FXML
+	private void saveReservation() {
+		ObservableList<Node> seatList = pane_seats.getChildren();
+		ArrayList<String> reservationList = new ArrayList<String>();
+		Seat seat;
+		Show show = controller.getShowById(showclicked);
+		for (int i = 0; i < seatList.size(); i++) {
+			try {
+				seat = (Seat) seatList.get(i);
+			} catch (Exception e) {
+				continue;
+			}
+			if (seat.isSelected()) {
+				reservationList.add(seat.getRow() + "-" + seat.getSeat());
+			}
+		}
+		if (reservationList.size() != 0 && tf_phonenumber.getText().isEmpty()) {
+			message.showMsg("i30");
+			tf_phonenumber.setEditable(true);
+			tf_phonenumber.setDisable(false);
+			tf_phonenumber.setVisible(true);
+			return;
+		} else if (reservationList.size() != 0 && !tf_phonenumber.getText().isEmpty()) {
+			if (controller.createNewReservations(show, reservationList, tf_phonenumber.getText())) {
+				message.showMsg("s31");
+			}
+		}
+
 	}
 }

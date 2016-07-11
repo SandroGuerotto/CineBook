@@ -16,36 +16,42 @@ public class Seat extends ToggleButton {
 	Image seatIconEmpty = new Image("File:images/seat2.png", 25, 25, false, false);
 	Image seatIconDisabled = new Image("File:images/seat3.png", 25, 25, false, false);
 	Image seatIconClicked = new Image("File:images/seat4.png", 25, 25, false, false);
+	private int row, seat;
 	
-	public Seat(int row, int seat){	
-
+	public Seat(int imp_row, int imp_seat){	
+		row = imp_row;
+		seat = imp_seat;
         setSelected(false);
     	setGraphic(new ImageView(seatIconEmpty));
     	setPadding(Insets.EMPTY);
     	setStyle("-fx-background-color: transparent;");
     	setAlignment(Pos.CENTER);
-    	setTooltip(new Tooltip(Integer.toString(row) + " " + Integer.toString(seat)));
+    	Tooltip tooltip = new Tooltip();
+    	tooltip.setText(Integer.toString(row) + " " + Integer.toString(seat));
+    	setTooltip(tooltip);
+    	getStyleClass().add("handcursor");
     	// Bild wechseln wenn Sitz angeklickt wird
     	setOnAction(e -> {
     		if(isSelected() == false){
     			Platform.runLater(() -> { setGraphic(new ImageView(seatIconEmpty)); });
     		}else{
     			Platform.runLater(() -> { setGraphic(new ImageView(seatIconClicked)); });
-    			System.out.println(row + " " + seat);
+//    			System.out.println(row + " " + seat);
     		}
     	});
     	
-    	// Cursor wechseln
-    	setOnMouseEntered(o-> {
-    	        setCursor(Cursor.HAND);
-		setTooltip(new Tooltip(getId()));
-    	});
+    	// Cursor wechseln -> wird mit css gemacht
+//    	setOnMouseEntered(o-> {
+//    	        setCursor(Cursor.HAND);
+//		setTooltip(new Tooltip(getId()));
+//    	});
     	
 	}
 	
 	public void disable(){
 		Platform.runLater(() -> {
 			setDisable(true);
+			getStyleClass().remove("handcursor");
 			setGraphic(new ImageView(seatIconDisabled));
 			setStyle("-fx-opacity: 1.0;");
 			setSelected(false);
@@ -59,8 +65,12 @@ public class Seat extends ToggleButton {
 			});
 	}
 
-
-	
+	public int getRow(){
+		return row;
+	}
+	public int getSeat(){
+		return seat;
+	}
 	
 	
 }
