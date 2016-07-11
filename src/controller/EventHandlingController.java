@@ -18,6 +18,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.sun.glass.events.MouseEvent;
+
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -36,6 +38,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
@@ -102,6 +105,8 @@ public class EventHandlingController {
 	private MenuItem btn_createshow, btn_editshow, btn_deleteshow;
 	@FXML
 	private MenuItem btn_createroom, btn_editroom, btn_deleteroom;
+	@FXML
+	private MenuItem btn_helpme;
 
 	@FXML
 	private GridPane pane_film, pane_main, pane_show, pane_seats;
@@ -113,6 +118,8 @@ public class EventHandlingController {
 	private VBox pane_overview;
 	@FXML
 	private BorderPane pane_seatsarr;
+	@FXML
+	private TabPane pane_help;
 
 	@FXML
 	private Button btn_filmsave, btn_showsave, btn_reservationsave;
@@ -174,6 +181,11 @@ public class EventHandlingController {
 			loadShowToOverview();
 
 		}
+		btn_helpme.setOnAction((event) -> {
+			backToMenu(false);
+			pane_help.setVisible(true);
+			pane_help.setDisable(false);
+		});
 		// Film controlling start-----
 		btn_createfilm.setOnAction((event) -> {
 			backToMenu(false);
@@ -290,7 +302,7 @@ public class EventHandlingController {
 		// Room controlling start--------------------
 
 		btn_createroom.setOnAction((event) -> {
-			backToMenu(false);
+			backToMenu(true);
 			TextInputDialog dialog = new TextInputDialog();
 			dialog.setTitle("Create new Room");
 			dialog.setHeaderText("Create new Room");
@@ -309,7 +321,7 @@ public class EventHandlingController {
 			if (loadRoomList() != null) {
 				EditRoomDialog dialog = new EditRoomDialog();
 				Pair<String, String> eingabe = dialog.show(loadRoomList());
-				if (eingabe != null) {
+				if (!eingabe.getValue().isEmpty() && !eingabe.getKey().isEmpty()) {
 					Room editedRoom = new Room(eingabe.getValue().toString());
 					controller.editRoom(eingabe.getKey().toString(), editedRoom);
 					message.showMsg("s12");
@@ -472,6 +484,8 @@ public class EventHandlingController {
 				}
 				item = (ShowItem) newValue;
 				if (item != null) {
+					item.setClicked(true);
+					item.show();
 					loadSeatPane(item.getShowId());
 				}
 
@@ -776,6 +790,8 @@ public class EventHandlingController {
 		pane_overview.setDisable(true);
 		pane_seatsarr.setVisible(false);
 		pane_seatsarr.setDisable(true);
+		pane_help.setVisible(false);
+		pane_help.setDisable(true);
 
 		if (hide) {
 			pane_overview.setVisible(true);
@@ -833,6 +849,7 @@ public class EventHandlingController {
 					String[] part = reservation.split("-");
 					if (part[0].equals(Integer.toString(row)) && part[1].equals(Integer.toString(seat))) {
 						seatobj.disable();
+						break;
 					}
 				}
 				pane_seats.add(seatobj, seat + 1, row);

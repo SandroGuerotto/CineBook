@@ -11,6 +11,8 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
@@ -30,6 +32,66 @@
   <children>
     <GridPane fx:id="pane_main" prefHeight="-1.0" prefWidth="-1.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <children>
+            <TabPane fx:id="pane_help" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" GridPane.columnSpan="2" GridPane.rowIndex="2" GridPane.rowSpan="2">
+              <tabs>
+                <Tab text="Film">
+                     <content>
+                        <VBox prefHeight="200.0" prefWidth="100.0">
+                           <children>
+                              <Label text="Create a new film">
+                                 <font>
+                                    <Font size="25.0" />
+                                 </font>
+                              </Label>
+                              <Label alignment="TOP_LEFT" prefHeight="223.0" prefWidth="523.0" text="To create a film, click on &quot;create new film&quot; in the menubar. A page will open where all informations for the new film can be filled in. Everything muss be filled out before the film can be saved. The duration must be enter in minutes. If the cover image for the new film is invalid or not reachable for the programm it won't show on the screen and a message will pop up." wrapText="true">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                              </Label>
+                              <Label text="Edit an existing film">
+                                 <font>
+                                    <Font size="25.0" />
+                                 </font>
+                              </Label>
+                              <Label alignment="TOP_LEFT" prefHeight="223.0" prefWidth="523.0" text="To edit an existing film, click on “edit an existing film” in the menubar. A popup will show up and a film muss be selected to edit. After a film is chosen, a page will open with all the existing information about the film. Every option is available as creating a new film. For more information about creating a new film, refer to point “Create a new film”." wrapText="true">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                              </Label>
+                              <Label text="Delete an existing film">
+                                 <font>
+                                    <Font size="25.0" />
+                                 </font>
+                              </Label>
+                              <Label alignment="TOP_LEFT" prefHeight="223.0" prefWidth="523.0" text="To delete an existing film, click on “delete an existing film” in the menubar. A popup will show up and a film muss be selected to delete. With pressing the okay button the selected film will be deleted without any call-back option." wrapText="true">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                           <padding>
+                              <Insets left="25.0" />
+                           </padding>
+                        </VBox>
+                     </content>
+                </Tab>
+                <Tab text="Room">
+                  <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                  </content>
+                </Tab>
+                  <Tab text="Show">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                    </content>
+                  </Tab>
+                  <Tab text="Reservation">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                    </content>
+                  </Tab>
+              </tabs>
+            </TabPane>
         <HBox fillHeight="true" maxHeight="47.0" minHeight="44.999908447265625" prefHeight="44.999908447265625" prefWidth="960.0" GridPane.columnIndex="0" GridPane.columnSpan="1" GridPane.rowIndex="0">
           <children>
             <MenuBar maxHeight="44.0" maxWidth="-1.0" minHeight="44.0" minWidth="-1.0" prefHeight="44.0" prefWidth="960.0" HBox.hgrow="ALWAYS">
@@ -244,7 +306,7 @@
                   </BorderPane>
                </children>
             </GridPane>
-            <VBox fx:id="pane_overview" alignment="TOP_RIGHT" prefHeight="200.0" prefWidth="100.0" GridPane.columnSpan="2" GridPane.rowIndex="2" GridPane.rowSpan="2">
+            <VBox fx:id="pane_overview" alignment="TOP_RIGHT" prefHeight="200.0" prefWidth="100.0" visible="false" GridPane.columnSpan="2" GridPane.rowIndex="2" GridPane.rowSpan="2">
                <children>
                   <Button fx:id="btn_refresh" alignment="CENTER" focusTraversable="false" mnemonicParsing="false" onAction="#refreshShows">
                      <graphic>
@@ -258,7 +320,7 @@
                         <Insets bottom="10.0" />
                      </VBox.margin>
                   </Button>
-                  <ListView fx:id="lv_shows" focusTraversable="false" onMouseClicked="#deselectShow" orientation="HORIZONTAL" prefWidth="1870.0" />
+                  <ListView fx:id="lv_shows" focusTraversable="false" orientation="HORIZONTAL" prefWidth="1870.0" />
                   <BorderPane fx:id="pane_seatsarr">
                      <right>
                         <VBox fx:id="vb_toolbox" alignment="TOP_CENTER" prefHeight="451.0" prefWidth="200.0" BorderPane.alignment="TOP_CENTER">

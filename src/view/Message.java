@@ -139,6 +139,9 @@ public class Message {
 		case "32":
 			setProperties(type, "Please select at least one seat!");
 			break;
+		case "33":
+			setProperties(type, "");
+			break;
 		case "99":
 			setProperties(type, "This Feature is not available yet!");
 			break;

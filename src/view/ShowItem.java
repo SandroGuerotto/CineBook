@@ -53,18 +53,6 @@ public class ShowItem extends BorderPane{
 		iv_cover.setImage(cover);
 		iv_cover.setFitHeight(330);
 		iv_cover.setFitWidth(220);
-		iv_cover.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(MouseEvent event) {
-				if (clicked) {
-					hide();
-				} else {
-					setPrefWidth(440);
-					setRight(dataholder);
-					clicked = true;
-				}
-			}
-		});
 		iv_cover.getStyleClass().add("handcursor");
 		//show daten verarbeiten
 		Date showstart =show.getStartDateTime();
@@ -119,9 +107,14 @@ public class ShowItem extends BorderPane{
 	}
 	
 	public void hide(){
-		this.setPrefWidth(220);
-		this.setRight(null);
-		this.clicked = false;
+		setPrefWidth(220);
+		setRight(null);
+		clicked = false;
+	}
+	public void show(){
+		setPrefWidth(440);
+		setRight(dataholder);
+		clicked = true;
 	}
 	private String LocalDateToString(Date date){
 		SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
