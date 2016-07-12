@@ -408,7 +408,7 @@
                                     <RowConstraints minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
                                 </rowConstraints>
                                  <children>
-                                    <Rectangle arcHeight="5.0" arcWidth="5.0" height="7.0" stroke="BLACK" strokeType="INSIDE" width="450.0" GridPane.columnIndex="9" GridPane.columnSpan="20">
+                                    <Rectangle arcHeight="5.0" arcWidth="5.0" height="7.0" stroke="BLACK" strokeType="INSIDE" width="450.0" GridPane.columnIndex="8" GridPane.columnSpan="20">
                                        <GridPane.margin>
                                           <Insets bottom="5.0" />
                                        </GridPane.margin></Rectangle>

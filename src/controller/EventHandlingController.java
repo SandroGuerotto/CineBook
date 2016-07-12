@@ -7,6 +7,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -30,6 +31,7 @@ import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceDialog;
@@ -440,7 +442,6 @@ public class EventHandlingController {
 		    });
 
 		// Eventhandling for editing shows
-		// Eventhandling for editing shows
 	    btn_editshow.setOnAction((event) -> {
 	      if (loadShowList() != null) {
 	        show = choosePopupShow(loadShowList(), "Edit");
@@ -622,13 +623,6 @@ public class EventHandlingController {
 		
 	}
 	private void loadSeatPane() {
-//		btn_cancelshow.setUnderline(false);
-//		pane_seatsarr.setVisible(true);
-//		pane_seatsarr.setDisable(false);
-//		tf_phonenumber.setEditable(false);
-//		tf_phonenumber.setDisable(true);
-//		tf_phonenumber.setVisible(false);
-//		tf_phonenumber.setText("");
 
 		Seat seatobj;
 		int seatnr = 0;
@@ -666,10 +660,12 @@ public class EventHandlingController {
 			try {
 				Seat seat = (Seat) children.get(i);
 				seat.enable();
+				seat.setCursor(Cursor.HAND);
 				// alle sitze mit einer reservierung ausschalten
 				for (String reservation : reservedSeats) {
 					String[] part = reservation.split("-");
 					if (part[0].equals(Integer.toString(seat.getRow())) && part[1].equals(Integer.toString(seat.getSeat()))) {
+						seat.setCursor(Cursor.DEFAULT);
 						seat.disable();
 						break;
 					}
@@ -809,7 +805,7 @@ public class EventHandlingController {
 		Optional<String> result = dialog.showAndWait();
 		if (result.isPresent()) {
 			for (Show current : showlist) {
-				if (result.get().equals(current.getFilm().getTitle() + " - " + current.getStartDateTime())) {
+				if (result.get().equals(current.getFilm().getTitle() + " - " + format.format(current.getStartDateTime()))) {
 					return current;
 				}
 			}
@@ -830,38 +826,33 @@ public class EventHandlingController {
 	}
 
 	private boolean checkStartTime() {
- 		if (!tf_starttime.getText().isEmpty()) {
-			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-			//SimpleDateFormat dateformat = new SimpleDateFormat("dd.MM.yyyy");
-			Date tmpDate = null;
-			Date dateTime;
-			String formated;
-			String now = "";
-			if(dp_startdate.getValue() == null){
-				//now = LocalDateToString(new Date()) + " " + tf_starttime.getText();
-//				try {
-//					
-//;					formated = format.format(new Date().toString() + " " + tf_starttime.getText());
-//					tmpDate = format.parse(new Date()+ " " + tf_starttime.getText());
-//				} catch (ParseException e) {
-//					return true;
-//				}
-			}else if(dp_startdate.getValue() != null){
-				try {
-					tmpDate = format.parse(dp_startdate.getValue().toString() + " " + tf_starttime.getText());
-				} catch (ParseException e) {
-					return true;
-				}
-			}
-				
-			if (tmpDate.before(new Date())) {
-				message.showMsg("e29");
-				return false;
-			}
-			return true;
-		}
-		return false;
-	}
+	     if (!tf_starttime.getText().isEmpty()) {
+	      SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+	      Date tmpDate = null;
+	      String now = "";
+	      if(dp_startdate.getValue() == null){
+	        now = LocalDateToString(new Date()) + " " + tf_starttime.getText();
+	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+	        LocalDate date = LocalDate.parse(now, formatter);
+	        dp_startdate.setValue(date);
+	        return true;
+
+	      }else if(dp_startdate.getValue() != null){
+	        try {
+	          tmpDate = format.parse(dp_startdate.getValue().toString() + " " + tf_starttime.getText());
+	        } catch (ParseException e) {
+	          return true;
+	        }
+	      }
+	        
+	      if (tmpDate.before(new Date())) {
+	        message.showMsg("e29");
+	        return false;
+	      }
+	      return true;
+	    }
+	    return false;
+	  }
 	private void checkPhoneFormat(String number) {
 		String formatedphone = "";
 		Pattern sevennum = Pattern.compile("[0-9]{10}");

@@ -29,7 +29,7 @@ public class Seat extends ToggleButton {
     	Tooltip tooltip = new Tooltip();
     	tooltip.setText(Integer.toString(row) + " " + Integer.toString(seat));
     	setTooltip(tooltip);
-    	getStyleClass().add("handcursor");
+    	//getStyleClass().add("handcursor");
     	// Bild wechseln wenn Sitz angeklickt wird
     	setOnAction(e -> {
     		if(isSelected() == false){
