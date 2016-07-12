@@ -32,7 +32,7 @@
   <children>
     <GridPane fx:id="pane_main" prefHeight="-1.0" prefWidth="-1.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <children>
-            <TabPane fx:id="pane_help" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" GridPane.columnSpan="2" GridPane.rowIndex="2" GridPane.rowSpan="2">
+            <TabPane fx:id="pane_help" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" visible="false" GridPane.columnSpan="2" GridPane.rowIndex="2" GridPane.rowSpan="2">
               <tabs>
                 <Tab text="Film">
                      <content>
@@ -306,7 +306,7 @@
                   </BorderPane>
                </children>
             </GridPane>
-            <VBox fx:id="pane_overview" alignment="TOP_RIGHT" prefHeight="200.0" prefWidth="100.0" visible="false" GridPane.columnSpan="2" GridPane.rowIndex="2" GridPane.rowSpan="2">
+            <VBox fx:id="pane_overview" alignment="TOP_RIGHT" prefHeight="200.0" prefWidth="100.0" GridPane.columnSpan="2" GridPane.rowIndex="2" GridPane.rowSpan="2">
                <children>
                   <Button fx:id="btn_refresh" alignment="CENTER" focusTraversable="false" mnemonicParsing="false" onAction="#refreshShows">
                      <graphic>
@@ -347,20 +347,21 @@
                         </VBox>
                      </right>
                      <padding>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="25.0" />
+                        <Insets bottom="5.0" right="5.0" top="25.0" />
                      </padding>
                      <center>
                         <VBox alignment="CENTER" BorderPane.alignment="CENTER">
                            <children>
-                              <GridPane fx:id="pane_seats" alignment="CENTER" vgap="3.0">
+                              <GridPane fx:id="pane_seats" alignment="CENTER" prefHeight="434.0" prefWidth="1190.0" vgap="3.0">
                                 <columnConstraints>
+                                    <ColumnConstraints />
                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="10.0" prefWidth="25.0" />
                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="10.0" prefWidth="25.0" />
                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="10.0" prefWidth="25.0" />
                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="10.0" prefWidth="25.0" />
                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="10.0" prefWidth="25.0" />
-                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="15.0" minWidth="15.0" prefWidth="15.0" />
-                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="10.0" prefWidth="25.0" />
+                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="15.0" minWidth="15.0" prefWidth="15.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="10.0" prefWidth="25.0" />
                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="10.0" prefWidth="25.0" />
                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="10.0" prefWidth="25.0" />
                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="10.0" prefWidth="25.0" />
@@ -407,15 +408,18 @@
                                     <RowConstraints minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
                                 </rowConstraints>
                                  <children>
-                                    <Rectangle arcHeight="5.0" arcWidth="5.0" height="7.0" stroke="BLACK" strokeType="INSIDE" width="450.0" GridPane.columnIndex="8" GridPane.columnSpan="20">
+                                    <Rectangle arcHeight="5.0" arcWidth="5.0" height="7.0" stroke="BLACK" strokeType="INSIDE" width="450.0" GridPane.columnIndex="9" GridPane.columnSpan="20">
                                        <GridPane.margin>
-                                          <Insets bottom="10.0" />
+                                          <Insets bottom="5.0" />
                                        </GridPane.margin></Rectangle>
                                  </children>
                               </GridPane>
                            </children>
                         </VBox>
                      </center>
+                     <left>
+                        <ListView fx:id="lv_reservation" prefHeight="434.0" prefWidth="256.0" BorderPane.alignment="CENTER" />
+                     </left>
                   </BorderPane>
                </children>
                <padding>

@@ -148,7 +148,7 @@ public class ReservationList extends ArrayList<Reservation> {
 		
 		if(this.size() != 0){
 			for(Reservation reservation : this){
-				if(reservation.getShow() == show){
+				if(reservation.getShow().getId() == show.getId()){
 					showReservationList.add(reservation);
 				}
 			}

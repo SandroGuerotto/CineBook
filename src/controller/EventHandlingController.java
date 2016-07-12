@@ -8,9 +8,11 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -57,6 +59,7 @@ import javafx.stage.Stage;
 import javafx.util.Pair;
 import model.Film;
 import model.FilmList;
+import model.Reservation;
 import model.Room;
 import model.RoomList;
 import model.Show;
@@ -96,6 +99,7 @@ public class EventHandlingController {
 	private Controller controller;
 	private Film film = null;
 	private Room room = null;
+	private Show show = null;
 	private String returncode;
 	private Message message;
 
@@ -146,6 +150,8 @@ public class EventHandlingController {
 	private ListView<String> lv_film;
 	@FXML
 	private ListView<Pane> lv_shows;
+	@FXML
+	private ListView<String> lv_reservation;
 
 	private int showclicked;
 	int oldclick = -1, newclick = -1;
@@ -174,12 +180,22 @@ public class EventHandlingController {
 			lv_film.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 			lv_room.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 			lv_shows.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+			
+			
 			backToMenu(true);
 			// createShowLoader();
 			firstrun = false;
 
 			loadShowToOverview();
-
+			loadSeatPane();
+//			  Runnable r = new Runnable() {
+//			         public void run() {
+//			             loadSeatPane();
+//			         }
+//			     };
+//
+//			     ExecutorService executor = Executors.newCachedThreadPool();
+//			     executor.submit(r);
 		}
 		btn_helpme.setOnAction((event) -> {
 			backToMenu(false);
@@ -321,12 +337,13 @@ public class EventHandlingController {
 			if (loadRoomList() != null) {
 				EditRoomDialog dialog = new EditRoomDialog();
 				Pair<String, String> eingabe = dialog.show(loadRoomList());
-				if (!eingabe.getValue().isEmpty() && !eingabe.getKey().isEmpty()) {
-					Room editedRoom = new Room(eingabe.getValue().toString());
-					controller.editRoom(eingabe.getKey().toString(), editedRoom);
-					message.showMsg("s12");
+				if(eingabe != null){
+					if (!eingabe.getValue().isEmpty() && !eingabe.getKey().isEmpty() ) {
+						Room editedRoom = new Room(eingabe.getValue().toString());
+						controller.editRoom(eingabe.getKey().toString(), editedRoom);
+						message.showMsg("s12");
+					}
 				}
-
 			} else {
 				message.showMsg("i16");
 			}
@@ -372,52 +389,69 @@ public class EventHandlingController {
 		});
 
 		btn_showsave.setOnAction((event) -> {
-			String filmname = lv_film.getSelectionModel().getSelectedItem();
-			String roomname = lv_room.getSelectionModel().getSelectedItem();
-			LocalDate startDate = dp_startdate.getValue();
-			String startTime = tf_starttime.getText();
+		      String filmname = lv_film.getSelectionModel().getSelectedItem();
+		      String roomname = lv_room.getSelectionModel().getSelectedItem();
+		      LocalDate startDate = dp_startdate.getValue();
+		      String startTime = tf_starttime.getText();
 
-			if (filmname != null && roomname != null && startDate != null && !startTime.isEmpty() && checkStartDate()) {
-				if (lbl_show.getText().equals("Create new show")) {
-					returncode = controller.createNewShow(controller.getRoomByName(roomname),
-							controller.getFilmByName(filmname), startDate, startTime);
-					if (message.showMsg(returncode))
-						backToMenu(true);
-				} else if (lbl_show.getText().equals("Edit show")) {
+		      if (filmname != null && roomname != null && startDate != null && !startTime.isEmpty() &&  checkStartTime() && checkStartDate()) {
+		        if (lbl_show.getText().equals("Create new show")) {
+		          returncode = controller.createNewShow(controller.getRoomByName(roomname),
+		              controller.getFilmByName(filmname), startDate, startTime);
+		          if (message.showMsg(returncode))
+		            backToMenu(true);
+		          
+		        } else if (lbl_show.getText().equals("Edit show")) {
+		          film = controller.getFilmByName(lv_film.getSelectionModel().getSelectedItem());
+		          Show editedShow = new Show();
+		          Date date = null;
+		          SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		          String startDateTime = dp_startdate.getValue() + " " + tf_starttime.getText();
+		          try { date = format.parse(startDateTime); } catch (ParseException e) {}
+		          
+		          try{
+		            editedShow.setId(show.getId());
+		            editedShow.setDurationInMinutes(film.getDurationInMinutes());
+		            editedShow.setFilm(film);
+		            editedShow.setRoom(controller.getRoomByName(lv_room.getSelectionModel().getSelectedItem()));
+		            editedShow.setStartDateTime(date);
+		            editedShow.setEndDateTime(controller.showList.getEndTime(date, film));
+		            returncode = controller.editShow(editedShow);
+		          }catch(Exception e){
+		            returncode = "e30";
+		          }
 
-					// returncode =
-					// controller.editshow(controller.getRoomByName(roomname),
-					// controller.getFilmByName(filmname), startDate,
-					// startTime);
-					if (message.showMsg(returncode))
-						backToMenu(true);
-				}
 
-			} else {
-				if (!checkStartDate()) {
-					message.showMsg("e28");
-					return;
-				}
-				message.showMsg("i9");
-			}
+		          if (message.showMsg(returncode))
+		            backToMenu(true);
+		        }
 
-		});
+		      } else {
+		        if (!checkStartDate()) {
+		          message.showMsg("e28");
+		          return;
+		        }else if (!checkStartTime()) {
+		          message.showMsg("e29");
+		          return;
+		        }
+		        message.showMsg("i9");
+		      }
+
+		    });
 
 		// Eventhandling for editing shows
-		btn_editshow.setOnAction((event) -> {
-			message.showMsg("i99");
-			return;
-			// if (loadShowList() != null) {
-			// Show editshow = choosePopupShow(loadShowList(), "Edit");
-			// if (editshow != null) {
-			// loadEditShow(editshow);
-			//
-			// }
-			// } else {
-			// message.showMsg("i27");
-			// backToMenu(true);
-			// }
-		});
+		// Eventhandling for editing shows
+	    btn_editshow.setOnAction((event) -> {
+	      if (loadShowList() != null) {
+	        show = choosePopupShow(loadShowList(), "Edit");
+	        if (show != null) {
+	          loadEditShow(show);
+	        }
+	      } else {
+	        message.showMsg("i27");
+	        backToMenu(true);
+	      }
+	    });
 
 		btn_deleteshow.setOnAction((event) -> {
 			if (loadShowList() != null) {
@@ -475,22 +509,24 @@ public class EventHandlingController {
 			@Override
 			public void changed(ObservableValue<? extends Pane> observable, Pane oldValue, Pane newValue) {
 				ShowItem item = null;
+				if(lv_shows.getSelectionModel().getSelectedItem() == null){
+					backToMenu(true);
+				}
 				// alte selektion löschen -> verstecken
 				if (oldValue != null) {
 					item = (ShowItem) oldValue;
 					item.hide();
 					item.setClicked(false);
-
 				}
 				item = (ShowItem) newValue;
 				if (item != null) {
 					item.setClicked(true);
 					item.show();
-					loadSeatPane(item.getShowId());
+					loadReservationToPane(item.getShowId());
+					//loadSeatPane(item.getShowId());
+					loadReservation(item.getShowId());
 				}
-
 			}
-
 		});
 
 		// reservation controlling start -----------------
@@ -532,46 +568,118 @@ public class EventHandlingController {
 		}
 	}
 
-	private void checkPhoneFormat(String number) {
-		String formatedphone = "";
-		Pattern sevennum = Pattern.compile("[0-9]{10}");
-		Matcher numMatcher = sevennum.matcher(number);
-		if (numMatcher.matches()) {
-			formatedphone = number.substring(0, 3) + " " + number.substring(3, 6) + " " + number.substring(6, 8) + " "
-					+ number.substring(8, 10);
-		}
-		Matcher phonematcher = PHONEPATTERN.matcher(formatedphone);
-		if (phonematcher.matches()) {
-			tf_phonenumber.setText(formatedphone);
-		} else {
-			tf_phonenumber.setText("");
-		}
-	}
-
-	public void checkTimeFormat() {
-		String time = "";
-		Matcher numMatcher = NUMBERPATTERN.matcher(tf_starttime.getText());
-		if (numMatcher.matches()) {
-			time = tf_starttime.getText().substring(0, 2) + ":" + tf_starttime.getText().substring(2, 4);
-			tf_starttime.setText(time);
-		}
-		Matcher timeMatcher = TIME24HOURS_PATTERN.matcher(tf_starttime.getText());
-		if (timeMatcher.matches()) {
-			if (checkStartTime()) {
-				checkAndLoadRooms();
-				return;
-			}
-		} else {
-			tf_starttime.setText("");
-		}
-	}
-
+	
 	@FXML
 	private void refreshShows() {
 		loadShowToOverview();
 		backToMenu(true);
 	}
+	
+	private void loadEditShow(Show editshow) {
+		backToMenu(false);
+		pane_show.setVisible(true);
+		pane_show.setDisable(false);
+		// Init all inputfields
+		Film film = editshow.getFilm();
 
+		// date formater
+		SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
+		String starttime = formatter.format(editshow.getStartDateTime());
+
+		// convert date to LocalDate for datePicker
+		LocalDate startdate = editshow.getStartDateTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+		tf_starttime.setText(starttime);
+		dp_startdate.setValue(startdate);
+		lbl_filmduration.setText(Integer.toString(film.getDurationInMinutes()));
+		lbl_filmtitle.setText(film.getTitle());
+
+		// set Cover to null
+		iv_filmcovershow.setImage(new Image("File:" + film.getImagePath()));
+
+		// film list handling
+		lv_film.setItems(loadLVFilm());
+		lv_film.getSelectionModel().select(film.getTitle());
+
+		// room list handling -> load as default and add show room -> sort
+		lv_room.setItems(loadLVRoom(startdate, starttime, film));
+		lv_room.getItems().add(editshow.getRoom().getName());
+		lv_room.getItems().sort(((o1, o2) -> editshow.getRoom().getName().compareTo(editshow.getRoom().getName())));
+		lv_room.getSelectionModel().select(editshow.getRoom().getName());
+		lv_room.setDisable(false);
+
+		lbl_show.setText("Edit show");
+		btn_cancelshow.setUnderline(false);
+	}
+	
+	
+	private void loadReservation(int shownr){
+		ArrayList<Reservation> reservationList= controller.getReservationsByShow(controller.getShowById(shownr));
+		ObservableList<String> content = FXCollections.observableArrayList();
+		for(Reservation reservation : reservationList){
+			content.add(reservation.getSeatNumber() + "\t\t" + reservation.getPhoneNumber());
+		}
+		lv_reservation.setItems(content);
+		
+	}
+	private void loadSeatPane() {
+//		btn_cancelshow.setUnderline(false);
+//		pane_seatsarr.setVisible(true);
+//		pane_seatsarr.setDisable(false);
+//		tf_phonenumber.setEditable(false);
+//		tf_phonenumber.setDisable(true);
+//		tf_phonenumber.setVisible(false);
+//		tf_phonenumber.setText("");
+
+		Seat seatobj;
+		int seatnr = 0;
+		for (int row = 1; row < 16; row++) {
+			seatnr = 0;
+			for (int seat = 0; seat < 31; seat++) {
+				if (seat == 0) {
+					pane_seats.add(new Label(Integer.toString(row)), seat, row);
+					continue;
+				}
+				seatnr++;
+				seatobj = new Seat(row, seatnr);
+
+				// walkway
+				if (seat == 5 || seat == 26) {
+					seatnr--;
+					continue;
+				}
+				pane_seats.add(seatobj, seat + 1, row);
+			}
+		}
+	}
+
+	private void loadReservationToPane(int shownr){
+		btn_cancelshow.setUnderline(false);
+		pane_seatsarr.setVisible(true);
+		pane_seatsarr.setDisable(false);
+		tf_phonenumber.setEditable(false);
+		tf_phonenumber.setDisable(true);
+		tf_phonenumber.setVisible(false);
+		tf_phonenumber.setText("");
+		ObservableList<Node> children = pane_seats.getChildren();
+		ArrayList<String> reservedSeats = controller.getReservedSeats(controller.getShowById(shownr));
+		for(int i = 0 ; i < children.size(); i++){
+			try {
+				Seat seat = (Seat) children.get(i);
+				seat.enable();
+				// alle sitze mit einer reservierung ausschalten
+				for (String reservation : reservedSeats) {
+					String[] part = reservation.split("-");
+					if (part[0].equals(Integer.toString(seat.getRow())) && part[1].equals(Integer.toString(seat.getSeat()))) {
+						seat.disable();
+						break;
+					}
+				}
+			} catch (Exception e) {
+				continue;
+			}
+		}
+	}
+	
 	// laden der Raumliste
 	@FXML
 	private void checkAndLoadRooms() {
@@ -595,6 +703,16 @@ public class EventHandlingController {
 
 	}
 
+
+	// Mehtode to load lv_room with all available rooms.
+	private ObservableList<String> loadLVRoom(LocalDate startDate, String startTime, Film film) {
+		RoomList roomlist = controller.getAllAvailableRooms(startDate, startTime, film);
+		ObservableList<String> content = FXCollections.observableArrayList();
+		for (Room room : roomlist) {
+			content.add(room.getName());
+		}		
+		return content;
+	}
 	private ObservableList<String> loadLVFilm() {
 		FilmList filmlist = controller.getAllFilms();
 		ObservableList<String> content = FXCollections.observableArrayList();
@@ -605,15 +723,6 @@ public class EventHandlingController {
 		return content;
 	}
 
-	// Mehtode to load lv_room with all available rooms.
-	private ObservableList<String> loadLVRoom(LocalDate startDate, String startTime, Film film) {
-		RoomList roomlist = controller.getAllAvailableRooms(startDate, startTime, film);
-		ObservableList<String> content = FXCollections.observableArrayList();
-		for (Room room : roomlist) {
-			content.add(room.getName());
-		}
-		return content;
-	}
 
 	// Listen holen und zurückgeben
 	private FilmList loadFilmList() {
@@ -653,7 +762,6 @@ public class EventHandlingController {
 		dialog.setTitle(modus + " an existing film");
 		dialog.setContentText("Choose a film:");
 		dialog.setHeaderText(modus + " an existing film");
-		// Traditional way to get the response value.
 		Optional<String> result = dialog.showAndWait();
 		if (result.isPresent()) {
 			// get film by name
@@ -688,8 +796,11 @@ public class EventHandlingController {
 
 	private Show choosePopupShow(ShowList showlist, String modus) {
 		ArrayList<String> choices = new ArrayList<String>();
+		SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+		
 		for (Show current : showlist) {
-			choices.add(current.getFilm().getTitle() + " - " + current.getStartDateTime());
+			String starttime = format.format(current.getStartDateTime());
+			choices.add(current.getFilm().getTitle() + " - " + starttime);
 		}
 		ChoiceDialog<String> dialog = new ChoiceDialog<>("please choose", choices);
 		dialog.setTitle(modus + " an existing show");
@@ -705,7 +816,7 @@ public class EventHandlingController {
 		}
 		return null;
 	}
-
+// All check methode for validating input
 	private boolean checkStartDate() {
 		if (dp_startdate.getValue() != null) {
 			if (dp_startdate.getValue().isBefore(LocalDate.now())) {
@@ -719,15 +830,30 @@ public class EventHandlingController {
 	}
 
 	private boolean checkStartTime() {
-		if (!tf_starttime.getText().isEmpty()) {
-			SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+ 		if (!tf_starttime.getText().isEmpty()) {
+			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+			//SimpleDateFormat dateformat = new SimpleDateFormat("dd.MM.yyyy");
 			Date tmpDate = null;
-			String now = LocalDateToString(new Date()) + " " + tf_starttime.getText();
-			try {
-				tmpDate = format.parse(now);
-			} catch (ParseException e) {
-				e.printStackTrace();
+			Date dateTime;
+			String formated;
+			String now = "";
+			if(dp_startdate.getValue() == null){
+				//now = LocalDateToString(new Date()) + " " + tf_starttime.getText();
+//				try {
+//					
+//;					formated = format.format(new Date().toString() + " " + tf_starttime.getText());
+//					tmpDate = format.parse(new Date()+ " " + tf_starttime.getText());
+//				} catch (ParseException e) {
+//					return true;
+//				}
+			}else if(dp_startdate.getValue() != null){
+				try {
+					tmpDate = format.parse(dp_startdate.getValue().toString() + " " + tf_starttime.getText());
+				} catch (ParseException e) {
+					return true;
+				}
 			}
+				
 			if (tmpDate.before(new Date())) {
 				message.showMsg("e29");
 				return false;
@@ -736,42 +862,40 @@ public class EventHandlingController {
 		}
 		return false;
 	}
-
-	private void loadEditShow(Show editshow) {
-		backToMenu(false);
-		pane_show.setVisible(true);
-		pane_show.setDisable(false);
-		// Init all inputfields
-		Film film = editshow.getFilm();
-
-		// date formater
-		SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
-		String starttime = formatter.format(editshow.getStartDateTime());
-
-		// convert date to LocalDate for datePicker
-		LocalDate startdate = editshow.getStartDateTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-		tf_starttime.setText(starttime);
-		dp_startdate.setValue(startdate);
-		lbl_filmduration.setText(Integer.toString(film.getDurationInMinutes()));
-		lbl_filmtitle.setText(film.getTitle());
-
-		// set Cover to null
-		iv_filmcovershow.setImage(new Image("File:" + film.getImagePath()));
-
-		// film list handling
-		lv_film.setItems(loadLVFilm());
-		lv_film.getSelectionModel().select(film.getTitle());
-
-		// room list handling -> load as default and add show room -> sort
-		lv_room.setItems(loadLVRoom(startdate, starttime, film));
-		lv_room.getItems().add(editshow.getRoom().getName());
-		lv_room.getItems().sort(((o1, o2) -> editshow.getRoom().getName().compareTo(editshow.getRoom().getName())));
-		lv_room.getSelectionModel().select(editshow.getRoom().getName());
-		lv_room.setDisable(false);
-
-		lbl_show.setText("Edit show");
-		btn_cancelshow.setUnderline(false);
+	private void checkPhoneFormat(String number) {
+		String formatedphone = "";
+		Pattern sevennum = Pattern.compile("[0-9]{10}");
+		Matcher numMatcher = sevennum.matcher(number);
+		if (numMatcher.matches()) {
+			formatedphone = number.substring(0, 3) + " " + number.substring(3, 6) + " " + number.substring(6, 8) + " "
+					+ number.substring(8, 10);
+		}
+		Matcher phonematcher = PHONEPATTERN.matcher(formatedphone);
+		if (phonematcher.matches()) {
+			tf_phonenumber.setText(formatedphone);
+		} else {
+			tf_phonenumber.setText("");
+		}
 	}
+
+	public void checkTimeFormat() {
+		String time = "";
+		Matcher numMatcher = NUMBERPATTERN.matcher(tf_starttime.getText());
+		if (numMatcher.matches()) {
+			time = tf_starttime.getText().substring(0, 2) + ":" + tf_starttime.getText().substring(2, 4);
+			tf_starttime.setText(time);
+		}
+		Matcher timeMatcher = TIME24HOURS_PATTERN.matcher(tf_starttime.getText());
+		if (timeMatcher.matches()) {
+			if (checkStartTime()) {
+				checkAndLoadRooms();
+				return;
+			}
+		} else {
+			tf_starttime.setText("");
+		}
+	}
+
 
 	// general methods
 	public void setStage(Stage stage) {
@@ -817,45 +941,7 @@ public class EventHandlingController {
 	// }
 
 
-	private void loadSeatPane(int shownr) {
-		pane_seatsarr.setVisible(true);
-		pane_seatsarr.setDisable(false);
-		tf_phonenumber.setEditable(false);
-		tf_phonenumber.setDisable(true);
-		tf_phonenumber.setVisible(false);
-		tf_phonenumber.setText("");
-		ArrayList<String> reservedSeats = controller.getReservedSeats(controller.getShowById(shownr));
-		pane_seats.getChildren().clear();
-		Seat seatobj;
-		int rownr = 0, seatnr = 0;
-		for (int row = 1; row < 16; row++) {
-			rownr++;
-			seatnr = 0;
-			for (int seat = 0; seat < 31; seat++) {
-				if (seat == 0) {
-					pane_seats.add(new Label(Integer.toString(row)), seat, row);
-					continue;
-				}
-				seatnr++;
-				seatobj = new Seat(row, seatnr);
 
-				// walkway
-				if (seat == 5 || seat == 26) {
-					seatnr--;
-					continue;
-				}
-				// alle sitze mit einer reservierung ausschalten
-				for (String reservation : reservedSeats) {
-					String[] part = reservation.split("-");
-					if (part[0].equals(Integer.toString(row)) && part[1].equals(Integer.toString(seat))) {
-						seatobj.disable();
-						break;
-					}
-				}
-				pane_seats.add(seatobj, seat + 1, row);
-			}
-		}
-	}
 
 	@FXML
 	private void saveReservation() {
@@ -884,13 +970,13 @@ public class EventHandlingController {
 			tf_phonenumber.setEditable(true);
 			tf_phonenumber.setDisable(false);
 			tf_phonenumber.setVisible(true);
+			tf_phonenumber.requestFocus();
 			return;
 		} else if (reservationList.size() != 0 && !tf_phonenumber.getText().isEmpty()) {
 			if (controller.createNewReservations(show, reservationList, tf_phonenumber.getText())) {
 				message.showMsg("s31");
-				
-				
-				loadSeatPane(item.getShowId());
+				loadReservation(item.getShowId());
+				loadReservationToPane(item.getShowId());
 			}
 		}
 

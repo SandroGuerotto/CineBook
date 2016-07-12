@@ -23,6 +23,10 @@ public class Show implements Serializable {
 		this.durationInMinutes = durationInMinutes;
 	}
 
+	public Show() {
+		
+	}
+
 	public int getId() {
 		return id;
 	}

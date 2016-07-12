@@ -90,7 +90,7 @@ public class ShowItem extends BorderPane{
 		lbl_desc.setMaxHeight(270);
 		lbl_desc.setAlignment(Pos.TOP_LEFT);
 
-		lbl_duration = new Label(Integer.toString(film.getDurationInMinutes()) + " Minutes");
+		lbl_duration = new Label(Integer.toString(film.getDurationInMinutes()) + " Minutes" + "\t : " + room.getName());
 		lbl_duration.getStyleClass().add("showinfo");
 		lbl_duration.setFont(Font.font("System", FontWeight.BOLD, 15));
 		lbl_duration.setPrefHeight(35);

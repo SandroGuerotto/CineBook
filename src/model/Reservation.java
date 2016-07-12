@@ -20,18 +20,47 @@ public class Reservation implements Serializable{
 		this.dateTime = dateTime;
 	}
 
+	public int getId() {
+		return id;
+	}
 
-	public Date getDateTime() {
-		return dateTime;
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public Show getShow() {
+		return show;
+	}
+
+	public void setShow(Show show) {
+		this.show = show;
 	}
 
 	public String getSeatNumber() {
 		return seatNumber;
 	}
 
-	public Show getShow() {
-		return show;
+	public void setSeatNumber(String seatNumber) {
+		this.seatNumber = seatNumber;
 	}
+
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
+
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+
+	public Date getDateTime() {
+		return dateTime;
+	}
+
+	public void setDateTime(Date dateTime) {
+		this.dateTime = dateTime;
+	}
+
+
 
 	
 	

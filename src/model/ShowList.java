@@ -30,15 +30,21 @@ public class ShowList extends ArrayList<Show> {
 	}
 
 	// Show editieren (id muss natürlich die der alten Show sein)
-	public void editShow(Show editedShow) {
-		show = getShowById(editedShow.id);
-		show.room = editedShow.room;
-		show.film = editedShow.film;
-		show.startDateTime = editedShow.startDateTime;
-		show.endDateTime = editedShow.endDateTime;
-		show.durationInMinutes = editedShow.durationInMinutes;
+	public String editShow(Show editedShow) {
+		try {
+			show = getShowById(editedShow.id);
+			show.room = editedShow.room;
+			show.film = editedShow.film;
+			show.startDateTime = editedShow.startDateTime;
+			show.endDateTime = editedShow.endDateTime;
+			show.durationInMinutes = editedShow.durationInMinutes;
 
-		save();
+			save();
+			return "s31";
+
+		} catch (Exception e) {
+			return "e30";
+		}
 	}
 
 	// Show löschen mit Objekt (boolean gibt Wert zurück ob wirklich gelöscht
@@ -132,15 +138,15 @@ public class ShowList extends ArrayList<Show> {
 			for (Show show : this) {
 				long existShowStart = show.startDateTime.getTime();
 				long existShowEnd = show.endDateTime.getTime();
-				if ((existShowStart <= newShowStartTime && newShowStartTime  <= existShowEnd)
+				if ((existShowStart <= newShowStartTime && newShowStartTime <= existShowEnd)
 						|| (existShowStart <= newShowEndTime && existShowEnd >= newShowEndTime)) {
-					for( Room room : tmpRoomList){
-						if(room.getName().equals(show.room.getName())){
+					for (Room room : tmpRoomList) {
+						if (room.getName().equals(show.room.getName())) {
 							tmpRoomList.remove(room);
 							break;
 						}
 					}
-					
+
 				}
 
 				// if (filmStartMillisec >= showStartMillisec && filmEndMillisec

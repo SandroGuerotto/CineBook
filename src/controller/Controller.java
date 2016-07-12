@@ -345,6 +345,11 @@ public class Controller {
 
 	}
 
+	// Edit Show —------------------------------------------------------------—
+	  public String editShow(Show show){
+	    return showList.editShow(show);
+	  }
+	
 	// Room löschen
 	// -------------------------------------------------------------------------------------------------------
 	public String deleteRoom(Room room) {
