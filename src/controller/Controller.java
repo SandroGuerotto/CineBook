@@ -46,6 +46,7 @@ public class Controller {
 		filmList.setFileStream(fileStream);
 		roomList.setFileStream(fileStream);
 
+		
 		// for (Show show : showList) {
 		// System.out.print(show.getFilm().getTitle() + ": ");
 		// System.out.print(show.getRoom().getName() + ", ");
