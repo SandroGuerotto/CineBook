@@ -65,22 +65,19 @@ import view.ShowItem;
  * 
  * @author Tim Meier & Sandro Gueretto
  * @date 21.06.2016
- * @function Listener für GUI Elemente werden implementiert
+ * @function Listener fÃ¼r GUI Elemente werden implementiert
  *
  */
 
 public class EventHandlingController {
 	private static final String PHONE = "[0][0-9]{2} [0-9]{3} [0-9]{2}( [0-9]{2})";
 	private static final String TIMEREGEX = "([01]?[0-9]|2[0-3]):[0-5][0-9]";
-	private static final String NUMBERREGEX = "[0-9]{4}"; // regex für Zahlen
+	private static final String NUMBERREGEX = "[0-9]{4}"; // regex fÃ¼r Zahlen
 	private static final Pattern TIME24HOURS_PATTERN = Pattern.compile(TIMEREGEX);
 	private static final Pattern NUMBERPATTERN = Pattern.compile(NUMBERREGEX);
 	private static final Pattern PHONEPATTERN = Pattern.compile(PHONE);
 	private static final String PIC_DIR = "../";
-	// private final ScheduledExecutorService schedulerLoader =
-	// Executors.newScheduledThreadPool(1);
 
-	// private ScheduledFuture<?> showLoader;
 	private boolean firstrun = true;
 	private FileChooser mediaChooser;
 	private ExtensionFilter extFilter;
@@ -107,10 +104,6 @@ public class EventHandlingController {
 	@FXML
 	private GridPane pane_film, pane_main, pane_show, pane_seats;
 	@FXML
-	private ScrollPane sp_show;
-	@FXML
-	private HBox vb_wrapper_show;
-	@FXML
 	private VBox pane_overview;
 	@FXML
 	private BorderPane pane_seatsarr;
@@ -118,7 +111,7 @@ public class EventHandlingController {
 	private TabPane pane_help;
 
 	@FXML
-	private Button btn_filmsave, btn_showsave, btn_reservationsave, btn_editRes;
+	private Button btn_filmsave, btn_showsave, btn_editRes;
 	@FXML
 	private Hyperlink btn_cancel, btn_cancelshow, btn_cancelNewRes,  btn_deleteRes;
 	@FXML
@@ -199,9 +192,8 @@ public class EventHandlingController {
 			// showLoader.cancel(true);
 			System.exit(0);
 		});
-		btn_cancel.setOnAction((event) -> {
-			backToMenu(true);
-		});
+		btn_cancel.setOnAction((event) -> backToMenu(true));
+
 		btn_cancelNewRes.setOnAction((event) -> {
 			lv_reservation.getSelectionModel().clearSelection();
 			backToMenu(true);
@@ -219,7 +211,7 @@ public class EventHandlingController {
 			mediaChooser.setTitle("choose Cover");
 			mediaChooser.setInitialDirectory(new File(PIC_DIR));
 			mediaChooser.getExtensionFilters().add(extFilter);
-			// Liste mit ausgewählten Songs erstellen
+			// Liste mit ausgewï¿½hlten Songs erstellen
 			cover = mediaChooser.showOpenDialog(stage);
 			if (cover != null) {
 				coverpath = cover.toURI().toString();
@@ -241,7 +233,7 @@ public class EventHandlingController {
 				} else if (lbl_film.getText().equals("Edit film")) {
 					Film editedFilm = new Film();
 					editedFilm.setDescription(ta_filmdesc.getText());
-					// Überprüft ob Filmlänge eine Zahl ist
+					// ï¿½berprï¿½ft ob Filmlï¿½nge eine Zahl ist
 					try {
 						editedFilm.setId(film.getId());
 						editedFilm.setDurationInMinutes(Integer.parseInt(tf_filmduration.getText()));
@@ -456,107 +448,87 @@ public class EventHandlingController {
 
 		// check if entered value is valid to time 24 hours. otherwise reset
 		// field
-		tf_starttime.setOnKeyPressed(new EventHandler<KeyEvent>() {
-			@Override
-			public void handle(KeyEvent ke) {
-				if (ke.getCode().equals(KeyCode.ENTER)) {
-					checkTimeFormat();
-				}
-			}
-		});
+		tf_starttime.setOnKeyPressed(ke -> {
+            if (ke.getCode().equals(KeyCode.ENTER)) {
+                checkTimeFormat();
+            }
+        });
 
-		dp_startdate.setOnAction((event) -> {
-			checkStartDate();
-		});
+		dp_startdate.setOnAction((event) -> checkStartDate());
 		// Show controlling end -------------
 
 		// ListView controlling start ----------------
-		lv_film.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				if (newValue != null) {
-					film = controller.getFilmByName(newValue);
-					lbl_filmduration.setText(Integer.toString(film.getDurationInMinutes()) + " min");
-					lbl_filmtitle.setText(film.getTitle());
-					iv_filmcovershow.setImage(new Image("File:" + film.getImagePath()));
+		lv_film.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                film = controller.getFilmByName(newValue);
+                lbl_filmduration.setText(Integer.toString(film.getDurationInMinutes()) + " min");
+                lbl_filmtitle.setText(film.getTitle());
+                iv_filmcovershow.setImage(new Image("File:" + film.getImagePath()));
 
-				}
-			}
-		});
-		lv_room.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				if (newValue != null) {
-					room = controller.getRoomByName(newValue);
-				}
-			}
-		});
+            }
+        });
+		lv_room.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                room = controller.getRoomByName(newValue);
+            }
+        });
 
-		lv_shows.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Pane>() {
-			@Override
-			public void changed(ObservableValue<? extends Pane> observable, Pane oldValue, Pane newValue) {
-				ShowItem item = null;
-				if (lv_shows.getSelectionModel().getSelectedItem() == null) {
-					lv_reservation.getSelectionModel().clearSelection();
-					backToMenu(true);
-				}
-				// alte selektion löschen -> verstecken
-				if (oldValue != null) {
-					item = (ShowItem) oldValue;
-					item.hide();
-					item.setClicked(false);
-				}
-				item = (ShowItem) newValue;
-				if (item != null) {
-					item.setClicked(true);
-					item.show();
-					loadReservationToPane(item.getShowId());
-					// loadSeatPane(item.getShowId());
-					loadReservation(item.getShowId());
-				}
-			}
-		});
+		lv_shows.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            ShowItem item = null;
+            if (lv_shows.getSelectionModel().getSelectedItem() == null) {
+                lv_reservation.getSelectionModel().clearSelection();
+                backToMenu(true);
+            }
+            // alte selektion lÃ¶schen -> verstecken
+            if (oldValue != null) {
+                item = (ShowItem) oldValue;
+                item.hide();
+                item.setClicked(false);
+            }
+            item = (ShowItem) newValue;
+            if (item != null) {
+                item.setClicked(true);
+                item.show();
+                btn_cancelNewRes.setUnderline(false);
+                show = controller.getShowById(item.getShowId());
+                loadReservationToPane();
+                loadReservation(item.getShowId());
+            }
+        });
 
 		// reservation controlling start -----------------
 
-		tf_phonenumber.setOnKeyPressed(new EventHandler<KeyEvent>() {
-			@Override
-			public void handle(KeyEvent ke) {
-				if (ke.getCode().equals(KeyCode.ENTER)) {
-					checkPhoneFormat(tf_phonenumber.getText());
-				}
-			}
-		});
-		lv_reservation.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-			ReservationList attendantReservations = null; 
-			String select = lv_reservation.getSelectionModel().getSelectedItem();
-			if(select == null)
-				return;
-			String[] part = select.split("\t\t");
-			String phonenr = part[1];
+		tf_phonenumber.setOnKeyPressed(ke -> {
+            if (ke.getCode().equals(KeyCode.ENTER)) {
+                checkPhoneFormat(tf_phonenumber.getText());
+            }
+        });
+		lv_reservation.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+        ReservationList attendantReservations = null;
+        String select = lv_reservation.getSelectionModel().getSelectedItem();
+        if(select == null)
+            return;
+        String[] part = select.split("\t\t");
+        String phonenr = part[1];
 //			System.out.println(part[0] + "asdfsdf " + part[1]);
-			for(Reservation current : reservationList){
-				if(current.getPhoneNumber().equals(phonenr) ){
-					attendantReservations = controller.getAttendantReservations(current);
-			
-					break;
-				}	
-			}
-			if(attendantReservations != null){
-				lv_reservation.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-				for(Reservation current : attendantReservations){
-					String test = current.getSeatNumber() + "\t\t" + current.getPhoneNumber();
-					lv_reservation.getSelectionModel().select(test);
-				}
-			}
-			btn_editRes.setVisible(true);
-			btn_editRes.setDisable(false);
-			btn_deleteRes.setVisible(true);
-			btn_deleteRes.setDisable(false);
-			}
-		});
+        for(Reservation current : reservationList){
+            if(current.getPhoneNumber().equals(phonenr) ){
+                attendantReservations = controller.getAttendantReservations(current);
+                break;
+            }
+        }
+        if(attendantReservations != null){
+            lv_reservation.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+            for(Reservation current : attendantReservations){
+                String data = current.getSeatNumber() + "\t\t" + current.getPhoneNumber();
+                lv_reservation.getSelectionModel().select(data);
+            }
+        }
+        btn_editRes.setVisible(true);
+        btn_editRes.setDisable(false);
+        btn_deleteRes.setVisible(true);
+        btn_deleteRes.setDisable(false);
+        });
 
 
 		// reservation controlling end ---------
@@ -580,7 +552,7 @@ public class EventHandlingController {
 
 			ShowList showlist = loadShowList();
 			ObservableList<Pane> content = FXCollections.observableArrayList();
-			for (Show show : showlist) {
+            for (Show show : showlist) {
 				if (!show.getStartDateTime().before(new Date())) {
 					ShowItem showitem = new ShowItem();
 					Pane pane = showitem.createShowItem(show);
@@ -681,7 +653,7 @@ public class EventHandlingController {
 		}
 	}
 
-	private void loadReservationToPane(int shownr) {
+	private void loadReservationToPane() {
 		btn_cancelshow.setUnderline(false);
 		pane_seatsarr.setVisible(true);
 		pane_seatsarr.setDisable(false);
@@ -690,7 +662,7 @@ public class EventHandlingController {
 		tf_phonenumber.setVisible(false);
 		tf_phonenumber.setText("");
 		ObservableList<Node> children = pane_seats.getChildren();
-		ArrayList<String> reservedSeats = controller.getReservedSeats(controller.getShowById(shownr));
+		ArrayList<String> reservedSeats = controller.getReservedSeats(show);
 		for (int i = 0; i < children.size(); i++) {
 			try {
 				Seat seat = (Seat) children.get(i);
@@ -756,7 +728,7 @@ public class EventHandlingController {
 		return content;
 	}
 
-	// Listen holen und zurückgeben
+	// Listen holen und zurï¿½ckgeben
 	private FilmList loadFilmList() {
 		FilmList filmlist = new FilmList();
 		filmlist = controller.getAllFilms();
@@ -993,7 +965,7 @@ public class EventHandlingController {
 			if (controller.createNewReservations(show, reservationList, tf_phonenumber.getText())) {
 				message.showMsg("s31");
 				loadReservation(item.getShowId());
-				loadReservationToPane(item.getShowId());
+				loadReservationToPane();
 			}
 		}
 
@@ -1001,23 +973,31 @@ public class EventHandlingController {
 	@FXML
 	private void editReservation(){
 	ObservableList<String> list =	lv_reservation.getSelectionModel().getSelectedItems();
-	System.out.println("edit");
+        // Ã¼berprÃ¼fen ob mehrere Reservierungen ausgewÃ¤hlt wurden
+    String[] first = list.get(0).split("\t\t");
+    String phonenr = "0";
+        String[] part;
+    for(String check : list){
+        part =  check.split("\t\t");
+        if(!part[1].equals(first[1])){
+            loadReservationToPane();
+            message.showMsg("e33");
+            return;
+        }
+    }
+
 		
 		ObservableList<Node> children = pane_seats.getChildren();
 		for (int i = 0; i < children.size(); i++) {
 			try {
 				Seat seat = (Seat) children.get(i);
-//				seat.enable();
-//				seat.setCursor(Cursor.HAND);
-				// alle sitze mit einer reservierung ausschalten
+				// alle Sitze mit einer reservierung ausschalten
 				for(String current : list){
-					String[] part = current.split("\t\t");
+					part = current.split("\t\t");
+                    phonenr = part[1];
 					part = part[0].split("-");
 					if (part[0].equals(Integer.toString(seat.getRow()))
 							&& part[1].equals(Integer.toString(seat.getSeat()))) {
-					//	seat.setCursor(Cursor.DEFAULT);
-					//	seat.disable();
-						seat.enable();
 						seat.setCursor(Cursor.HAND);
 						seat.selected();
 						break;
@@ -1027,6 +1007,14 @@ public class EventHandlingController {
 				continue;
 			}
 	}
+        tf_phonenumber.setVisible(true);
+        tf_phonenumber.setText(phonenr);
+        tf_phonenumber.setEditable(false);
 	
 	}
+
+    @FXML
+    private void deleteReservatiion(){
+
+    }
 }

@@ -13,39 +13,38 @@ import javafx.scene.image.ImageView;
 
 public class Seat extends ToggleButton {
 
-	Image seatIconEmpty = new Image("File:images/seat2.png", 25, 25, false, false);
-	Image seatIconDisabled = new Image("File:images/seat3.png", 25, 25, false, false);
-	Image seatIconClicked = new Image("File:images/seat4.png", 25, 25, false, false);
+	private Image seatIconEmpty;
+	private Image seatIconDisabled;
+	private Image seatIconClicked;
 	private int row, seat;
 	
-	public Seat(int imp_row, int imp_seat){	
+	public Seat(int imp_row, int imp_seat){
+		seatIconEmpty = new Image("File:images/seat2.png", 25, 25, false, false);
+		seatIconDisabled = new Image("File:images/seat3.png", 25, 25, false, false);
+		seatIconClicked = new Image("File:images/seat4.png", 25, 25, false, false);
+
 		row = imp_row;
 		seat = imp_seat;
-        setSelected(false);
-    	setGraphic(new ImageView(seatIconEmpty));
+
+		setSelected(false);
+		setGraphic(new ImageView(seatIconEmpty));
     	setPadding(Insets.EMPTY);
     	setStyle("-fx-background-color: transparent;");
     	setAlignment(Pos.CENTER);
     	Tooltip tooltip = new Tooltip();
     	tooltip.setText(Integer.toString(row) + " " + Integer.toString(seat));
     	setTooltip(tooltip);
-    	//getStyleClass().add("handcursor");
     	// Bild wechseln wenn Sitz angeklickt wird
-    	setOnAction(e -> {
-    		if(isSelected() == false){
+
+		setOnAction(event -> {
+    		if(!isSelected()){
     			Platform.runLater(() -> { setGraphic(new ImageView(seatIconEmpty)); });
     		}else{
     			Platform.runLater(() -> { setGraphic(new ImageView(seatIconClicked)); });
 //    			System.out.println(row + " " + seat);
     		}
     	});
-    	
-    	// Cursor wechseln -> wird mit css gemacht
-//    	setOnMouseEntered(o-> {
-//    	        setCursor(Cursor.HAND);
-//		setTooltip(new Tooltip(getId()));
-//    	});
-    	
+
 	}
 	
 	public void disable(){
@@ -53,7 +52,7 @@ public class Seat extends ToggleButton {
 			setDisable(true);
 			getStyleClass().remove("handcursor");
 			setGraphic(new ImageView(seatIconDisabled));
-			setStyle("-fx-opacity: 1.0;");
+			getStyleClass().add("seatsold");
 			setSelected(false);
 			});
 	}
@@ -65,7 +64,10 @@ public class Seat extends ToggleButton {
 			});
 	}
 	public void selected(){
-		Platform.runLater(() -> { setGraphic(new ImageView(seatIconClicked)); });
+		Platform.runLater(() -> {
+			setDisable(false);
+			getStyleClass().remove("seatsold");
+			setGraphic(new ImageView(seatIconClicked)); });
 		this.setSelected(true);
 	}
 	public int getRow(){

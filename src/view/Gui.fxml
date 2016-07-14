@@ -532,14 +532,14 @@
                               <ListView fx:id="lv_reservation" prefHeight="434.0" prefWidth="173.0" />
                            </center>
                            <right>
-                              <VBox alignment="TOP_CENTER" BorderPane.alignment="TOP_CENTER">
+                              <VBox alignment="BOTTOM_CENTER" prefHeight="434.0" prefWidth="245.0" BorderPane.alignment="BOTTOM_CENTER">
                                  <children>
                                     <Button fx:id="btn_editRes" alignment="CENTER" focusTraversable="false" mnemonicParsing="false" onAction="#editReservation" prefHeight="45.0" prefWidth="178.0" styleClass="btn, handcursor" text="Edit" visible="false">
                                        <font>
                                           <Font size="25.0" fx:id="x131" />
                                        </font>
                                     </Button>
-                                    <Hyperlink fx:id="btn_deleteRes" contentDisplay="LEFT" focusTraversable="false" onAction="#initialize" prefHeight="45.0" prefWidth="90.0" text="Delete" textAlignment="LEFT" underline="false" visible="false" wrapText="false">
+                                    <Hyperlink fx:id="btn_deleteRes" contentDisplay="LEFT" focusTraversable="false" onAction="#deleteReservatiion" prefHeight="45.0" prefWidth="90.0" text="Delete" textAlignment="LEFT" underline="false" visible="false" wrapText="false">
                                        <font>
                                           <Font size="25.0" fx:id="x141" />
                                        </font>

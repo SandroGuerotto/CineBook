@@ -55,12 +55,14 @@
 }
 
 /* Button */
-#btn_cancel, #btn_cancelshow, #btn_cancelNewRes{
+#btn_cancel, #btn_cancelshow,
+#btn_cancelNewRes, #btn_deleteRes{
 	-fx-text-fill: rgb(72,72,72) ;
 }
 #btn_cancel:hover ,#btn_cancel:focused,
 #btn_cancelshow:hover ,#btn_cancelshow:focused,
-#btn_cancelNewRes:hover, #btn_cancelNewRes:focused {
+#btn_cancelNewRes:hover, #btn_cancelNewRes:focused,
+#btn_deleteRes:hover, #btn_deleteRes:focused{
     -fx-underline: true;
 }
 .handcursor{
@@ -112,4 +114,9 @@
 /* Show info */
 .showinfo{
 	-fx-text-fill: white
+}
+
+/* Seat */
+.seatsold{
+    -fx-opacity: 1;
 }

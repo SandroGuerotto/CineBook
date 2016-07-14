@@ -140,7 +140,7 @@ public class Message {
 			setProperties(type, "Please select at least one seat!");
 			break;
 		case "33":
-			setProperties(type, "");
+			setProperties(type, "Please select only one reservation!");
 			break;
 		case "99":
 			setProperties(type, "This Feature is not available yet!");
