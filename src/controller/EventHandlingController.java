@@ -98,7 +98,7 @@ public class EventHandlingController {
     private TextArea ta_filmdesc;
 
     @FXML
-    private Label lbl_message, lbl_film, lbl_show;
+    private Label lbl_message, lbl_film, lbl_show, lbl_reservation;
     @FXML
     private Label lbl_filmtitle, lbl_filmduration;
 
@@ -465,6 +465,7 @@ public class EventHandlingController {
                 btn_cancelNewRes.setUnderline(false);
                 btn_deleteRes.setUnderline(false);
                 show = controller.getShowById(item.getShowId());
+                lbl_reservation.setText("new");
                 loadReservationToPane();
                 loadReservation();
             }
@@ -883,6 +884,8 @@ public class EventHandlingController {
 
     private boolean checkReservations(ObservableList<String> list) {
         // überprüfen ob mehrere Reservierungen ausgewählt wurden
+        if (list.size() == 0)
+            return false;
         String[] first = list.get(0).split("\t\t");
         String[] part;
         for (String check : list) {
@@ -957,8 +960,15 @@ public class EventHandlingController {
             tf_phonenumber.requestFocus();
             return;
         } else if (reservationList.size() != 0 && !tf_phonenumber.getText().isEmpty()) {
-            if (controller.createNewReservations(show, reservationList, tf_phonenumber.getText())) {
-                message.showMsg("s31");
+
+            if (lbl_reservation.getText().equals("new")) {
+                returncode = controller.createNewReservations(show, reservationList, tf_phonenumber.getText());
+
+            } else if (lbl_reservation.getText().equals("edit")) {
+                deleteReservatiion();
+                returncode = controller.createNewReservations(show, reservationList, tf_phonenumber.getText());
+            }
+            if (message.showMsg(returncode)) {
                 loadReservation();
                 loadReservationToPane();
             }
@@ -968,6 +978,7 @@ public class EventHandlingController {
 
     @FXML
     private void editReservation() {
+        lbl_reservation.setText("Edit");
         ObservableList<String> list = lv_reservation.getSelectionModel().getSelectedItems();
         if (!checkReservations(list)) {
             loadReservationToPane();
@@ -1003,20 +1014,29 @@ public class EventHandlingController {
 
     @FXML
     private void deleteReservatiion() {
+        deleteReservatiion(true);
+    }
+
+
+    private void deleteReservatiion(boolean popup) {
         ObservableList<String> list = lv_reservation.getSelectionModel().getSelectedItems();
         if (!checkReservations(list)) {
             loadReservationToPane();
             message.showMsg("e33");
             return;
         }
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Delete a reservation");
-        alert.setHeaderText("Delete a reservation");
-        alert.setContentText("Delete selected reservation?");
+        if (popup) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Delete a reservation");
+            alert.setHeaderText("Delete a reservation");
+            alert.setContentText("Delete selected reservation?");
 
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == ButtonType.OK) {
-            String first = list.get(0).split("\t\t")[1];
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == ButtonType.OK) {
+                String first = list.get(0).split("\t\t")[1];
+                controller.deleteAllAttendantReservations(controller.getReservationsByShow(show).get(0));
+            }
+        } else {
             controller.deleteAllAttendantReservations(controller.getReservationsByShow(show).get(0));
         }
 
