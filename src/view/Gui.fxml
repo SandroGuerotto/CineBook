@@ -403,7 +403,7 @@
                   </BorderPane>
                   <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="2">
                      <center>
-                        <Button fx:id="btn_showsave" mnemonicParsing="false" onAction="#initialize" prefHeight="44.0" prefWidth="178.0" styleClass="btn, handcursor" text="Save">
+                        <Button fx:id="btn_showsave" mnemonicParsing="false" onAction="#initialize" prefHeight="45.0" prefWidth="178.0" styleClass="btn, handcursor" text="Save">
                            <font>
                               <Font size="25.0" fx:id="x12" />
                            </font>
@@ -434,7 +434,7 @@
                      <right>
                         <VBox fx:id="vb_toolbox" alignment="TOP_CENTER" prefHeight="451.0" prefWidth="200.0" BorderPane.alignment="TOP_CENTER">
                            <children>
-                              <Button fx:id="btn_reservationsave" alignment="CENTER" mnemonicParsing="false" onAction="#saveReservation" prefHeight="44.0" prefWidth="178.0" styleClass="btn, handcursor" text="Save">
+                              <Button fx:id="btn_reservationsave" alignment="CENTER" mnemonicParsing="false" onAction="#saveReservation" prefHeight="45.0" prefWidth="178.0" styleClass="btn, handcursor" text="Save">
                                  <font>
                                     <Font size="25.0" fx:id="x13" />
                                  </font>
@@ -527,7 +527,30 @@
                         </VBox>
                      </center>
                      <left>
-                        <ListView fx:id="lv_reservation" prefHeight="434.0" prefWidth="173.0" BorderPane.alignment="CENTER" />
+                        <BorderPane BorderPane.alignment="CENTER">
+                           <center>
+                              <ListView fx:id="lv_reservation" prefHeight="434.0" prefWidth="173.0" />
+                           </center>
+                           <right>
+                              <VBox alignment="TOP_CENTER" BorderPane.alignment="TOP_CENTER">
+                                 <children>
+                                    <Button fx:id="btn_editRes" alignment="CENTER" focusTraversable="false" mnemonicParsing="false" onAction="#editReservation" prefHeight="45.0" prefWidth="178.0" styleClass="btn, handcursor" text="Edit" visible="false">
+                                       <font>
+                                          <Font size="25.0" fx:id="x131" />
+                                       </font>
+                                    </Button>
+                                    <Hyperlink fx:id="btn_deleteRes" contentDisplay="LEFT" focusTraversable="false" onAction="#initialize" prefHeight="45.0" prefWidth="90.0" text="Delete" textAlignment="LEFT" underline="false" visible="false" wrapText="false">
+                                       <font>
+                                          <Font size="25.0" fx:id="x141" />
+                                       </font>
+                                    </Hyperlink>
+                                 </children>
+                                 <padding>
+                                    <Insets top="100.0" />
+                                 </padding>
+                              </VBox>
+                           </right>
+                        </BorderPane>
                      </left>
                   </BorderPane>
                </children>

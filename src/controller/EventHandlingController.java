@@ -51,6 +51,7 @@ import javafx.util.Pair;
 import model.Film;
 import model.FilmList;
 import model.Reservation;
+import model.ReservationList;
 import model.Room;
 import model.RoomList;
 import model.Show;
@@ -117,9 +118,9 @@ public class EventHandlingController {
 	private TabPane pane_help;
 
 	@FXML
-	private Button btn_filmsave, btn_showsave, btn_reservationsave;
+	private Button btn_filmsave, btn_showsave, btn_reservationsave, btn_editRes;
 	@FXML
-	private Hyperlink btn_cancel, btn_cancelshow, btn_cancelNewRes;
+	private Hyperlink btn_cancel, btn_cancelshow, btn_cancelNewRes,  btn_deleteRes;
 	@FXML
 	private Tab btn_back;
 	@FXML
@@ -146,7 +147,8 @@ public class EventHandlingController {
 	@FXML
 	private ListView<String> lv_reservation;
 
-	private int index = -1;
+	private ArrayList<Reservation> reservationList;
+	
 
 	public EventHandlingController() {
 		mediaChooser = new FileChooser();
@@ -201,6 +203,7 @@ public class EventHandlingController {
 			backToMenu(true);
 		});
 		btn_cancelNewRes.setOnAction((event) -> {
+			lv_reservation.getSelectionModel().clearSelection();
 			backToMenu(true);
 		});
 		btn_back.setOnSelectionChanged((event) -> {
@@ -494,6 +497,7 @@ public class EventHandlingController {
 			public void changed(ObservableValue<? extends Pane> observable, Pane oldValue, Pane newValue) {
 				ShowItem item = null;
 				if (lv_shows.getSelectionModel().getSelectedItem() == null) {
+					lv_reservation.getSelectionModel().clearSelection();
 					backToMenu(true);
 				}
 				// alte selektion löschen -> verstecken
@@ -523,6 +527,37 @@ public class EventHandlingController {
 				}
 			}
 		});
+		lv_reservation.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+			ReservationList attendantReservations = null; 
+			String select = lv_reservation.getSelectionModel().getSelectedItem();
+			if(select == null)
+				return;
+			String[] part = select.split("\t\t");
+			String phonenr = part[1];
+//			System.out.println(part[0] + "asdfsdf " + part[1]);
+			for(Reservation current : reservationList){
+				if(current.getPhoneNumber().equals(phonenr) ){
+					attendantReservations = controller.getAttendantReservations(current);
+			
+					break;
+				}	
+			}
+			if(attendantReservations != null){
+				lv_reservation.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+				for(Reservation current : attendantReservations){
+					String test = current.getSeatNumber() + "\t\t" + current.getPhoneNumber();
+					lv_reservation.getSelectionModel().select(test);
+				}
+			}
+			btn_editRes.setVisible(true);
+			btn_editRes.setDisable(false);
+			btn_deleteRes.setVisible(true);
+			btn_deleteRes.setDisable(false);
+			}
+		});
+
 
 		// reservation controlling end ---------
 
@@ -533,14 +568,16 @@ public class EventHandlingController {
 		ShowItem item = (ShowItem) lv_shows.getSelectionModel().getSelectedItem();
 		if (!item.isClicked()) {
 			backToMenu(true);
+			lv_reservation.getSelectionModel().clearSelection();
 		}
 
 	}
 
-	private void loadShowToOverview(boolean forcereload) {
+	// loading methods for GUI start
+	public void loadShowToOverview(boolean forcereload) {
 
 		if (loadShowList() != null) {
-			
+
 			ShowList showlist = loadShowList();
 			ObservableList<Pane> content = FXCollections.observableArrayList();
 			for (Show show : showlist) {
@@ -550,28 +587,28 @@ public class EventHandlingController {
 					content.add(pane);
 				}
 			}
-			if(forcereload){
+			// only set new items if backtomenu is called
+			if (forcereload) {
 				lv_shows.setItems(content);
-			}else{
+			} else {
 				Platform.runLater(new Runnable() {
-		            @Override public void run() {
-		            	if(lv_shows.getItems().size() != content.size() && lv_shows.getSelectionModel().getSelectedIndex() == -1){
-		            		lv_shows.setItems(content);
-		            	}
-		            	
-		            }
-			 });
+					@Override
+					public void run() { // only refresh the LV if something has
+										// changed(delete / add) and the user
+										// has not selected any show
+						if (lv_shows.getItems().size() != content.size()
+								&& lv_shows.getSelectionModel().getSelectedIndex() == -1) {
+							lv_shows.setItems(content);
+						}
+					}
+				});
 			}
-			
-			
-			
-	
 		}
 	}
 
 	@FXML
-	void refreshShows() {
-		loadShowToOverview(false);
+	private void refreshShows() {
+		loadShowToOverview(true);
 	}
 
 	private void loadEditShow(Show editshow) {
@@ -611,7 +648,7 @@ public class EventHandlingController {
 	}
 
 	private void loadReservation(int shownr) {
-		ArrayList<Reservation> reservationList = controller.getReservationsByShow(controller.getShowById(shownr));
+		reservationList = controller.getReservationsByShow(controller.getShowById(shownr));
 		ObservableList<String> content = FXCollections.observableArrayList();
 		for (Reservation reservation : reservationList) {
 			content.add(reservation.getSeatNumber() + "\t\t" + reservation.getPhoneNumber());
@@ -674,7 +711,8 @@ public class EventHandlingController {
 			}
 		}
 	}
-
+	// loading methods for GUI end
+	// loading methods for LV and data start
 	// laden der Raumliste
 	@FXML
 	private void checkAndLoadRooms() {
@@ -745,7 +783,8 @@ public class EventHandlingController {
 		}
 		return showlist;
 	}
-
+	// loading methods for LV and data end
+	
 	// Popoup zur Auswahl von Film und Raum
 	private Film choosePopupFilm(FilmList filmlist, String modus) {
 		ArrayList<String> choices = new ArrayList<String>();
@@ -958,5 +997,36 @@ public class EventHandlingController {
 			}
 		}
 
+	}
+	@FXML
+	private void editReservation(){
+	ObservableList<String> list =	lv_reservation.getSelectionModel().getSelectedItems();
+	System.out.println("edit");
+		
+		ObservableList<Node> children = pane_seats.getChildren();
+		for (int i = 0; i < children.size(); i++) {
+			try {
+				Seat seat = (Seat) children.get(i);
+//				seat.enable();
+//				seat.setCursor(Cursor.HAND);
+				// alle sitze mit einer reservierung ausschalten
+				for(String current : list){
+					String[] part = current.split("\t\t");
+					part = part[0].split("-");
+					if (part[0].equals(Integer.toString(seat.getRow()))
+							&& part[1].equals(Integer.toString(seat.getSeat()))) {
+					//	seat.setCursor(Cursor.DEFAULT);
+					//	seat.disable();
+						seat.enable();
+						seat.setCursor(Cursor.HAND);
+						seat.selected();
+						break;
+					}
+				}
+			} catch (Exception e) {
+				continue;
+			}
+	}
+	
 	}
 }

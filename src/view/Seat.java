@@ -64,7 +64,10 @@ public class Seat extends ToggleButton {
 			setGraphic(new ImageView(seatIconEmpty)); 
 			});
 	}
-
+	public void selected(){
+		Platform.runLater(() -> { setGraphic(new ImageView(seatIconClicked)); });
+		this.setSelected(true);
+	}
 	public int getRow(){
 		return row;
 	}

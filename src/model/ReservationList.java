@@ -117,9 +117,9 @@ public class ReservationList extends ArrayList<Reservation> {
 				
 				// Wenn Reservierung gleiche Telefonnummer, gleicher Zeitstempfel aber nicht gleiche Id hat
 				if(reservation.dateTime == tmpReservation.dateTime && reservation.phoneNumber.equals(tmpReservation.phoneNumber)){
-					if(reservation.id != tmpReservation.id){
+//					if(reservation.id != tmpReservation.id){
 						attendantReservationList.add(tmpReservation);
-					}
+//					}
 				}
 			}
 		}
