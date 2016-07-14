@@ -34,7 +34,7 @@
       <children>
             <TabPane fx:id="pane_help" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" visible="false" GridPane.columnSpan="2" GridPane.rowIndex="2" GridPane.rowSpan="2">
               <tabs>
-                <Tab text="Film">
+                <Tab closable="false" text="Film">
                      <content>
                         <VBox prefHeight="200.0" prefWidth="100.0">
                            <children>
@@ -70,26 +70,135 @@
                               </Label>
                            </children>
                            <padding>
-                              <Insets left="25.0" />
+                              <Insets left="25.0" top="10.0" />
                            </padding>
                         </VBox>
                      </content>
                 </Tab>
                 <Tab text="Room">
                   <content>
-                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                  </content>
+                        <VBox prefHeight="200.0" prefWidth="100.0">
+                           <children>
+                              <Label text="Create a new room">
+                                 <font>
+                                    <Font size="25.0" />
+                                 </font>
+                              </Label>
+                              <Label alignment="TOP_LEFT" prefHeight="223.0" prefWidth="523.0" text="To create a room, click on “create new room” in the menubar. A popup will show up with a textfield. Enter the name in the textfield and press save. If a room is already existing, a message will appear and the room will not be saved." wrapText="true">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                              </Label>
+                              <Label text="Edit an existing room">
+                                 <font>
+                                    <Font size="25.0" />
+                                 </font>
+                              </Label>
+                              <Label alignment="TOP_LEFT" prefHeight="223.0" prefWidth="529.0" text="To edit an existing room, click on “edit existing room” in the menubar. A popup will show up with a textfield and a dropdown. Select in the dropdown the existing room and type a new name in the corresponding textfield. If a room is already existing, a message will appear and the changes will not be saved." wrapText="true">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                              </Label>
+                              <Label text="Delete an existing room">
+                                 <font>
+                                    <Font size="25.0" />
+                                 </font>
+                              </Label>
+                              <Label alignment="TOP_LEFT" prefHeight="223.0" prefWidth="523.0" text="To delete a room, click on “edit existing room” in the menubar. A popup will show up and a room muss be selected to delete. With pressing the okay button the selected room will be deleted without any call-back option." wrapText="true">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                           <padding>
+                              <Insets left="25.0" top="10.0" />
+                           </padding>
+                        </VBox>
+                     </content>
                 </Tab>
                   <Tab text="Show">
-                    <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                    </content>
+                     <content>
+                        <VBox prefHeight="200.0" prefWidth="100.0">
+                           <children>
+                              <Label text="Create a new show">
+                                 <font>
+                                    <Font size="25.0" />
+                                 </font>
+                              </Label>
+                              <Label alignment="TOP_LEFT" prefHeight="223.0" prefWidth="523.0" text="To create a show, click on “create new show” in the menubar. A page will open where all information for the new show can be filled in. Everything must be filled out before the show can be saved. To select a room, fill out all other field must be filled out an a film must be selected. Start date and time must be in the future, otherwise a message will show up. " wrapText="true">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                              </Label>
+                              <Label text="Edit an existing show">
+                                 <font>
+                                    <Font size="25.0" />
+                                 </font>
+                              </Label>
+                              <Label alignment="TOP_LEFT" prefHeight="223.0" prefWidth="529.0" text="To edit an existing show, click on “edit an existing show ” in the menubar. A popup will show up and a show muss be selected to edit. After a show is chosen, a page will open with all the existing information about the show. Every option is available as creating a new show. For more information about creating a new show, refer to point “Create a new show”." wrapText="true">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                              </Label>
+                              <Label text="Delete an existing show">
+                                 <font>
+                                    <Font size="25.0" />
+                                 </font>
+                              </Label>
+                              <Label alignment="TOP_LEFT" prefHeight="223.0" prefWidth="523.0" text="To delete an existing show, click on “delete an existing show ” in the menubar. A popup will show up and a show muss be selected to delete. With pressing the okay button the selected show will be deleted without any call-back option." wrapText="true">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                           <padding>
+                              <Insets left="25.0" top="10.0" />
+                           </padding>
+                        </VBox>
+                     </content>
                   </Tab>
                   <Tab text="Reservation">
-                    <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                    </content>
+                     <content>
+                        <VBox prefHeight="200.0" prefWidth="100.0">
+                           <children>
+                              <Label text="Create a new reservation">
+                                 <font>
+                                    <Font size="25.0" />
+                                 </font>
+                              </Label>
+                              <Label alignment="TOP_LEFT" prefHeight="223.0" prefWidth="523.0" text="To create a reservation, click on a show on the main screen. Next to the selected show all information about the film and show are given. Under the overview of all upcoming shows, a screen will appear with all current reservation. Simply click on a free seat press save. After the save button is pressed, a phone number must be filled out, otherwise the reservation won’t be saved. If a reservation was successful, on the left side of the seat arrangement a list with all current reservations for the show gets updated. Reserved seats are marked in grey, selection in light blue and free seats yellow." wrapText="true">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                              </Label>
+                              <Label text="Edit an existing reservation">
+                                 <font>
+                                    <Font size="25.0" />
+                                 </font>
+                              </Label>
+                              <Label alignment="TOP_LEFT" prefHeight="223.0" prefWidth="529.0" text="Currently not available" wrapText="true">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                              </Label>
+                              <Label text="Delete an existing reservation">
+                                 <font>
+                                    <Font size="25.0" />
+                                 </font>
+                              </Label>
+                              <Label alignment="TOP_LEFT" prefHeight="223.0" prefWidth="523.0" text="Currently not available" wrapText="true">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                           <padding>
+                              <Insets left="25.0" top="10.0" />
+                           </padding>
+                        </VBox>
+                     </content>
                   </Tab>
+                  <Tab fx:id="btn_back" onSelectionChanged="#initialize" text="Back" />
               </tabs>
             </TabPane>
         <HBox fillHeight="true" maxHeight="47.0" minHeight="44.999908447265625" prefHeight="44.999908447265625" prefWidth="960.0" GridPane.columnIndex="0" GridPane.columnSpan="1" GridPane.rowIndex="0">
@@ -418,7 +527,7 @@
                         </VBox>
                      </center>
                      <left>
-                        <ListView fx:id="lv_reservation" prefHeight="434.0" prefWidth="256.0" BorderPane.alignment="CENTER" />
+                        <ListView fx:id="lv_reservation" prefHeight="434.0" prefWidth="173.0" BorderPane.alignment="CENTER" />
                      </left>
                   </BorderPane>
                </children>

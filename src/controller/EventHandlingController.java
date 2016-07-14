@@ -42,6 +42,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -132,6 +133,8 @@ public class EventHandlingController {
 	@FXML
 	private Hyperlink btn_cancel, btn_cancelshow, btn_cancelNewRes;
 	@FXML
+	private Tab btn_back;
+	@FXML
 	private DatePicker dp_startdate;
 
 	@FXML
@@ -182,7 +185,7 @@ public class EventHandlingController {
 			lv_film.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 			lv_room.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 			lv_shows.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-			
+			lv_reservation.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 			
 			backToMenu(true);
 			// createShowLoader();
@@ -203,7 +206,9 @@ public class EventHandlingController {
 			backToMenu(false);
 			pane_help.setVisible(true);
 			pane_help.setDisable(false);
+			
 		});
+		
 		// Film controlling start-----
 		btn_createfilm.setOnAction((event) -> {
 			backToMenu(false);
@@ -225,6 +230,10 @@ public class EventHandlingController {
 			backToMenu(true);
 		});
 		btn_cancelNewRes.setOnAction((event) -> {
+			backToMenu(true);
+		});
+		btn_back.setOnSelectionChanged((event) ->{
+			pane_help.getSelectionModel().select(0);
 			backToMenu(true);
 		});
 		btn_cancelshow.setOnAction((event) -> {
@@ -892,7 +901,7 @@ public class EventHandlingController {
 	public void setStage(Stage stage) {
 		this.stage = stage;
 	}
-
+	
 	private void backToMenu(Boolean hide) {
 
 		pane_main.setVisible(true);
