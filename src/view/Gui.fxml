@@ -176,7 +176,7 @@
                                     <Font size="25.0" />
                                  </font>
                               </Label>
-                              <Label alignment="TOP_LEFT" prefHeight="223.0" prefWidth="529.0" text="Currently not available" wrapText="true">
+                              <Label alignment="TOP_LEFT" prefHeight="223.0" prefWidth="529.0" text="To edit a reservation, click on a show on the main screen. Click on an existing reservation and press edit. All reserved seats will change to selection. Select free seats with the exact same amount of seats as before. Press save to submit. The old Reservation gets delete and a new one gets created. The Phone number can’t be edited." wrapText="true">
                                  <font>
                                     <Font size="15.0" />
                                  </font>
@@ -186,7 +186,7 @@
                                     <Font size="25.0" />
                                  </font>
                               </Label>
-                              <Label alignment="TOP_LEFT" prefHeight="223.0" prefWidth="523.0" text="Currently not available" wrapText="true">
+                              <Label alignment="TOP_LEFT" prefHeight="223.0" prefWidth="523.0" text="To edit a reservation, click on a show on the main screen. Click on an existing reservation and press delete. Confirm the popup and the reservation will be deleted without any call-back option." wrapText="true">
                                  <font>
                                     <Font size="15.0" />
                                  </font>
@@ -417,7 +417,7 @@
             </GridPane>
             <VBox fx:id="pane_overview" alignment="TOP_RIGHT" prefHeight="200.0" prefWidth="100.0" GridPane.columnSpan="2" GridPane.rowIndex="2" GridPane.rowSpan="2">
                <children>
-                  <Button fx:id="btn_refresh" alignment="CENTER" focusTraversable="false" mnemonicParsing="false" onAction="#refreshShows">
+                  <Button fx:id="btn_refresh" alignment="CENTER" contentDisplay="CENTER" focusTraversable="false" mnemonicParsing="false" onAction="#refreshShows">
                      <graphic>
                         <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -434,7 +434,7 @@
                      <right>
                         <VBox fx:id="vb_toolbox" alignment="TOP_CENTER" prefHeight="451.0" prefWidth="200.0" BorderPane.alignment="TOP_CENTER">
                            <children>
-                              <Button fx:id="btn_reservationsave" alignment="CENTER" mnemonicParsing="false" onAction="#saveReservation" prefHeight="45.0" prefWidth="178.0" styleClass="btn, handcursor" text="Save">
+                              <Button fx:id="btn_reservationsave" alignment="CENTER" focusTraversable="false" mnemonicParsing="false" onAction="#saveReservation" prefHeight="45.0" prefWidth="178.0" styleClass="btn, handcursor" text="Save">
                                  <font>
                                     <Font size="25.0" fx:id="x13" />
                                  </font>
@@ -445,7 +445,7 @@
                               <TextField fx:id="tf_phonenumber" prefHeight="54.0" prefWidth="42.0" promptText="Phone number" />
                               <HBox alignment="BOTTOM_CENTER" prefHeight="345.0" prefWidth="178.0">
                                  <children>
-                                    <Hyperlink fx:id="btn_cancelNewRes" contentDisplay="LEFT" onAction="#initialize" prefHeight="45.0" prefWidth="90.0" text="Cancel" textAlignment="LEFT" underline="false" wrapText="false">
+                                    <Hyperlink fx:id="btn_cancelNewRes" contentDisplay="LEFT" focusTraversable="false" onAction="#initialize" prefHeight="45.0" prefWidth="90.0" text="Cancel" textAlignment="LEFT" underline="false" wrapText="false">
                                        <font>
                                           <Font size="25.0" fx:id="x14" />
                                        </font>
@@ -497,8 +497,7 @@
                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="10.0" prefWidth="25.0" />
                                 </columnConstraints>
                                 <rowConstraints>
-                                    <RowConstraints minHeight="10.0" prefHeight="10.0" vgrow="SOMETIMES" />
-                                    <RowConstraints minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                     <RowConstraints minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
                                     <RowConstraints minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
                                     <RowConstraints minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
@@ -517,9 +516,14 @@
                                     <RowConstraints minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
                                 </rowConstraints>
                                  <children>
+                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="8.0" prefWidth="435.0" text="Screen" textAlignment="CENTER" GridPane.columnIndex="8" GridPane.columnSpan="18">
+                                       <font>
+                                          <Font size="18.0" />
+                                       </font>
+                                    </Label>
                                     <Rectangle arcHeight="5.0" arcWidth="5.0" height="7.0" stroke="BLACK" strokeType="INSIDE" width="450.0" GridPane.columnIndex="8" GridPane.columnSpan="20">
                                        <GridPane.margin>
-                                          <Insets bottom="5.0" />
+                                          <Insets bottom="25.0" />
                                        </GridPane.margin></Rectangle>
                                  </children>
                               </GridPane>
@@ -534,12 +538,13 @@
                            <right>
                               <VBox alignment="BOTTOM_CENTER" prefHeight="434.0" prefWidth="245.0" BorderPane.alignment="BOTTOM_CENTER">
                                  <children>
+                                    <Label fx:id="lbl_reservation" disable="true" visible="false" />
                                     <Button fx:id="btn_editRes" alignment="CENTER" focusTraversable="false" mnemonicParsing="false" onAction="#editReservation" prefHeight="45.0" prefWidth="178.0" styleClass="btn, handcursor" text="Edit" visible="false">
                                        <font>
                                           <Font size="25.0" fx:id="x131" />
                                        </font>
                                     </Button>
-                                    <Hyperlink fx:id="btn_deleteRes" contentDisplay="LEFT" focusTraversable="false" onAction="#deleteReservatiion" prefHeight="45.0" prefWidth="90.0" text="Delete" textAlignment="LEFT" underline="false" visible="false" wrapText="false">
+                                    <Hyperlink fx:id="btn_deleteRes" contentDisplay="LEFT" focusTraversable="false" onAction="#deleteReservation" prefHeight="45.0" prefWidth="90.0" text="Delete" textAlignment="LEFT" underline="false" visible="false" wrapText="false">
                                        <font>
                                           <Font size="25.0" fx:id="x141" />
                                        </font>

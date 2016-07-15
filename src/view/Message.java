@@ -142,6 +142,15 @@ public class Message {
 		case "33":
 			setProperties(type, "Please select only one reservation!");
 			break;
+		case "34":
+			setProperties(type, "An error occurred while saving the reservation!");
+			break;
+		case "35":
+			setProperties(type, "Select the same amount of seats as the existing reservation!");
+			break;
+		case "36":
+			setProperties(type, "Reservation successfully deleted");
+			break;
 		case "99":
 			setProperties(type, "This Feature is not available yet!");
 			break;

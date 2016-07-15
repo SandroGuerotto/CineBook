@@ -47,16 +47,23 @@ public class Controller {
 		roomList.setFileStream(fileStream);
 
 		
-		// for (Show show : showList) {
-		// System.out.print(show.getFilm().getTitle() + ": ");
-		// System.out.print(show.getRoom().getName() + ", ");
-		// System.out.print(show.getStartDateTime() + "\n");
-		// }
+		 for (Show show : showList) {
+		 System.out.print(show.getFilm().getTitle() + ": ");
+		 System.out.print(show.getRoom().getName() + ", ");
+		 System.out.print(show.getStartDateTime() + "\n");
+		 }
 	}
 
+	public void refreshAll(){
+		reservationList = fileStream.deserializeReservationList();
+		showList = fileStream.deserializeShowList();
+		filmList = fileStream.deserializeFilmList();
+		roomList = fileStream.deserializeRoomList();
+	}
+	
 	// Meherer Reservations erstellen
 	// -------------------------------------------------------------------------------------
-	public boolean createNewReservations(Show show, ArrayList<String> seatNumbers, String phoneNumber) {
+	public String createNewReservations(Show show, ArrayList<String> seatNumbers, String phoneNumber) {
 
 		Date dateTime;
 		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm");
@@ -66,12 +73,12 @@ public class Controller {
 		try {
 			dateTime = format.parse(timeStamp);
 		} catch (ParseException e) {
-			return false;
+			return "e34"; //fehler
 		}
 
 		// Überprüfen ob Show null ist
 		if (show == null)
-			return false;
+			return "e34"; //fehler
 
 		for (String seatNr : seatNumbers) {
 
@@ -80,10 +87,10 @@ public class Controller {
 				reservationList.addReservation(reservationList.getNewId(), show, seatNr, phoneNumber, dateTime);
 //				reservationList = fileStream.deserializeReservationList();
 			} else {
-				return false;
+				return "e"; //platz bereits reserviert
 			}
 		}
-		return true;
+		return "s31"; //erfolgreich
 	}
 
 	// Eine neue Show erstellen
@@ -168,30 +175,29 @@ public class Controller {
 
 	// Gibt alle nicht besetzten Räume zurück (geplante Startzeit & geplanter
 	// Film muss übergeben werden) -----------------
-	public RoomList getAllAvailableRooms(LocalDate startDate, String startTime, Film film) {
+	public RoomList getAllAvailableRooms(LocalDate startDate, String startTime, Film film, Show show) {
 
-		Date date = null;
-		DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-		String startDateTime = startDate + " " + startTime;
+	    Date date = null;
+	    DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+	    String startDateTime = startDate + " " + startTime;
 
-		try {
-			date = format.parse(startDateTime);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
+	    try {
+	      date = format.parse(startDateTime);
+	    } catch (ParseException e) {
+	      e.printStackTrace();
+	    }
 
-		System.out.println(date.toString());
-		System.out.println(film.getTitle());
-		// tmpRoomList = new RoomList();
-		RoomList tmpRoomList = this.showList.getAvailableRooms(date, film, this.roomList);
-		tmpRoomList.sort((o1, o2) -> o1.getName().compareTo(o2.getName()));
+	    // tmpRoomList = new RoomList();
+	    RoomList tmpRoomList = this.showList.getAvailableRooms(date, film, this.roomList, show);
+	    tmpRoomList.sort((o1, o2) -> o1.getName().compareTo(o2.getName()));
 
-		for (Room room : tmpRoomList) {
-			System.out.println(room.getName());
-		}
+	    for (Room room : tmpRoomList) {
+	      System.out.println(room.getName());
+	    }
 
-		return tmpRoomList;
-	}
+	    return tmpRoomList;
+	  }
+
 
 	// Gibt alle Shows zurück die an einem bestimmten Tag stattfinden
 	// -----------------------------------------------------
@@ -232,10 +238,19 @@ public class Controller {
 
 	// Löscht alle zusammengehörigen Reservationen (Date & Phonenumber)
 	// ---------------------------------------------------
-	public void deleteAllAttendantReservations(Reservation reservation) {
-
+	public String deleteAllAttendantReservations(Reservation reservation) {
+		int total = reservationList.getAttendantReservations(reservation).size();
+		int size = 0;
 		for (Reservation tmpReservation : reservationList.getAttendantReservations(reservation)) {
-			reservationList.deleteReservation(tmpReservation);
+			if(reservationList.deleteReservation(tmpReservation)){
+				size++;
+			}
+			
+		}
+		if(total == size){
+			return "s36";
+		}else{
+			return "e34";
 		}
 	}
 

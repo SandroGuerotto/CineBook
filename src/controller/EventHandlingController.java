@@ -21,7 +21,10 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Hyperlink;
@@ -35,6 +38,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -47,6 +51,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.Pair;
 import model.Film;
 import model.FilmList;
@@ -111,9 +116,9 @@ public class EventHandlingController {
 	private TabPane pane_help;
 
 	@FXML
-	private Button btn_filmsave, btn_showsave, btn_editRes;
+	private Button btn_filmsave, btn_showsave, btn_editRes, btn_refresh;
 	@FXML
-	private Hyperlink btn_cancel, btn_cancelshow, btn_cancelNewRes,  btn_deleteRes;
+	private Hyperlink btn_cancel, btn_cancelshow, btn_cancelNewRes, btn_deleteRes;
 	@FXML
 	private Tab btn_back;
 	@FXML
@@ -125,7 +130,7 @@ public class EventHandlingController {
 	private TextArea ta_filmdesc;
 
 	@FXML
-	private Label lbl_message, lbl_film, lbl_show;
+	private Label lbl_message, lbl_film, lbl_show, lbl_reservation;
 	@FXML
 	private Label lbl_filmtitle, lbl_filmduration;
 
@@ -141,7 +146,6 @@ public class EventHandlingController {
 	private ListView<String> lv_reservation;
 
 	private ArrayList<Reservation> reservationList;
-	
 
 	public EventHandlingController() {
 		mediaChooser = new FileChooser();
@@ -152,14 +156,18 @@ public class EventHandlingController {
 
 	@FXML
 	private void initialize() {
+		
 
+		// only called at start for unique functions
 		if (firstrun) {
 			message = new Message(lbl_message);
 			lv_film.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 			lv_room.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 			lv_shows.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 			lv_reservation.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-
+			Tooltip tooltip = new Tooltip();
+			tooltip.setText("Refresh and load all files");
+			btn_refresh.setTooltip(tooltip);
 			backToMenu(true);
 			firstrun = false;
 
@@ -168,6 +176,7 @@ public class EventHandlingController {
 			Loader loader = new Loader(this);
 			new Thread(loader).start();
 		}
+		
 		btn_helpme.setOnAction((event) -> {
 			backToMenu(false);
 			pane_help.setVisible(true);
@@ -449,87 +458,92 @@ public class EventHandlingController {
 		// check if entered value is valid to time 24 hours. otherwise reset
 		// field
 		tf_starttime.setOnKeyPressed(ke -> {
-            if (ke.getCode().equals(KeyCode.ENTER)) {
-                checkTimeFormat();
-            }
-        });
+			if (ke.getCode().equals(KeyCode.ENTER)) {
+				checkTimeFormat();
+			}
+		});
 
 		dp_startdate.setOnAction((event) -> checkStartDate());
 		// Show controlling end -------------
 
 		// ListView controlling start ----------------
 		lv_film.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                film = controller.getFilmByName(newValue);
-                lbl_filmduration.setText(Integer.toString(film.getDurationInMinutes()) + " min");
-                lbl_filmtitle.setText(film.getTitle());
-                iv_filmcovershow.setImage(new Image("File:" + film.getImagePath()));
+			if (newValue != null) {
+				film = controller.getFilmByName(newValue);
+				lbl_filmduration.setText(Integer.toString(film.getDurationInMinutes()) + " min");
+				lbl_filmtitle.setText(film.getTitle());
+				iv_filmcovershow.setImage(new Image("File:" + film.getImagePath()));
 
-            }
-        });
+			}
+		});
 		lv_room.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                room = controller.getRoomByName(newValue);
-            }
-        });
+			if (newValue != null) {
+				room = controller.getRoomByName(newValue);
+			}
+		});
 
 		lv_shows.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            ShowItem item = null;
-            if (lv_shows.getSelectionModel().getSelectedItem() == null) {
-                lv_reservation.getSelectionModel().clearSelection();
-                backToMenu(true);
-            }
-            // alte selektion lÃ¶schen -> verstecken
-            if (oldValue != null) {
-                item = (ShowItem) oldValue;
-                item.hide();
-                item.setClicked(false);
-            }
-            item = (ShowItem) newValue;
-            if (item != null) {
-                item.setClicked(true);
-                item.show();
-                btn_cancelNewRes.setUnderline(false);
-                show = controller.getShowById(item.getShowId());
-                loadReservationToPane();
-                loadReservation(item.getShowId());
-            }
-        });
+			ShowItem item = null;
+			if (lv_shows.getSelectionModel().getSelectedItem() == null) {
+				lv_reservation.getSelectionModel().clearSelection();
+				backToMenu(true);
+			}
+			// alte selektion lÃ¶schen -> verstecken
+			if (oldValue != null) {
+				item = (ShowItem) oldValue;
+				item.hide();
+				item.setClicked(false);
+			}
+			item = (ShowItem) newValue;
+			if (item != null) {
+				item.setClicked(true);
+				item.show();
+				btn_cancelNewRes.setUnderline(false);
+				btn_deleteRes.setUnderline(false);
+				show = controller.getShowById(item.getShowId());
+				loadReservationToPane();
+				lbl_reservation.setText("new");
+				loadReservation();
+				btn_editRes.setVisible(false);
+				btn_editRes.setDisable(true);
+				btn_deleteRes.setVisible(false);
+				btn_deleteRes.setDisable(true);
+			}
+		});
 
 		// reservation controlling start -----------------
 
 		tf_phonenumber.setOnKeyPressed(ke -> {
-            if (ke.getCode().equals(KeyCode.ENTER)) {
-                checkPhoneFormat(tf_phonenumber.getText());
-            }
-        });
+			if (ke.getCode().equals(KeyCode.ENTER)) {
+				checkPhoneFormat(tf_phonenumber.getText());
+			}
+		});
 		lv_reservation.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-        ReservationList attendantReservations = null;
-        String select = lv_reservation.getSelectionModel().getSelectedItem();
-        if(select == null)
-            return;
-        String[] part = select.split("\t\t");
-        String phonenr = part[1];
-//			System.out.println(part[0] + "asdfsdf " + part[1]);
-        for(Reservation current : reservationList){
-            if(current.getPhoneNumber().equals(phonenr) ){
-                attendantReservations = controller.getAttendantReservations(current);
-                break;
-            }
-        }
-        if(attendantReservations != null){
-            lv_reservation.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-            for(Reservation current : attendantReservations){
-                String data = current.getSeatNumber() + "\t\t" + current.getPhoneNumber();
-                lv_reservation.getSelectionModel().select(data);
-            }
-        }
-        btn_editRes.setVisible(true);
-        btn_editRes.setDisable(false);
-        btn_deleteRes.setVisible(true);
-        btn_deleteRes.setDisable(false);
-        });
-
+			ReservationList attendantReservations = null;
+			String select = lv_reservation.getSelectionModel().getSelectedItem();
+			if (select == null)
+				return;
+			String[] part = select.split("\t\t");
+			String phonenr = part[1];
+			// System.out.println(part[0] + "asdfsdf " + part[1]);
+			for (Reservation current : reservationList) {
+				if (current.getPhoneNumber().equals(phonenr)) {
+					attendantReservations = controller.getAttendantReservations(current);
+					break;
+				}
+			}
+			if (attendantReservations != null) {
+				lv_reservation.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+				for (Reservation current : attendantReservations) {
+					String data = current.getSeatNumber() + "\t\t" + current.getPhoneNumber();
+					lv_reservation.getSelectionModel().select(data);
+				}
+			}
+			btn_editRes.setVisible(true);
+			btn_editRes.setDisable(false);
+			btn_deleteRes.setVisible(true);
+			btn_deleteRes.setDisable(false);
+		});
 
 		// reservation controlling end ---------
 
@@ -552,7 +566,7 @@ public class EventHandlingController {
 
 			ShowList showlist = loadShowList();
 			ObservableList<Pane> content = FXCollections.observableArrayList();
-            for (Show show : showlist) {
+			for (Show show : showlist) {
 				if (!show.getStartDateTime().before(new Date())) {
 					ShowItem showitem = new ShowItem();
 					Pane pane = showitem.createShowItem(show);
@@ -580,47 +594,49 @@ public class EventHandlingController {
 
 	@FXML
 	private void refreshShows() {
+		controller.refreshAll();
 		loadShowToOverview(true);
 	}
 
-	private void loadEditShow(Show editshow) {
-		backToMenu(false);
-		pane_show.setVisible(true);
-		pane_show.setDisable(false);
-		// Init all inputfields
-		Film film = editshow.getFilm();
+	  private void loadEditShow(Show editshow) {
+		    backToMenu(false);
+		    pane_show.setVisible(true);
+		    pane_show.setDisable(false);
+		    // Init all inputfields
+		    Film film = editshow.getFilm();
 
-		// date formater
-		SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
-		String starttime = formatter.format(editshow.getStartDateTime());
+		    // date formater
+		    SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
+		    String starttime = formatter.format(editshow.getStartDateTime());
 
-		// convert date to LocalDate for datePicker
-		LocalDate startdate = editshow.getStartDateTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-		tf_starttime.setText(starttime);
-		dp_startdate.setValue(startdate);
-		lbl_filmduration.setText(Integer.toString(film.getDurationInMinutes()));
-		lbl_filmtitle.setText(film.getTitle());
+		    // convert date to LocalDate for datePicker
+		    LocalDate startdate = editshow.getStartDateTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+		    tf_starttime.setText(starttime);
+		    dp_startdate.setValue(startdate);
+		    lbl_filmduration.setText(Integer.toString(film.getDurationInMinutes()));
+		    lbl_filmtitle.setText(film.getTitle());
 
-		// set Cover to null
-		iv_filmcovershow.setImage(new Image("File:" + film.getImagePath()));
+		    // set Cover to null
+		    iv_filmcovershow.setImage(new Image("File:" + film.getImagePath()));
 
-		// film list handling
-		lv_film.setItems(loadLVFilm());
-		lv_film.getSelectionModel().select(film.getTitle());
+		    // film list handling
+		    lv_film.setItems(loadLVFilm());
+		    lv_film.getSelectionModel().select(film.getTitle());
 
-		// room list handling -> load as default and add show room -> sort
-		lv_room.setItems(loadLVRoom(startdate, starttime, film));
-		lv_room.getItems().add(editshow.getRoom().getName());
-		lv_room.getItems().sort(((o1, o2) -> editshow.getRoom().getName().compareTo(editshow.getRoom().getName())));
-		lv_room.getSelectionModel().select(editshow.getRoom().getName());
-		lv_room.setDisable(false);
+		    // room list handling -> load as default and add show room -> sort
+		    System.out.println("EditShow: "+editshow.getRoom().getName());
+		    lv_room.setItems(loadLVRoom(startdate, starttime, film, editshow));
+		    lv_room.getItems().sort(((o1, o2) -> editshow.getRoom().getName().compareTo(editshow.getRoom().getName())));
+		    lv_room.getSelectionModel().select(editshow.getRoom().getName());
+		    lv_room.setDisable(false);
 
-		lbl_show.setText("Edit show");
-		btn_cancelshow.setUnderline(false);
-	}
+		    lbl_show.setText("Edit show");
+		    btn_cancelshow.setUnderline(false);
+		  }
 
-	private void loadReservation(int shownr) {
-		reservationList = controller.getReservationsByShow(controller.getShowById(shownr));
+
+	private void loadReservation() {
+		reservationList = controller.getReservationsByShow(show);
 		ObservableList<String> content = FXCollections.observableArrayList();
 		for (Reservation reservation : reservationList) {
 			content.add(reservation.getSeatNumber() + "\t\t" + reservation.getPhoneNumber());
@@ -683,40 +699,43 @@ public class EventHandlingController {
 			}
 		}
 	}
+
 	// loading methods for GUI end
 	// loading methods for LV and data start
 	// laden der Raumliste
 	@FXML
 	private void checkAndLoadRooms() {
-		Matcher timeMatcher = TIME24HOURS_PATTERN.matcher(tf_starttime.getText());
-		if (dp_startdate.getValue() != null && timeMatcher.matches()
-				&& lv_film.getSelectionModel().getSelectedItem() != null) {
-			lv_room.setItems(loadLVRoom(dp_startdate.getValue(), tf_starttime.getText(),
-					controller.getFilmByName(lv_film.getSelectionModel().getSelectedItem())));
-			if (lv_room.getItems().size() == 0) {
-				lv_room.setDisable(true);
-				message.showMsg("i16");
-			} else {
-				lv_room.setDisable(false);
-			}
+	    Matcher timeMatcher = TIME24HOURS_PATTERN.matcher(tf_starttime.getText());
+	    if (dp_startdate.getValue() != null && timeMatcher.matches()
+	        && lv_film.getSelectionModel().getSelectedItem() != null) {
+	      lv_room.setItems(loadLVRoom(dp_startdate.getValue(), tf_starttime.getText(),
+	          controller.getFilmByName(lv_film.getSelectionModel().getSelectedItem()), show));
+	      if (lv_room.getItems().size() == 0) {
+	        lv_room.setDisable(true);
+	        message.showMsg("i16");
+	      } else {
+	        lv_room.setDisable(false);
+	      }
 
-		} else {
-			lv_room.setItems(null);
-			lv_room.setDisable(true);
-			lv_room.getSelectionModel().clearSelection();
-		}
+	    } else {
+	      lv_room.setItems(null);
+	      lv_room.setDisable(true);
+	      lv_room.getSelectionModel().clearSelection();
+	    }
 
-	}
+	  }
+
 
 	// Mehtode to load lv_room with all available rooms.
-	private ObservableList<String> loadLVRoom(LocalDate startDate, String startTime, Film film) {
-		RoomList roomlist = controller.getAllAvailableRooms(startDate, startTime, film);
-		ObservableList<String> content = FXCollections.observableArrayList();
-		for (Room room : roomlist) {
-			content.add(room.getName());
-		}
-		return content;
-	}
+	  private ObservableList<String> loadLVRoom(LocalDate startDate, String startTime, Film film, Show show) {
+	    RoomList roomlist = controller.getAllAvailableRooms(startDate, startTime, film, show);
+	    ObservableList<String> content = FXCollections.observableArrayList();
+	    for (Room room : roomlist) {
+	      content.add(room.getName());
+	    }    
+	    return content;
+	  }
+
 
 	private ObservableList<String> loadLVFilm() {
 		FilmList filmlist = controller.getAllFilms();
@@ -728,7 +747,7 @@ public class EventHandlingController {
 		return content;
 	}
 
-	// Listen holen und zurï¿½ckgeben
+	// Listen holen und zurückgeben
 	private FilmList loadFilmList() {
 		FilmList filmlist = new FilmList();
 		filmlist = controller.getAllFilms();
@@ -756,7 +775,7 @@ public class EventHandlingController {
 		return showlist;
 	}
 	// loading methods for LV and data end
-	
+
 	// Popoup zur Auswahl von Film und Raum
 	private Film choosePopupFilm(FilmList filmlist, String modus) {
 		ArrayList<String> choices = new ArrayList<String>();
@@ -899,6 +918,21 @@ public class EventHandlingController {
 		}
 	}
 
+	private boolean checkSelectedReservation(ObservableList<String> list) {
+		if(list.size() == 0 && list == null)
+			return false;
+		String[] first = list.get(0).split("\t\t");
+		String[] part;
+		for (String check : list) {
+			part = check.split("\t\t");
+			if (!part[1].equals(first[1])) {
+
+				return false;
+			}
+		}
+		return true;
+	}
+
 	// general methods
 	public void setStage(Stage stage) {
 		this.stage = stage;
@@ -936,10 +970,8 @@ public class EventHandlingController {
 	private void saveReservation() {
 		ObservableList<Node> seatList = pane_seats.getChildren();
 		ArrayList<String> reservationList = new ArrayList<String>();
-		reservationList.clear();
-		ShowItem item = (ShowItem) lv_shows.getSelectionModel().getSelectedItem();
+		int amountreservations = lv_reservation.getSelectionModel().getSelectedItems().size();
 		Seat seat;
-		Show show = controller.getShowById(item.getShowId());
 		for (int i = 0; i < seatList.size(); i++) {
 			try {
 				seat = (Seat) seatList.get(i);
@@ -962,39 +994,60 @@ public class EventHandlingController {
 			tf_phonenumber.requestFocus();
 			return;
 		} else if (reservationList.size() != 0 && !tf_phonenumber.getText().isEmpty()) {
-			if (controller.createNewReservations(show, reservationList, tf_phonenumber.getText())) {
+			if (lbl_reservation.getText().equals("new")) {
+				System.out.println(tf_phonenumber.getText());
+				returncode = controller.createNewReservations(show, reservationList, tf_phonenumber.getText());
+				if (message.showMsg(returncode)) {
+					loadReservation();
+					loadReservationToPane();
+				}
+
 				message.showMsg("s31");
-				loadReservation(item.getShowId());
-				loadReservationToPane();
+
+			} else if (lbl_reservation.getText().equals("edit")) {
+				if (reservationList.size() == amountreservations) {
+					// first insert new reservations
+					returncode = controller.createNewReservations(show, reservationList, tf_phonenumber.getText());
+					// delete existing
+					deleteReservation(false);
+
+					if (message.showMsg(returncode)) {
+						loadReservation();
+						loadReservationToPane();
+					}
+
+					message.showMsg("s31");
+					lbl_reservation.setText("new");
+				} else {
+					message.showMsg("e35");
+				}
 			}
 		}
 
 	}
-	@FXML
-	private void editReservation(){
-	ObservableList<String> list =	lv_reservation.getSelectionModel().getSelectedItems();
-        // Ã¼berprÃ¼fen ob mehrere Reservierungen ausgewÃ¤hlt wurden
-    String[] first = list.get(0).split("\t\t");
-    String phonenr = "0";
-        String[] part;
-    for(String check : list){
-        part =  check.split("\t\t");
-        if(!part[1].equals(first[1])){
-            loadReservationToPane();
-            message.showMsg("e33");
-            return;
-        }
-    }
 
-		
+	@FXML
+	private void editReservation() {
+		ObservableList<String> list = lv_reservation.getSelectionModel().getSelectedItems();
+		// Überprüfen ob mehrere Reservierungen ausgewählt wurden
+
+		if (!checkSelectedReservation(list)) {
+			loadReservationToPane();
+			message.showMsg("e33");
+			lv_reservation.getSelectionModel().clearSelection();
+			return;
+		}
+		lbl_reservation.setText("edit");
+		String[] part;
+		String phonenr = "0";
 		ObservableList<Node> children = pane_seats.getChildren();
 		for (int i = 0; i < children.size(); i++) {
 			try {
 				Seat seat = (Seat) children.get(i);
 				// alle Sitze mit einer reservierung ausschalten
-				for(String current : list){
+				for (String current : list) {
 					part = current.split("\t\t");
-                    phonenr = part[1];
+					phonenr = part[1];
 					part = part[0].split("-");
 					if (part[0].equals(Integer.toString(seat.getRow()))
 							&& part[1].equals(Integer.toString(seat.getSeat()))) {
@@ -1004,17 +1057,48 @@ public class EventHandlingController {
 					}
 				}
 			} catch (Exception e) {
-				continue;
 			}
-	}
-        tf_phonenumber.setVisible(true);
-        tf_phonenumber.setText(phonenr);
-        tf_phonenumber.setEditable(false);
-	
+		}
+		// show phonenumber also necessary to save
+		tf_phonenumber.setVisible(true);
+		tf_phonenumber.setText(phonenr);
+		tf_phonenumber.setEditable(false);
+
 	}
 
-    @FXML
-    private void deleteReservatiion(){
+	@FXML
+	private void deleteReservation() {
+		deleteReservation(true);
+	}
 
-    }
+	private void deleteReservation(boolean showpopup) {
+		ObservableList<String> list = lv_reservation.getSelectionModel().getSelectedItems();
+		if (!checkSelectedReservation(list)) {
+			loadReservationToPane();
+			message.showMsg("e33");
+			lv_reservation.getSelectionModel().clearSelection();
+			return;
+		}
+		if (showpopup) {
+			Alert alert = new Alert(AlertType.CONFIRMATION);
+			alert.setTitle("Delete an existing reservation");
+			alert.setHeaderText("Delete an existing reservation");
+			alert.setContentText("Delete reservation?");
+
+			Optional<ButtonType> result = alert.showAndWait();
+			if (result.get() == ButtonType.OK) {
+				String[] first = list.get(0).split("\t\t");
+				returncode = controller
+						.deleteAllAttendantReservations(controller.getReservationBySeatNumber(show, first[0]));
+				message.showMsg(returncode);
+			}
+		} else {
+			String[] first = list.get(0).split("\t\t");
+			returncode = controller
+					.deleteAllAttendantReservations(controller.getReservationBySeatNumber(show, first[0]));
+		}
+
+		loadReservationToPane();
+		loadReservation();
+	}
 }
