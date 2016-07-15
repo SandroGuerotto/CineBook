@@ -125,7 +125,7 @@ public class EventHandlingController {
 	private DatePicker dp_startdate;
 
 	@FXML
-	private TextField tf_filmtitle, tf_filmduration, tf_starttime, tf_phonenumber;
+	private TextField tf_filmtitle, tf_filmduration, tf_starttime, tf_phonenumber, tf_search;
 	@FXML
 	private TextArea ta_filmdesc;
 
@@ -168,13 +168,14 @@ public class EventHandlingController {
 			Tooltip tooltip = new Tooltip();
 			tooltip.setText("Refresh and load all files");
 			btn_refresh.setTooltip(tooltip);
-			backToMenu(true);
+			
 			firstrun = false;
 
 			loadShowToOverview(true);
 			loadSeatPane();
 			Loader loader = new Loader(this);
 			new Thread(loader).start();
+			backToMenu(true);
 		}
 		
 		btn_helpme.setOnAction((event) -> {
@@ -958,6 +959,7 @@ public class EventHandlingController {
 			pane_overview.setVisible(true);
 			pane_overview.setDisable(false);
 			loadShowToOverview(true);
+			lv_shows.requestFocus();
 		}
 
 	}
@@ -966,7 +968,7 @@ public class EventHandlingController {
 		SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
 		return formatter.format(date);
 	}
-
+	// Reservation
 	@FXML
 	private void saveReservation() {
 		ObservableList<Node> seatList = pane_seats.getChildren();
@@ -1101,5 +1103,15 @@ public class EventHandlingController {
 
 		loadReservationToPane();
 		loadReservation();
+	}
+	
+	//search show
+	@FXML
+	private void searchshow(){
+		
+	}
+	@FXML
+	private void removefocus(){
+		pane_main.requestFocus();
 	}
 }

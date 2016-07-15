@@ -54,6 +54,7 @@ public class Gui extends Application {
 			});
 			
 			stage.show();
+			root.requestFocus();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

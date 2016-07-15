@@ -10,7 +10,6 @@ public class Loader extends Thread implements Runnable {
 	public void run() {
 		while (true) {
 			controller.loadShowToOverview(false);
-//			System.out.println("refresh");
 			try {
 				sleep(5000);
 			} catch (InterruptedException e) {

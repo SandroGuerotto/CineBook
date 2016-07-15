@@ -30,7 +30,7 @@
 <AnchorPane prefHeight="1040.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.EventHandlingController">
   <!-- TODO Add Nodes -->
   <children>
-    <GridPane fx:id="pane_main" prefHeight="-1.0" prefWidth="-1.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+    <GridPane fx:id="pane_main" onMouseClicked="#removefocus" prefHeight="-1.0" prefWidth="-1.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <children>
             <TabPane fx:id="pane_help" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" visible="false" GridPane.columnSpan="2" GridPane.rowIndex="2" GridPane.rowSpan="2">
               <tabs>
@@ -232,7 +232,10 @@
         </HBox>
         <HBox minHeight="-1.0" prefHeight="-1.0" prefWidth="960.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
           <children>
-            <HBox alignment="TOP_RIGHT" maxHeight="44.0" minHeight="44.0" prefHeight="44.0" prefWidth="458.0" styleClass="menu-bar" HBox.hgrow="ALWAYS" />
+            <HBox alignment="TOP_RIGHT" maxHeight="44.0" minHeight="44.0" prefHeight="44.0" prefWidth="458.0" styleClass="menu-bar" HBox.hgrow="ALWAYS">
+                     <children>
+                        <TextField fx:id="tf_search" focusTraversable="false" maxHeight="44.0" minHeight="44.0" onInputMethodTextChanged="#searchshow" prefHeight="44.0" prefWidth="222.0" promptText="search" />
+                     </children></HBox>
             <MenuBar maxHeight="44.0" maxWidth="150.0" minHeight="44.0" minWidth="150.0" prefHeight="44.0" prefWidth="150.0" HBox.hgrow="ALWAYS">
               <menus>
                 <Menu fx:id="btn_help" mnemonicParsing="false" text="Help">
@@ -419,7 +422,7 @@
                <children>
                   <Button fx:id="btn_refresh" alignment="CENTER" contentDisplay="CENTER" focusTraversable="false" mnemonicParsing="false" onAction="#refreshShows">
                      <graphic>
-                        <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                        <ImageView fitHeight="25.0" fitWidth="25.0" focusTraversable="true" pickOnBounds="true" preserveRatio="true">
                            <image>
                               <Image url="@../../images/refresh.png" />
                            </image>
@@ -429,12 +432,12 @@
                         <Insets bottom="10.0" />
                      </VBox.margin>
                   </Button>
-                  <ListView fx:id="lv_shows" focusTraversable="false" orientation="HORIZONTAL" prefWidth="1870.0" />
+                  <ListView fx:id="lv_shows" orientation="HORIZONTAL" prefWidth="1870.0" />
                   <BorderPane fx:id="pane_seatsarr">
                      <right>
                         <VBox fx:id="vb_toolbox" alignment="TOP_CENTER" prefHeight="451.0" prefWidth="200.0" BorderPane.alignment="TOP_CENTER">
                            <children>
-                              <Button fx:id="btn_reservationsave" alignment="CENTER" focusTraversable="false" mnemonicParsing="false" onAction="#saveReservation" prefHeight="45.0" prefWidth="178.0" styleClass="btn, handcursor" text="Save">
+                              <Button fx:id="btn_reservationsave" alignment="CENTER" mnemonicParsing="false" onAction="#saveReservation" prefHeight="45.0" prefWidth="178.0" styleClass="btn, handcursor" text="Save">
                                  <font>
                                     <Font size="25.0" fx:id="x13" />
                                  </font>
@@ -461,7 +464,7 @@
                      <center>
                         <VBox alignment="CENTER" BorderPane.alignment="CENTER">
                            <children>
-                              <GridPane fx:id="pane_seats" alignment="CENTER" prefHeight="434.0" prefWidth="1190.0" vgap="3.0">
+                              <GridPane fx:id="pane_seats" alignment="CENTER" focusTraversable="true" prefHeight="434.0" prefWidth="1190.0" vgap="3.0">
                                 <columnConstraints>
                                     <ColumnConstraints />
                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="25.0" minWidth="10.0" prefWidth="25.0" />
@@ -538,13 +541,13 @@
                            <right>
                               <VBox alignment="BOTTOM_CENTER" prefHeight="434.0" prefWidth="245.0" BorderPane.alignment="BOTTOM_CENTER">
                                  <children>
-                                    <Label fx:id="lbl_reservation" disable="true" visible="false" />
-                                    <Button fx:id="btn_editRes" alignment="CENTER" focusTraversable="false" mnemonicParsing="false" onAction="#editReservation" prefHeight="45.0" prefWidth="178.0" styleClass="btn, handcursor" text="Edit" visible="false">
+                                    <Label fx:id="lbl_reservation" disable="true" focusTraversable="false" visible="false" />
+                                    <Button fx:id="btn_editRes" alignment="CENTER" mnemonicParsing="false" onAction="#editReservation" prefHeight="45.0" prefWidth="178.0" styleClass="btn, handcursor" text="Edit" visible="false">
                                        <font>
                                           <Font size="25.0" fx:id="x131" />
                                        </font>
                                     </Button>
-                                    <Hyperlink fx:id="btn_deleteRes" contentDisplay="LEFT" focusTraversable="false" onAction="#deleteReservation" prefHeight="45.0" prefWidth="90.0" text="Delete" textAlignment="LEFT" underline="false" visible="false" wrapText="false">
+                                    <Hyperlink fx:id="btn_deleteRes" contentDisplay="LEFT" onAction="#deleteReservation" prefHeight="45.0" prefWidth="90.0" text="Delete" textAlignment="LEFT" underline="false" visible="false" wrapText="false">
                                        <font>
                                           <Font size="25.0" fx:id="x141" />
                                        </font>
