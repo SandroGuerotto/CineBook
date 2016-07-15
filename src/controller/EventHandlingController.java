@@ -541,6 +541,7 @@ public class EventHandlingController {
 			}
 			btn_editRes.setVisible(true);
 			btn_editRes.setDisable(false);
+			btn_deleteRes.setUnderline(false);
 			btn_deleteRes.setVisible(true);
 			btn_deleteRes.setDisable(false);
 		});

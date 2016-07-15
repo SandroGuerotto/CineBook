@@ -59,6 +59,10 @@ public class Controller {
 		showList = fileStream.deserializeShowList();
 		filmList = fileStream.deserializeFilmList();
 		roomList = fileStream.deserializeRoomList();
+		reservationList.setFileStream(fileStream);
+		showList.setFileStream(fileStream);
+		filmList.setFileStream(fileStream);
+		roomList.setFileStream(fileStream);
 	}
 	
 	// Meherer Reservations erstellen
