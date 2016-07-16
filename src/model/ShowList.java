@@ -122,48 +122,46 @@ public class ShowList extends ArrayList<Show> {
 	}
 
 	// Man übergibt beim Erstellen einer neuen Show die geplante Startzeit und
-	// den Film
-	// Eine Liste mit nicht besetzen Räumen wird zurückgegeben
-	public RoomList getAvailableRooms(Date startDateTime, Film film, RoomList roomList) {
-		// System.out.println("StartDateTime" + startDateTime.toString());
-		// create new tmp Room list
-		RoomList tmpRoomList = new RoomList();
-		tmpRoomList = fileStream.deserializeRoomList();
+	  // den Film
+	  // Eine Liste mit nicht besetzen Räumen wird zurückgegeben
+	  public RoomList getAvailableRooms(Date startDateTime, Film film,RoomList roomList, Show existingShow) {
+	    
+	    if (existingShow == null) {
+	      existingShow = new Show();
+	      existingShow.room = new Room();
+	    }
+	    
+	    // create new tmp Room list
+	    RoomList tmpRoomList = new RoomList();
+	    tmpRoomList = fileStream.deserializeRoomList();
 
-		long newShowStartTime = startDateTime.getTime();
-		long filmDurationMillisec = film.durationInMinutes * 60000;
-		long newShowEndTime = newShowStartTime + filmDurationMillisec + 0;
+	    long newShowStartTime = startDateTime.getTime() - 0; // 1800000
+	    long filmDurationMillisec = film.durationInMinutes * 60000;
+	    long newShowEndTime = newShowStartTime + filmDurationMillisec + 0;
 
-		if (tmpRoomList.size() > 0) {
-			for (Show show : this) {
-				long existShowStart = show.startDateTime.getTime();
-				long existShowEnd = show.endDateTime.getTime();
-				if ((existShowStart <= newShowStartTime && newShowStartTime <= existShowEnd)
-						|| (existShowStart <= newShowEndTime && existShowEnd >= newShowEndTime)) {
-					for (Room room : tmpRoomList) {
-						if (room.getName().equals(show.room.getName())) {
-							tmpRoomList.remove(room);
-							break;
-						}
-					}
+	    if (tmpRoomList.size() > 0 && this.size() != 0) {
+	      for (Show show : this) {
 
-				}
+	        long existShowStart = show.startDateTime.getTime();
+	        long existShowEnd = show.endDateTime.getTime();
 
-				// if (filmStartMillisec >= showStartMillisec && filmEndMillisec
-				// <= showEndMillisec) {
-				// tmpRoomList.remove(show.room);
-				// }
-				//
-				// else if (filmEndMillisec >= showStartMillisec &&
-				// filmEndMillisec <= showEndMillisec) {
-				// tmpRoomList.remove(show.room);
-				// } else {
-				//
-				// }
-			}
-		}
-		return tmpRoomList;
-	}
+	        if (show.id != existingShow.id) {
+	          if ((existShowStart <= newShowStartTime && newShowStartTime <= existShowEnd)
+	              || (existShowStart <= newShowEndTime && existShowEnd >= newShowEndTime)) {
+	            
+	            for (Room room : tmpRoomList) {
+	              if (room.getName().equals(show.room.getName())) {
+	                tmpRoomList.remove(room);
+	                break;
+	              }
+	            }
+	          }
+	        }
+	      }
+	    }
+	    return tmpRoomList;
+	  }
+
 
 	// Überprüfen ob neue Show in geplantem Saal erstellt werden kann
 	public boolean isAvailable(Date startDateTime, Film film) {

@@ -1,6 +1,8 @@
 package controller;
 
-import model.*;
+import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
+import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,9 +16,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
-import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import model.Film;
+import model.FilmList;
+import model.Reservation;
+import model.ReservationList;
+import model.Room;
+import model.RoomList;
+import model.Show;
+import model.ShowList;
 
 public class Controller {
 	FileStream fileStream;
@@ -40,13 +47,24 @@ public class Controller {
 		roomList.setFileStream(fileStream);
 
 		
-		// for (Show show : showList) {
-		// System.out.print(show.getFilm().getTitle() + ": ");
-		// System.out.print(show.getRoom().getName() + ", ");
-		// System.out.print(show.getStartDateTime() + "\n");
-		// }
+		 for (Show show : showList) {
+		 System.out.print(show.getFilm().getTitle() + ": ");
+		 System.out.print(show.getRoom().getName() + ", ");
+		 System.out.print(show.getStartDateTime() + "\n");
+		 }
 	}
 
+	public void refreshAll(){
+		reservationList = fileStream.deserializeReservationList();
+		showList = fileStream.deserializeShowList();
+		filmList = fileStream.deserializeFilmList();
+		roomList = fileStream.deserializeRoomList();
+		reservationList.setFileStream(fileStream);
+		showList.setFileStream(fileStream);
+		filmList.setFileStream(fileStream);
+		roomList.setFileStream(fileStream);
+	}
+	
 	// Meherer Reservations erstellen
 	// -------------------------------------------------------------------------------------
 	public String createNewReservations(Show show, ArrayList<String> seatNumbers, String phoneNumber) {
@@ -59,23 +77,24 @@ public class Controller {
 		try {
 			dateTime = format.parse(timeStamp);
 		} catch (ParseException e) {
-			return "e34"; //Fehler
+			return "e34"; //fehler
 		}
 
-		// Ã¼berprÃ¼fen ob Show null ist
+		// Überprüfen ob Show null ist
 		if (show == null)
-			return "e34";
+			return "e34"; //fehler
 
 		for (String seatNr : seatNumbers) {
 
-			//Ã¼berprÃ¼ft ob Reservation bereits existiert
+			// Überprüft ob Reservation bereits existiert
 			if (reservationList.doReservationExist(show, seatNr) == false) {
 				reservationList.addReservation(reservationList.getNewId(), show, seatNr, phoneNumber, dateTime);
+//				reservationList = fileStream.deserializeReservationList();
 			} else {
-				return "e35"; //bereits reserviert
+				return "e"; //platz bereits reserviert
 			}
 		}
-		return "s31";
+		return "s31"; //erfolgreich
 	}
 
 	// Eine neue Show erstellen
@@ -86,27 +105,27 @@ public class Controller {
 		DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		String startDateTime = startDate + " " + startTime;
 
-		// ï¿½berpï¿½ft ob Datum angegeben wurde
+		// Überpüft ob Datum angegeben wurde
 		if (startDate == null)
 			return "e23";
-		// ï¿½berprï¿½ft ob Datum valid ist
+		// Überprüft ob Datum valid ist
 		try {
 			date = format.parse(startDateTime);
 		} catch (ParseException e) {
 			return "e19"; // Fehler beim Konvertieren des Datums
 		}
 
-		// ï¿½berprï¿½ft ob room & film null sind
+		// Überprüft ob room & film null sind
 		if (room == null || film == null)
-			return "e20"; // Raum und Film auswï¿½hlen
+			return "e20"; // Raum und Film auswählen
 
-		// ï¿½berprï¿½ft ob zu dieser Zeit kein anderer Film lï¿½uft
+		// Überprüft ob zu dieser Zeit kein anderer Film läuft
 		// if (showList.isAvailable(date, film) == true) {
 		showList.addShow(showList.getNewId(), room, film, date, showList.getEndTime(date, film),
 				film.getDurationInMinutes());
 		return "s21"; // Vorstellung erfolgreich gespeichert
 		// }else{
-		// return "i22"; //Zu dieser Zeit lï¿½uft ein Film bereits
+		// return "i22"; //Zu dieser Zeit läuft ein Film bereits
 		// }
 	}
 
@@ -116,13 +135,13 @@ public class Controller {
 
 		int duration;
 
-		// ï¿½berprï¿½ft ob Filmlï¿½nge eine Zahl ist
+		// Überprüft ob Filmlänge eine Zahl ist
 		try {
 			duration = Integer.parseInt(durationInMinutes);
 		} catch (Exception e) {
 			return "e5";
 		}
-		// ï¿½berprï¿½ft ob Film bereits existiert
+		// Überprüft ob Film bereits existiert
 		if (filmList.doFilmExist(title) == false) {
 
 			// Image in Covers Ordner kopieren
@@ -158,41 +177,40 @@ public class Controller {
 		return false;
 	}
 
-	// Gibt alle nicht besetzten Rï¿½ume zurï¿½ck (geplante Startzeit & geplanter
-	// Film muss ï¿½bergeben werden) -----------------
-	public RoomList getAllAvailableRooms(LocalDate startDate, String startTime, Film film) {
+	// Gibt alle nicht besetzten Räume zurück (geplante Startzeit & geplanter
+	// Film muss übergeben werden) -----------------
+	public RoomList getAllAvailableRooms(LocalDate startDate, String startTime, Film film, Show show) {
 
-		Date date = null;
-		DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-		String startDateTime = startDate + " " + startTime;
+	    Date date = null;
+	    DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+	    String startDateTime = startDate + " " + startTime;
 
-		try {
-			date = format.parse(startDateTime);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
+	    try {
+	      date = format.parse(startDateTime);
+	    } catch (ParseException e) {
+	      e.printStackTrace();
+	    }
 
-		System.out.println(date.toString());
-		System.out.println(film.getTitle());
-		// tmpRoomList = new RoomList();
-		RoomList tmpRoomList = this.showList.getAvailableRooms(date, film, this.roomList);
-		tmpRoomList.sort((o1, o2) -> o1.getName().compareTo(o2.getName()));
+	    // tmpRoomList = new RoomList();
+	    RoomList tmpRoomList = this.showList.getAvailableRooms(date, film, this.roomList, show);
+	    tmpRoomList.sort((o1, o2) -> o1.getName().compareTo(o2.getName()));
 
-		for (Room room : tmpRoomList) {
-			System.out.println(room.getName());
-		}
+	    for (Room room : tmpRoomList) {
+	      System.out.println(room.getName());
+	    }
 
-		return tmpRoomList;
-	}
+	    return tmpRoomList;
+	  }
 
-	// Gibt alle Shows zurï¿½ck die an einem bestimmten Tag stattfinden
+
+	// Gibt alle Shows zurück die an einem bestimmten Tag stattfinden
 	// -----------------------------------------------------
 	public ShowList getShowsByDate(String date) {
 
 		return showList.getShowsByDate(date);
 	}
 
-	// Lï¿½scht eine Show mit all ihren Reservierungen
+	// Löscht eine Show mit all ihren Reservierungen
 	// ----------------------------------------------------------------------
 	public String deleteShowAndReservations(Show show) {
 
@@ -208,30 +226,39 @@ public class Controller {
 		return "s26";
 	}
 
-	// Gibt eine Liste mit den bereits reservierten Plï¿½tzen zurï¿½ck
+	// Gibt eine Liste mit den bereits reservierten Plätzen zurück
 	// --------------------------------------------------------
 	public ArrayList<String> getReservedSeats(Show show) {
 
 		return reservationList.getReservedSeats(show);
 	}
 
-	// Gibt alle dazugehï¿½rigen Reservationen zurï¿½ck
+	// Gibt alle dazugehörigen Reservationen zurück
 	// -----------------------------------------------------------------------
 	public ReservationList getAttendantReservations(Reservation reservation) {
 
 		return reservationList.getAttendantReservations(reservation);
 	}
 
-	// Lï¿½scht alle zusammengehï¿½rigen Reservationen (Date & Phonenumber)
+	// Löscht alle zusammengehörigen Reservationen (Date & Phonenumber)
 	// ---------------------------------------------------
-	public void deleteAllAttendantReservations(Reservation reservation) {
-
+	public String deleteAllAttendantReservations(Reservation reservation) {
+		int total = reservationList.getAttendantReservations(reservation).size();
+		int size = 0;
 		for (Reservation tmpReservation : reservationList.getAttendantReservations(reservation)) {
-			reservationList.deleteReservation(tmpReservation);
+			if(reservationList.deleteReservation(tmpReservation)){
+				size++;
+			}
+			
+		}
+		if(total == size){
+			return "s36";
+		}else{
+			return "e34";
 		}
 	}
 
-	// Einzelne Reservation lï¿½schen
+	// Einzelne Reservation löschen
 	// ---------------------------------------------------------------------------------------
 	public void deleteSingleReservation(Reservation reservation) {
 
@@ -245,27 +272,27 @@ public class Controller {
 		reservationList.editReservation(reservation);
 	}
 
-	// Gibt eine Reservation anhand eines Sitzplatzes zurï¿½ck
+	// Gibt eine Reservation anhand eines Sitzplatzes zurück
 	// --------------------------------------------------------------
 	public Reservation getReservationBySeatNumber(Show show, String seatNumber) {
 
 		return reservationList.getReservationBySeatNumber(show, seatNumber);
 	}
 
-	// Gibt alle Reservationen die zur gleichen Show gehï¿½ren zurï¿½ck
+	// Gibt alle Reservationen die zur gleichen Show gehören zurück
 	// -------------------------------------------------------
 	public ReservationList getReservationsByShow(Show show) {
 
 		return reservationList.getReservationsByShow(show);
 	}
 
-	// Film lï¿½schen
+	// Film löschen
 	// -------------------------------------------------------------------------------------------------------
 	public String deleteFilm(Film film) {
 
-		// ï¿½berprï¿½fen ob Film in einer zukï¿½nftigen Show gebraucht wird
+		// Überprüfen ob Film in einer zukünftigen Show gebraucht wird
 		if (showList.isShowDepending(film) == false) {
-			// Cover wird ebenfalls gelï¿½scht wenn es nicht von anderen Filmen
+			// Cover wird ebenfalls gelöscht wenn es nicht von anderen Filmen
 			// gebraucht wird
 			if (filmList.isCoverUsedByOtherFilm(film) == false) {
 				Path deleteImage = Paths.get("File:" + film.getImagePath());
@@ -279,11 +306,11 @@ public class Controller {
 			if (filmList.deleteFilm(film)) {
 				return "s0"; // erfolgreich
 			} else {
-				return "e3"; // fehler beim lï¿½schen
+				return "e3"; // fehler beim löschen
 			}
 
 		} else {
-			return "w1"; // wird von einer zukï¿½nftigen Show gebraucht wird
+			return "w1"; // wird von einer zukünftigen Show gebraucht wird
 		}
 
 	}
@@ -294,17 +321,17 @@ public class Controller {
 
 		Film oldFilm = filmList.getFilmById(newfilm.getId());
 
-		// Wenn das Cover geï¿½ndert wurde
+		// Wenn das Cover geändert wurde
 		if (newfilm.getImagePath() != oldFilm.getImagePath()) {
 
-			// Altes Cover wird gelï¿½scht wenn es nicht von anderen Filmen
+			// Altes Cover wird gelöscht wenn es nicht von anderen Filmen
 			// gebraucht wird
 			if (filmList.isCoverUsedByOtherFilm(oldFilm) == false) {
 				Path deleteImage = Paths.get("File:" + oldFilm.getImagePath());
 				try {
 					Files.delete(deleteImage);
 				} catch (IOException e) {
-					return "e2"; // Fehler beim lï¿½schen vom alten Bild
+					return "e2"; // Fehler beim löschen vom alten Bild
 				}
 			}
 
@@ -323,7 +350,7 @@ public class Controller {
 				return "e6"; // Fehler beim speichern vom neuen Bild
 			}
 		}
-		// Wenn der Filmtitel geï¿½ndert wurde
+		// Wenn der Filmtitel geändert wurde
 		if (!newfilm.getTitle().equals(oldFilm.getTitle())) {
 			if (filmList.doFilmExist(newfilm.getTitle()) == false) {
 				filmList.editFilm(newfilm);
@@ -338,16 +365,16 @@ public class Controller {
 
 	}
 
-	// Edit Show ï¿½------------------------------------------------------------ï¿½
+	// Edit Show —------------------------------------------------------------—
 	  public String editShow(Show show){
 	    return showList.editShow(show);
 	  }
 	
-	// Room lï¿½schen
+	// Room löschen
 	// -------------------------------------------------------------------------------------------------------
 	public String deleteRoom(Room room) {
 
-		// ï¿½berprï¿½fen ob Room in zukï¿½nftiger Show gebraucht wird
+		// Überprüfen ob Room in zukünftiger Show gebraucht wird
 		if (showList.isShowDepending(room) == false) {
 			roomList.deleteRoom(room);
 			return "s13"; // successful
@@ -363,7 +390,7 @@ public class Controller {
 		roomList.editRoom(oldName, room);
 	}
 
-	// Gibt alle Reservationen zurï¿½ck
+	// Gibt alle Reservationen zurück
 	// -------------------------------------------------------------------------------------
 	public ReservationList getAllReservations() {
 
@@ -373,7 +400,7 @@ public class Controller {
 		return this.reservationList;
 	}
 
-	// Gibt alle Shows zurï¿½ck
+	// Gibt alle Shows zurück
 	// ---------------------------------------------------------------------------------------------
 	public ShowList getAllShows() {
 
@@ -392,7 +419,7 @@ public class Controller {
 		return null;
 	}
 
-	// Gibt alle Filme zurï¿½ck
+	// Gibt alle Filme zurück
 	// ---------------------------------------------------------------------------------------------
 	public FilmList getAllFilms() {
 
@@ -402,7 +429,7 @@ public class Controller {
 		return this.filmList;
 	}
 
-	// Gibt den gesuchten Film zurï¿½ck
+	// Gibt den gesuchten Film zurück
 	public Film getFilmByName(String name) {
 		filmList = getAllFilms();
 		for (Film film : filmList) {
@@ -412,7 +439,7 @@ public class Controller {
 		return null;
 	}
 
-	// Gibt alle Rooms zurï¿½ck
+	// Gibt alle Rooms zurück
 	// ---------------------------------------------------------------------------------------------
 	public RoomList getAllRooms() {
 
@@ -422,7 +449,7 @@ public class Controller {
 		return this.roomList;
 	}
 
-	// Gibt den gesuchten Raum zuï¿½rck
+	// Gibt den gesuchten Raum zuürck
 	public Room getRoomByName(String name) {
 		roomList = getAllRooms();
 		for (Room room : roomList) {

@@ -1,29 +1,5 @@
 package controller;
 
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.scene.Cursor;
-import javafx.scene.Node;
-import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
-import javafx.stage.FileChooser.ExtensionFilter;
-import javafx.stage.Stage;
-import javafx.util.Pair;
-import model.*;
-import view.EditRoomDialog;
-import view.Message;
-import view.Seat;
-import view.ShowItem;
-
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -35,6 +11,60 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
+import javafx.fxml.FXML;
+import javafx.scene.Cursor;
+import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceDialog;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
+import javafx.util.Pair;
+import model.Film;
+import model.FilmList;
+import model.Reservation;
+import model.ReservationList;
+import model.Room;
+import model.RoomList;
+import model.Show;
+import model.ShowList;
+import view.EditRoomDialog;
+import view.Message;
+import view.Seat;
+import view.ShowItem;
 
 /**
  * @author Tim Meier & Sandro Gueretto
@@ -64,6 +94,7 @@ public class EventHandlingController {
     private Show show = null;
     private String returncode;
     private Message message;
+    private String search;
 
     @FXML
     private MenuItem btn_createfilm, btn_exitprogramm, btn_editfilm, btn_deletefilm;
@@ -84,7 +115,7 @@ public class EventHandlingController {
     private TabPane pane_help;
 
     @FXML
-    private Button btn_filmsave, btn_showsave, btn_editRes;
+    private Button btn_filmsave, btn_showsave, btn_editRes, btn_refresh;
     @FXML
     private Hyperlink btn_cancel, btn_cancelshow, btn_cancelNewRes, btn_deleteRes;
     @FXML
@@ -93,7 +124,7 @@ public class EventHandlingController {
     private DatePicker dp_startdate;
 
     @FXML
-    private TextField tf_filmtitle, tf_filmduration, tf_starttime, tf_phonenumber;
+    private TextField tf_filmtitle, tf_filmduration, tf_starttime, tf_phonenumber, tf_search;
     @FXML
     private TextArea ta_filmdesc;
 
@@ -115,7 +146,6 @@ public class EventHandlingController {
 
     private ArrayList<Reservation> reservationList;
 
-
     public EventHandlingController() {
         mediaChooser = new FileChooser();
         extFilter = new ExtensionFilter("ImageFormat", "*.png", "*.jpg", "*.jpeg");
@@ -126,21 +156,27 @@ public class EventHandlingController {
     @FXML
     private void initialize() {
 
+
+        // only called at start for unique functions
         if (firstrun) {
             message = new Message(lbl_message);
             lv_film.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
             lv_room.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
             lv_shows.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
             lv_reservation.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+            Tooltip tooltip = new Tooltip();
+            tooltip.setText("Refresh and load all files");
+            btn_refresh.setTooltip(tooltip);
 
-            backToMenu(true);
             firstrun = false;
 
             loadShowToOverview(true);
             loadSeatPane();
             Loader loader = new Loader(this);
             new Thread(loader).start();
+            backToMenu(true);
         }
+
         btn_helpme.setOnAction((event) -> {
             backToMenu(false);
             pane_help.setVisible(true);
@@ -465,9 +501,13 @@ public class EventHandlingController {
                 btn_cancelNewRes.setUnderline(false);
                 btn_deleteRes.setUnderline(false);
                 show = controller.getShowById(item.getShowId());
-                lbl_reservation.setText("new");
                 loadReservationToPane();
+                lbl_reservation.setText("new");
                 loadReservation();
+                btn_editRes.setVisible(false);
+                btn_editRes.setDisable(true);
+                btn_deleteRes.setVisible(false);
+                btn_deleteRes.setDisable(true);
             }
         });
 
@@ -485,7 +525,7 @@ public class EventHandlingController {
                 return;
             String[] part = select.split("\t\t");
             String phonenr = part[1];
-//			System.out.println(part[0] + "asdfsdf " + part[1]);
+            // System.out.println(part[0] + "asdfsdf " + part[1]);
             for (Reservation current : reservationList) {
                 if (current.getPhoneNumber().equals(phonenr)) {
                     attendantReservations = controller.getAttendantReservations(current);
@@ -498,21 +538,24 @@ public class EventHandlingController {
                     String data = current.getSeatNumber() + "\t\t" + current.getPhoneNumber();
                     lv_reservation.getSelectionModel().select(data);
                 }
-                btn_editRes.setVisible(true);
-                btn_editRes.setDisable(false);
-                btn_deleteRes.setVisible(true);
-                btn_deleteRes.setDisable(false);
-            } else {
-                btn_editRes.setVisible(false);
-                btn_editRes.setDisable(true);
-                btn_deleteRes.setVisible(false);
-                btn_deleteRes.setDisable(true);
             }
-
+            btn_editRes.setVisible(true);
+            btn_editRes.setDisable(false);
+            btn_deleteRes.setUnderline(false);
+            btn_deleteRes.setVisible(true);
+            btn_deleteRes.setDisable(false);
         });
 
-
         // reservation controlling end ---------
+
+        // serach controlling start
+
+        tf_search.setOnKeyPressed(ke -> {
+            if (ke.getCode().equals(KeyCode.ENTER)) {
+                searchshow(tf_search.getText());
+            }
+        });
+        // search controlling end
 
     }
 
@@ -533,26 +576,26 @@ public class EventHandlingController {
 
             ShowList showlist = loadShowList();
             ObservableList<Pane> content = FXCollections.observableArrayList();
-            for (Show show : showlist) {
-                if (!show.getStartDateTime().before(new Date())) {
-                    ShowItem showitem = new ShowItem();
-                    Pane pane = showitem.createShowItem(show);
-                    content.add(pane);
+            Platform.runLater(() -> {
+                for (Show show : showlist) {
+                    if (!show.getStartDateTime().before(new Date())) {
+                        ShowItem showitem = new ShowItem();
+                        Pane pane = showitem.createShowItem(show);
+                        content.add(pane);
+                    }
                 }
-            }
+            });
             // only set new items if backtomenu is called
             if (forcereload) {
                 lv_shows.setItems(content);
             } else {
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() { // only refresh the LV if something has
-                        // changed(delete / add) and the user
-                        // has not selected any show
-                        if (lv_shows.getItems().size() != content.size()
-                                && lv_shows.getSelectionModel().getSelectedIndex() == -1) {
-                            lv_shows.setItems(content);
-                        }
+                Platform.runLater(() -> { // only refresh the LV if something has
+                    // changed(delete / add) and the user
+                    // has not selected any show
+                    if (lv_shows.getItems().size() != content.size()
+                            && lv_shows.getSelectionModel().getSelectedIndex() == -1
+                            && tf_search.getText().isEmpty()) {
+                        lv_shows.setItems(content);
                     }
                 });
             }
@@ -561,6 +604,7 @@ public class EventHandlingController {
 
     @FXML
     private void refreshShows() {
+        controller.refreshAll();
         loadShowToOverview(true);
     }
 
@@ -590,8 +634,8 @@ public class EventHandlingController {
         lv_film.getSelectionModel().select(film.getTitle());
 
         // room list handling -> load as default and add show room -> sort
-        lv_room.setItems(loadLVRoom(startdate, starttime, film));
-        lv_room.getItems().add(editshow.getRoom().getName());
+        System.out.println("EditShow: " + editshow.getRoom().getName());
+        lv_room.setItems(loadLVRoom(startdate, starttime, film, editshow));
         lv_room.getItems().sort(((o1, o2) -> editshow.getRoom().getName().compareTo(editshow.getRoom().getName())));
         lv_room.getSelectionModel().select(editshow.getRoom().getName());
         lv_room.setDisable(false);
@@ -599,6 +643,7 @@ public class EventHandlingController {
         lbl_show.setText("Edit show");
         btn_cancelshow.setUnderline(false);
     }
+
 
     private void loadReservation() {
         reservationList = controller.getReservationsByShow(show);
@@ -642,7 +687,6 @@ public class EventHandlingController {
         tf_phonenumber.setDisable(true);
         tf_phonenumber.setVisible(false);
         tf_phonenumber.setText("");
-
         ObservableList<Node> children = pane_seats.getChildren();
         ArrayList<String> reservedSeats = controller.getReservedSeats(show);
         for (int i = 0; i < children.size(); i++) {
@@ -675,7 +719,7 @@ public class EventHandlingController {
         if (dp_startdate.getValue() != null && timeMatcher.matches()
                 && lv_film.getSelectionModel().getSelectedItem() != null) {
             lv_room.setItems(loadLVRoom(dp_startdate.getValue(), tf_starttime.getText(),
-                    controller.getFilmByName(lv_film.getSelectionModel().getSelectedItem())));
+                    controller.getFilmByName(lv_film.getSelectionModel().getSelectedItem()), show));
             if (lv_room.getItems().size() == 0) {
                 lv_room.setDisable(true);
                 message.showMsg("i16");
@@ -691,15 +735,17 @@ public class EventHandlingController {
 
     }
 
+
     // Mehtode to load lv_room with all available rooms.
-    private ObservableList<String> loadLVRoom(LocalDate startDate, String startTime, Film film) {
-        RoomList roomlist = controller.getAllAvailableRooms(startDate, startTime, film);
+    private ObservableList<String> loadLVRoom(LocalDate startDate, String startTime, Film film, Show show) {
+        RoomList roomlist = controller.getAllAvailableRooms(startDate, startTime, film, show);
         ObservableList<String> content = FXCollections.observableArrayList();
         for (Room room : roomlist) {
             content.add(room.getName());
         }
         return content;
     }
+
 
     private ObservableList<String> loadLVFilm() {
         FilmList filmlist = controller.getAllFilms();
@@ -711,7 +757,7 @@ public class EventHandlingController {
         return content;
     }
 
-    // Listen holen und zur�ckgeben
+    // Listen holen und zurückgeben
     private FilmList loadFilmList() {
         FilmList filmlist = new FilmList();
         filmlist = controller.getAllFilms();
@@ -882,15 +928,15 @@ public class EventHandlingController {
         }
     }
 
-    private boolean checkReservations(ObservableList<String> list) {
-        // überprüfen ob mehrere Reservierungen ausgewählt wurden
-        if (list.size() == 0)
+    private boolean checkSelectedReservation(ObservableList<String> list) {
+        if (list.size() == 0 && list == null)
             return false;
         String[] first = list.get(0).split("\t\t");
         String[] part;
         for (String check : list) {
             part = check.split("\t\t");
             if (!part[1].equals(first[1])) {
+
                 return false;
             }
         }
@@ -921,6 +967,7 @@ public class EventHandlingController {
             pane_overview.setVisible(true);
             pane_overview.setDisable(false);
             loadShowToOverview(true);
+            lv_shows.requestFocus();
         }
 
     }
@@ -930,14 +977,13 @@ public class EventHandlingController {
         return formatter.format(date);
     }
 
+    // Reservation
     @FXML
     private void saveReservation() {
         ObservableList<Node> seatList = pane_seats.getChildren();
         ArrayList<String> reservationList = new ArrayList<String>();
-        reservationList.clear();
-        ShowItem item = (ShowItem) lv_shows.getSelectionModel().getSelectedItem();
+        int amountreservations = lv_reservation.getSelectionModel().getSelectedItems().size();
         Seat seat;
-        Show show = controller.getShowById(item.getShowId());
         for (int i = 0; i < seatList.size(); i++) {
             try {
                 seat = (Seat) seatList.get(i);
@@ -960,17 +1006,33 @@ public class EventHandlingController {
             tf_phonenumber.requestFocus();
             return;
         } else if (reservationList.size() != 0 && !tf_phonenumber.getText().isEmpty()) {
-
             if (lbl_reservation.getText().equals("new")) {
+
                 returncode = controller.createNewReservations(show, reservationList, tf_phonenumber.getText());
+                if (message.showMsg(returncode)) {
+                    loadReservation();
+                    loadReservationToPane();
+                }
+
+                message.showMsg("s31");
 
             } else if (lbl_reservation.getText().equals("edit")) {
-                deleteReservatiion();
-                returncode = controller.createNewReservations(show, reservationList, tf_phonenumber.getText());
-            }
-            if (message.showMsg(returncode)) {
-                loadReservation();
-                loadReservationToPane();
+                if (reservationList.size() == amountreservations) {
+                    // first insert new reservations
+                    returncode = controller.createNewReservations(show, reservationList, tf_phonenumber.getText());
+                    // delete existing
+                    deleteReservation(false);
+
+                    if (message.showMsg(returncode)) {
+                        loadReservation();
+                        loadReservationToPane();
+                    }
+
+                    message.showMsg("s31");
+                    lbl_reservation.setText("new");
+                } else {
+                    message.showMsg("e35");
+                }
             }
         }
 
@@ -978,13 +1040,16 @@ public class EventHandlingController {
 
     @FXML
     private void editReservation() {
-        lbl_reservation.setText("Edit");
         ObservableList<String> list = lv_reservation.getSelectionModel().getSelectedItems();
-        if (!checkReservations(list)) {
+        // überprüfen ob mehrere Reservierungen ausgewählt wurden
+
+        if (!checkSelectedReservation(list)) {
             loadReservationToPane();
             message.showMsg("e33");
+            lv_reservation.getSelectionModel().clearSelection();
             return;
         }
+        lbl_reservation.setText("edit");
         String[] part;
         String phonenr = "0";
         ObservableList<Node> children = pane_seats.getChildren();
@@ -1006,6 +1071,7 @@ public class EventHandlingController {
             } catch (Exception e) {
             }
         }
+        // show phonenumber also necessary to save
         tf_phonenumber.setVisible(true);
         tf_phonenumber.setText(phonenr);
         tf_phonenumber.setEditable(false);
@@ -1013,34 +1079,75 @@ public class EventHandlingController {
     }
 
     @FXML
-    private void deleteReservatiion() {
-        deleteReservatiion(true);
+    private void deleteReservation() {
+        deleteReservation(true);
     }
 
-
-    private void deleteReservatiion(boolean popup) {
+    private void deleteReservation(boolean showpopup) {
         ObservableList<String> list = lv_reservation.getSelectionModel().getSelectedItems();
-        if (!checkReservations(list)) {
+        if (!checkSelectedReservation(list)) {
             loadReservationToPane();
             message.showMsg("e33");
+            lv_reservation.getSelectionModel().clearSelection();
             return;
         }
-        if (popup) {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Delete a reservation");
-            alert.setHeaderText("Delete a reservation");
-            alert.setContentText("Delete selected reservation?");
+        if (showpopup) {
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle("Delete an existing reservation");
+            alert.setHeaderText("Delete an existing reservation");
+            alert.setContentText("Delete reservation?");
 
             Optional<ButtonType> result = alert.showAndWait();
             if (result.get() == ButtonType.OK) {
-                String first = list.get(0).split("\t\t")[1];
-                controller.deleteAllAttendantReservations(controller.getReservationsByShow(show).get(0));
+                String[] first = list.get(0).split("\t\t");
+                returncode = controller
+                        .deleteAllAttendantReservations(controller.getReservationBySeatNumber(show, first[0]));
+                message.showMsg(returncode);
             }
         } else {
-            controller.deleteAllAttendantReservations(controller.getReservationsByShow(show).get(0));
+            String[] first = list.get(0).split("\t\t");
+            returncode = controller
+                    .deleteAllAttendantReservations(controller.getReservationBySeatNumber(show, first[0]));
         }
 
         loadReservationToPane();
         loadReservation();
+    }
+
+    //search show
+
+    private void searchshow(String input) {
+        show = null;
+        film = null;
+
+        if (!tf_search.getText().isEmpty() ) {
+
+            ObservableList<Pane> shows = lv_shows.getItems();
+            ObservableList<Pane> content = FXCollections.observableArrayList();
+
+            for (Pane pane : shows) {
+                ShowItem item = (ShowItem) pane;
+                show = controller.getShowById(item.getShowId());
+                film = show.getFilm();
+                SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy HH:MM");
+                String start = formatter.format(show.getStartDateTime());
+                if (film.getTitle().toLowerCase().contains(input.toLowerCase())
+                        || start.contains(input)) {
+                    content.add(pane);
+                }
+            }
+
+            if (content.size() == 0) {
+                message.showMsg("i37");
+            } else {
+                lv_shows.setItems(content);
+            }
+        }
+    }
+
+    @FXML
+    private void removefocus() {
+        tf_search.setText("");
+        pane_main.requestFocus();
     }
 }

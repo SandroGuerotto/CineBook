@@ -47,10 +47,10 @@ public class ReservationList extends ArrayList<Reservation> {
 	public boolean deleteReservation(Reservation reservation) {
 		reservation = getReservationById(reservation.id);
 		
-		boolean hasRemoved = this.remove(reservation);
+		boolean isremoved = this.remove(reservation);
 		save();
 		
-		return hasRemoved;
+		return isremoved;
 
 	}
 
@@ -60,7 +60,7 @@ public class ReservationList extends ArrayList<Reservation> {
 	public Reservation getReservationBySeatNumber(Show show, String seatNumber){
 		
 		for(Reservation reservation : this){
-			if(reservation.show == show && reservation.seatNumber.equals(seatNumber)){
+			if(reservation.show.getId() == show.getId() && reservation.seatNumber.equals(seatNumber)){
 				return reservation;
 			}
 		}

@@ -120,3 +120,16 @@
 .seatsold{
     -fx-opacity: 1;
 }
+
+/* Search */
+#tf_search {
+  -fx-background-image:url('File:images/search.png');
+  -fx-background-repeat: no-repeat;
+  -fx-background-position: right 10 center;
+  -fx-background-size: 20, 20;
+  -fx-background-margin: 0,0,0 5;
+  
+}
+#tf_search:focused {
+  -fx-background-image:none;  
+}
