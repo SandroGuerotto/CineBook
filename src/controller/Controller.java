@@ -407,6 +407,7 @@ public class Controller {
 	
 	// Edit Show —------------------------------------------------------------—
 	  public String editShow(Show show){
+		changeShow(show);
 	    return showList.editShow(show);
 	  }
 	
@@ -428,6 +429,7 @@ public class Controller {
 	public void editRoom(String oldName, Room room) {
 
 		roomList.editRoom(oldName, room);
+		changeRoom(oldName, room);
 	}
 
 	// Gibt alle Reservationen zurück
