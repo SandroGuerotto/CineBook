@@ -354,17 +354,57 @@ public class Controller {
 		if (!newfilm.getTitle().equals(oldFilm.getTitle())) {
 			if (filmList.doFilmExist(newfilm.getTitle()) == false) {
 				filmList.editFilm(newfilm);
+				changeFilm(newfilm);
 				return "s4"; // successful
 			} else {
 				return "i7"; // existiert bereits
 			}
 		} else {
 			filmList.editFilm(newfilm);
+			changeFilm(newfilm);
 			return "s4"; // successful
 		}
 
 	}
 
+	// Ändert Film in existierenden Shows und Reservationen
+	public void changeFilm(Film editedFilm) {
+		for (Show show : showList) {
+
+			if (show.getFilm().getId() == editedFilm.getId()) {
+				show.getFilm().getTitle() = editedFilm.getTitle();
+				show.getFilm().getDurationInMinutes() = editedFilm.getDurationInMinutes();
+				show.getFilm().getDescription() = editedFilm.getDescription();
+				show.getFilm().getImagePath() = editedFilm.getImagePath();
+			}
+		}
+	}
+	
+	// Ändert Room in existierenden Shows und Reservationen
+	public void changeRoom(String oldName, Room editedRoom){
+		for (Show show : showList) {
+
+			if (show.getRoom().getName() == oldName) {
+				show.getRoom().getName() = editedRoom.getName();
+			}
+		}
+	}
+	
+	// Ändert Show in existierenden Reservationen
+	public void changeShow(Show editedShow){
+		for (Reservation reservation : reservationList) {
+
+			if (reservation.getShow().getId() == editedShow.getId()) {
+				reservation.getShow().getFilm() = editedShow.getFilm();
+				reservation.getShow().getRoom() = editedShow.getRoom();
+				reservation.getShow().getDurationInMinutes() = editedShow.getDurationInMinutes();
+				reservation.getShow().getStartDateTime() = editedShow.getStartDateTime();
+				reservation.getShow().getEndDateTime() = editedShow.getEndDateTime();
+			}
+		}
+	}
+	
+	
 	// Edit Show —------------------------------------------------------------—
 	  public String editShow(Show show){
 	    return showList.editShow(show);

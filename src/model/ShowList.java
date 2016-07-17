@@ -215,6 +215,9 @@ public class ShowList extends ArrayList<Show> {
 		return id;
 	}
 
+	
+	
+	
 	// Liste via FileStream in File schreiben
 	public void save() {
 		fileStream.serializeShowList(this);
