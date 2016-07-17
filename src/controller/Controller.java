@@ -372,10 +372,10 @@ public class Controller {
 		for (Show show : showList) {
 
 			if (show.getFilm().getId() == editedFilm.getId()) {
-				show.getFilm().getTitle() = editedFilm.getTitle();
-				show.getFilm().getDurationInMinutes() = editedFilm.getDurationInMinutes();
-				show.getFilm().getDescription() = editedFilm.getDescription();
-				show.getFilm().getImagePath() = editedFilm.getImagePath();
+				show.getFilm().setTitle(editedFilm.getTitle());
+				show.getFilm().setDurationInMinutes(editedFilm.getDurationInMinutes());
+				show.getFilm().setDescription(editedFilm.getDescription());
+				show.getFilm().setImagePath(editedFilm.getImagePath());
 			}
 		}
 	}
@@ -385,7 +385,7 @@ public class Controller {
 		for (Show show : showList) {
 
 			if (show.getRoom().getName() == oldName) {
-				show.getRoom().getName() = editedRoom.getName();
+				show.getRoom().setName(editedRoom.getName());
 			}
 		}
 	}
@@ -395,11 +395,11 @@ public class Controller {
 		for (Reservation reservation : reservationList) {
 
 			if (reservation.getShow().getId() == editedShow.getId()) {
-				reservation.getShow().getFilm() = editedShow.getFilm();
-				reservation.getShow().getRoom() = editedShow.getRoom();
-				reservation.getShow().getDurationInMinutes() = editedShow.getDurationInMinutes();
-				reservation.getShow().getStartDateTime() = editedShow.getStartDateTime();
-				reservation.getShow().getEndDateTime() = editedShow.getEndDateTime();
+				reservation.getShow().setFilm(editedShow.getFilm());
+				reservation.getShow().setRoom(editedShow.getRoom());
+				reservation.getShow().setDurationInMinutes(editedShow.getDurationInMinutes());
+				reservation.getShow().setStartDateTime(editedShow.getStartDateTime());
+				reservation.getShow().setEndDateTime(editedShow.getEndDateTime());
 			}
 		}
 	}
