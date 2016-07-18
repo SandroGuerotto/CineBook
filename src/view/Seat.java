@@ -1,15 +1,20 @@
 package view;
 
-import javax.swing.plaf.ToolTipUI;
-
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Cursor;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+
+/**
+ * @author Tim Meier & Sandro Guerotto
+ * @date 17.07.2016
+ * @version 10.00
+ * @program CineBook
+ * @function Die Sitz Vorlage für das Reservieren GUI
+ */
 
 public class Seat extends ToggleButton {
 

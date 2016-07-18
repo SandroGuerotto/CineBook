@@ -7,6 +7,14 @@ import java.util.Date;
 
 import controller.FileStream;
 
+/**
+ * @author Tim Meier & Sandro Guerotto
+ * @date 17.07.2016
+ * @version 10.00
+ * @program CineBook
+ * @function Beinhaltet un Verwaltet Shows
+ */
+
 public class ShowList extends ArrayList<Show> {
 	transient Show show;
 	transient FileStream fileStream;

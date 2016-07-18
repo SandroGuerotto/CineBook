@@ -5,24 +5,27 @@ import java.util.Optional;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableStringValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.util.Pair;
 import model.Room;
 import model.RoomList;
+
+/**
+ * @author Tim Meier & Sandro Guerotto
+ * @date 17.07.2016
+ * @version 10.00
+ * @program CineBook
+ * @function Der Popup Dialog für das editieren eines Room
+ */
 
 public class EditRoomDialog {
 	private String select = "";

@@ -6,8 +6,15 @@ import java.util.concurrent.TimeUnit;
 
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+
+/**
+ * @author Tim Meier & Sandro Guerotto
+ * @date 17.07.2016
+ * @version 10.00
+ * @program CineBook
+ * @function Beinhaltet die Benachrichtigungen die beim Benutzen des GUI ausgegeben werden
+ */
 
 public class Message {
 

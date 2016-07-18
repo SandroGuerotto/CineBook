@@ -13,11 +13,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
@@ -31,7 +28,6 @@ import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -42,16 +38,13 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import javafx.util.Pair;
 import model.Film;
 import model.FilmList;
@@ -67,10 +60,14 @@ import view.Seat;
 import view.ShowItem;
 
 /**
- * @author Tim Meier & Sandro Gueretto
- * @date 21.06.2016
- * @function Listener fÃ¼r GUI Elemente werden implementiert
+ * @author Tim Meier & Sandro Guerotto
+ * @date 17.07.2016
+ * @version 10.00
+ * @program CineBook
+ * @function Listener für GUI Elemente
  */
+
+
 
 public class EventHandlingController {
     private static final String PHONE = "[0][0-9]{2} [0-9]{3} [0-9]{2}( [0-9]{2})";

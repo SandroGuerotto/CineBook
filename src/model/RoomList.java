@@ -4,6 +4,14 @@ import java.util.ArrayList;
 
 import controller.FileStream;
 
+/**
+ * @author Tim Meier & Sandro Guerotto
+ * @date 17.07.2016
+ * @version 10.00
+ * @program CineBook
+ * @function Beinhaltet und Verwaltet Rooms
+ */
+
 public class RoomList extends ArrayList<Room> {
 	transient Room room;
 	transient FileStream fileStream;

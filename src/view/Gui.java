@@ -1,6 +1,5 @@
 package view;
 
-import controller.EventHandlingController;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -10,6 +9,15 @@ import javafx.scene.image.Image;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import controller.EventHandlingController;
+
+/**
+ * @author Tim Meier & Sandro Guerotto
+ * @date 17.07.2016
+ * @version 10.00
+ * @program CineBook
+ * @function Die Startklasse für das GUI
+ */
 
 public class Gui extends Application {
 

@@ -12,6 +12,14 @@ import model.ReservationList;
 import model.RoomList;
 import model.ShowList;
 
+/**
+ * @author Tim Meier & Sandro Guerotto
+ * @date 17.07.2016
+ * @version 10.00
+ * @program CineBook
+ * @function Schreibt Lists in Files und liest sie wieder aus
+ */
+
 public class FileStream {
 
 	

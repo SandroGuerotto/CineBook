@@ -3,9 +3,15 @@ package model;
 import java.util.ArrayList;
 import java.util.Date;
 
-import javax.print.attribute.standard.DateTimeAtCompleted;
-
 import controller.FileStream;
+
+/**
+ * @author Tim Meier & Sandro Guerotto
+ * @date 17.07.2016
+ * @version 10.00
+ * @program CineBook
+ * @function Beinhaltet und Verwaltet Reservationen
+ */
 
 public class ReservationList extends ArrayList<Reservation> {
 

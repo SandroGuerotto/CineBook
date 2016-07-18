@@ -25,6 +25,17 @@ import model.RoomList;
 import model.Show;
 import model.ShowList;
 
+/**
+ * @author Tim Meier & Sandro Guerotto
+ * @date 17.07.2016
+ * @version 10.00
+ * @program CineBook
+ * @function Die Brücke zwischen GUI Elemente und Model
+ */
+
+
+
+
 public class Controller {
 	FileStream fileStream;
 	ReservationList reservationList;

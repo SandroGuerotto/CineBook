@@ -2,6 +2,14 @@ package model;
 
 import java.io.Serializable;
 
+/**
+ * @author Tim Meier & Sandro Guerotto
+ * @date 17.07.2016
+ * @version 10.00
+ * @program CineBook
+ * @function Room Vorlage
+ */
+
 public class Room implements Serializable {
 	
 	String name;

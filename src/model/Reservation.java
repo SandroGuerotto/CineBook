@@ -3,6 +3,14 @@ package model;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * @author Tim Meier & Sandro Guerotto
+ * @date 17.07.2016
+ * @version 10.00
+ * @program CineBook
+ * @function Reservation Vorlage
+ */
+
 public class Reservation implements Serializable{
 	
 	int id;
